@@ -20,7 +20,7 @@ plt.style.use('seaborn-v0_8-darkgrid')
 # Bloco de código NOVO E CORRIGIDO
 
 # --- Bloco de Carregamento e Configuração Dinâmica ---
-DATA_PATH = "G:/Meu Drive/DADOS_ACOES"
+DATA_PATH = "dados"
 
 # Tenta ler a lista de arquivos da pasta de dados
 try:
@@ -127,31 +127,39 @@ ativos_selecionados = st.sidebar.multiselect('Selecione os Ativos', disponiveis,
 st.sidebar.caption("Aviso: Esta ferramenta não constitui recomendação de investimento.")
 
 # --- LÓGICA PRINCIPAL ---
-# Bloco de código NOVO E CORRIGIDO
+# Bloco NOVO e CORRIGIDO
 if len(ativos_selecionados) >= 2:
+    # Bloco de código NOVO E CORRIGIDO
     try:
         lista_dfs = []
         for ativo in ativos_selecionados:
             caminho_arquivo = os.path.join(DATA_PATH, f"{ativo}.csv")
-            # Lê o arquivo e já o adiciona a uma lista
             df_ativo = pd.read_csv(caminho_arquivo, index_col='Date', parse_dates=True)
-            # Renomeia a coluna 'Close' para o nome do ticker para evitar conflitos
+            # Renomeia a coluna 'Close' para o nome do ticker
             df_ativo.rename(columns={'Close': ativo}, inplace=True)
             lista_dfs.append(df_ativo)
 
-        # Concatena todos os DataFrames da lista em um único DataFrame
+        # Concatena todos os DataFrames em um único
         df_portfolio = pd.concat(lista_dfs, axis=1)
-        # Garante que todos os dados são numéricos, tratando erros
+
+        # AQUI ESTÁ A CORREÇÃO: Garante que todos os dados são numéricos
+        # errors='coerce' transforma qualquer texto que não seja número em um valor vazio
         df_portfolio = df_portfolio.apply(pd.to_numeric, errors='coerce')
-        df_portfolio = df_portfolio.dropna()
+        # Remove linhas que possam ter tido erros de conversão
+        df_portfolio.dropna(inplace=True)
+
+    except Exception as e:
+        st.error(f"Ocorreu um erro ao ler ou processar os arquivos de dados dos ativos: {e}")
+        st.stop()
 
     except FileNotFoundError:
-        st.error(
-            f"Erro: Arquivo não encontrado na pasta '{DATA_PATH}'. Verifique se o Google Drive está sincronizado e o caminho está correto.")
+        st.error(f"Erro: Arquivo não encontrado na pasta '{DATA_PATH}'. Verifique se o Google Drive está sincronizado e o caminho está correto.")
         st.stop()
     except Exception as e:
-        st.error(f"Ocorreu um erro ao ler os arquivos de dados: {e}")
+        st.error(f"Ocorreu um erro ao ler os arquivos de dados dos ativos: {e}")
         st.stop()
+
+
 
     # O resto do código continua daqui...
     except FileNotFoundError:
@@ -260,7 +268,7 @@ if len(ativos_selecionados) >= 2:
                 st.plotly_chart(fig_desempenho, use_container_width=True)
 
         except Exception as e:
-            st.error(gerador_mapa_ativos.py.
+            st.error(
                 f"Não foi possível carregar ou processar os dados do benchmark '{benchmark_selecionado}'. Verifique o arquivo .csv. Erro: {e}")
 
     st.markdown("---")
