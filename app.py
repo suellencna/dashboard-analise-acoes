@@ -1,176 +1,108 @@
-# Bloco de código NOVO E CORRIGIDO para o início do app.py
-
 import streamlit as st
 import pandas as pd
 import os
 import numpy as np
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+from mapa_ativos import MAPA_ATIVOS
+from mapa_fiis import MAPA_FIIS
+import re
 
 # --- Configurações da Página e Estilo ---
-st.set_page_config(
-    page_title="Análise de Carteira",
-    page_icon="💼",
-    layout="wide"
-)
+st.set_page_config(page_title="Análise de Carteira", page_icon="💼", layout="wide")
 plt.style.use('seaborn-v0_8-darkgrid')
 
-# --- Bloco de Carregamento e Configuração Dinâmica ---
-
-# Bloco de código NOVO E CORRIGIDO
-
-# --- Bloco de Carregamento e Configuração Dinâmica ---
+# --- DADOS INICIAIS E MAPEAMENTOS ---
 DATA_PATH = "dados"
 
-# Tenta ler a lista de arquivos da pasta de dados
-try:
-    todos_arquivos = os.listdir(DATA_PATH)
+MAPA_GERAL_ATIVOS = {**MAPA_ATIVOS, **MAPA_FIIS} # Mapa dos setores
 
-    # A CORREÇÃO ESTÁ AQUI: adicionamos .replace('.csv', '') para remover a extensão do nome de cada arquivo
+# --- LÓGICA DINÂMICA PARA ENCONTRAR OS ATIVOS DISPONÍVEIS  E COMPATIVEL COM SETORES---
+try:
+    # 1. Lê o nome de todos os arquivos na pasta de dados
+    todos_arquivos = os.listdir(DATA_PATH)
+    # 2. Filtra a lista para pegar apenas os arquivos de AÇÕES e FIIs (que terminam com .SA.csv)
     disponiveis = [arquivo.replace('.csv', '') for arquivo in todos_arquivos if arquivo.endswith('.SA.csv')]
-    disponiveis.sort()
+    disponiveis.sort()  # Ordena a lista em ordem alfabética
 
     if not disponiveis:
-        st.error("Nenhum arquivo de ação (.SA.csv) encontrado na pasta de dados.")
-        st.stop()
+        st.error(f"Nenhum arquivo de ativo (.SA.csv) encontrado na pasta '{DATA_PATH}'. Verifique os arquivos.")
+        st.stop()  # Para a execução se não encontrar arquivos
 
 except FileNotFoundError:
-    st.error(f"Pasta de dados '{DATA_PATH}' não encontrada. Verifique o caminho e a sincronização do Google Drive.")
-    st.stop()  # st.stop() é mais limpo que usar exit() em apps Streamlit
-
-# Dicionários de mapeamento e constantes
-MAPA_ATIVOS = {
-    'ABEV3.SA': {'setor': 'Consumo Não Cíclico'},
-    'AZUL4.SA': {'setor': 'Bens Industriais'},
-    'B3SA3.SA': {'setor': 'Financeiro'},
-    'BBAS3.SA': {'setor': 'Financeiro'},
-    'BBDC3.SA': {'setor': 'Financeiro'},
-    'BBDC4.SA': {'setor': 'Financeiro'},
-    'BBSE3.SA': {'setor': 'Financeiro'},
-    'BEEF3.SA': {'setor': 'Consumo Não Cíclico'},
-    'BPAC11.SA': {'setor': 'Financeiro'},
-    'BRAP4.SA': {'setor': 'Materiais Básicos'},
-    'BRFS3.SA': {'setor': 'Consumo Não Cíclico'},
-    'BRKM5.SA': {'setor': 'Materiais Básicos'},
-    'CCRO3.SA': {'setor': 'Bens Industriais'},
-    'CIEL3.SA': {'setor': 'Financeiro'},
-    'CMIG4.SA': {'setor': 'Utilidade Pública'},
-    'COGN3.SA': {'setor': 'Consumo Cíclico'},
-    'CPFE3.SA': {'setor': 'Utilidade Pública'},
-    'CRFB3.SA': {'setor': 'Consumo Não Cíclico'},
-    'CSAN3.SA': {'setor': 'Petróleo'},
-    'CSNA3.SA': {'setor': 'Materiais Básicos'},
-    'CVCB3.SA': {'setor': 'Consumo Cíclico'},
-    'CYRE3.SA': {'setor': 'Consumo Cíclico'},
-    'ECOR3.SA': {'setor': 'Bens Industriais'},
-    'EGIE3.SA': {'setor': 'Utilidade Pública'},
-    'ELET3.SA': {'setor': 'Utilidade Pública'},
-    'ELET6.SA': {'setor': 'Utilidade Pública'},
-    'EMBR3.SA': {'setor': 'Bens Industriais'},
-    'ENGI11.SA': {'setor': 'Utilidade Pública'},
-    'EQTL3.SA': {'setor': 'Utilidade Pública'},
-    'FLRY3.SA': {'setor': 'Saúde'},
-    'GGBR4.SA': {'setor': 'Materiais Básicos'},
-    'GOAU4.SA': {'setor': 'Materiais Básicos'},
-    'GOLL4.SA': {'setor': 'Bens Industriais'},
-    'HAPV3.SA': {'setor': 'Saúde'},
-    'HYPE3.SA': {'setor': 'Saúde'},
-    'IRBR3.SA': {'setor': 'Financeiro'},
-    'ITSA4.SA': {'setor': 'Financeiro'},
-    'ITUB4.SA': {'setor': 'Financeiro'},
-    'JBSS3.SA': {'setor': 'Consumo Não Cíclico'},
-    'KLBN11.SA': {'setor': 'Materiais Básicos'},
-    'LREN3.SA': {'setor': 'Consumo Cíclico'},
-    'MGLU3.SA': {'setor': 'Consumo Cíclico'},
-    'MRFG3.SA': {'setor': 'Consumo Não Cíclico'},
-    'MRVE3.SA': {'setor': 'Consumo Cíclico'},
-    'MULT3.SA': {'setor': 'Consumo Cíclico'},
-    'NTCO3.SA': {'setor': 'Consumo Não Cíclico'},
-    'PCAR3.SA': {'setor': 'Consumo Não Cíclico'},
-    'PETR3.SA': {'setor': 'Petróleo'},
-    'PETR4.SA': {'setor': 'Petróleo'},
-    'PRIO3.SA': {'setor': 'Petróleo'},
-    'QUAL3.SA': {'setor': 'Saúde'},
-    'RADL3.SA': {'setor': 'Consumo Não Cíclico'},
-    'RAIL3.SA': {'setor': 'Bens Industriais'},
-    'RENT3.SA': {'setor': 'Consumo Cíclico'},
-    'SANB11.SA': {'setor': 'Financeiro'},
-    'SBSP3.SA': {'setor': 'Utilidade Pública'},
-    'SULA11.SA': {'setor': 'Saúde'},
-    'SUZB3.SA': {'setor': 'Materiais Básicos'},
-    'TAEE11.SA': {'setor': 'Utilidade Pública'},
-    'TIMS3.SA': {'setor': 'Comunicações'},
-    'TOTS3.SA': {'setor': 'Tecnologia da Informação'},
-    'UGPA3.SA': {'setor': 'Petróleo'},
-    'USIM5.SA': {'setor': 'Materiais Básicos'},
-    'VALE3.SA': {'setor': 'Materiais Básicos'},
-    'VIVT3.SA': {'setor': 'Comunicações'},
-    'VVAR3.SA': {'setor': 'Consumo Cíclico'},
-    'WEGE3.SA': {'setor': 'Bens Industriais'},
-    'YDUQ3.SA': {'setor': 'Consumo Cíclico'}
-}
+    st.error(f"Pasta de dados '{DATA_PATH}' não encontrada. Verifique o caminho no código.")
+    disponiveis = []  # Define uma lista vazia para evitar mais erros
+    st.stop()
 
 MAPA_BENCHMARK = {'IBOVESPA': 'IBOV_BVSP.csv', 'IFIX': 'IFIX.SA.csv', 'IDIV': 'IDIV.SA.csv', 'CDI': 'CDI.csv',
                   'IPCA': 'IPCA.csv'}
 PREGOES_NO_ANO = 252
 TAXA_LIVRE_DE_RISCO = 0.105
 
-# --- TÍTULO ---
 st.title('Dashboard de Análise de Carteiras 💼')
 
-# --- O restante do seu código (BARRA LATERAL, LÓGICA PRINCIPAL, etc.) continua daqui... ---
-
-# --- BARRA LATERAL ---
 st.sidebar.header('Definição da Carteira')
+
+# Cria uma lista padrão segura, pegando os 3 primeiros ativos da lista de disponíveis
+default_selection = disponiveis[:3] if len(disponiveis) >= 3 else disponiveis
+
 ativos_selecionados = st.sidebar.multiselect('Selecione os Ativos', disponiveis,
-                                             default=['PETR4.SA', 'WEGE3.SA', 'ITUB4.SA'])
+                                             default=default_selection)
 st.sidebar.caption("Aviso: Esta ferramenta não constitui recomendação de investimento.")
 
-# --- LÓGICA PRINCIPAL ---
-# Bloco NOVO e CORRIGIDO
+if 'resultados_otimizacao' not in st.session_state:
+    st.session_state.resultados_otimizacao = None
+if 'ativos_otimizados' not in st.session_state:
+    st.session_state.ativos_otimizados = []
+if 'gerar_analise_ia' not in st.session_state:
+    st.session_state.gerar_analise_ia = False
+
+if sorted(st.session_state.ativos_otimizados) != sorted(ativos_selecionados):
+    st.session_state.resultados_otimizacao = None
+    st.session_state.gerar_analise_ia = False
+
 if len(ativos_selecionados) >= 2:
     # Bloco de código NOVO E CORRIGIDO
+
+    # Bloco CORRIGIDO para leitura dos ativos
     try:
         lista_dfs = []
         for ativo in ativos_selecionados:
             caminho_arquivo = os.path.join(DATA_PATH, f"{ativo}.csv")
-            df_ativo = pd.read_csv(caminho_arquivo, index_col='Date', parse_dates=True)
-            # Renomeia a coluna 'Close' para o nome do ticker
+            # Adicionamos skiprows=[1] para pular a linha extra que causa erros
+            df_ativo = pd.read_csv(caminho_arquivo, index_col='Date', parse_dates=True, skiprows=[1])
             df_ativo.rename(columns={'Close': ativo}, inplace=True)
             lista_dfs.append(df_ativo)
 
-        # Concatena todos os DataFrames em um único
-        df_portfolio = pd.concat(lista_dfs, axis=1)
+        df_portfolio_completo = pd.concat(lista_dfs, axis=1)
+        df_portfolio_completo = df_portfolio_completo.apply(pd.to_numeric, errors='coerce')
+        df_portfolio_completo.sort_index(inplace=True)
+        df_portfolio_completo.dropna(inplace=True)
 
-        # AQUI ESTÁ A CORREÇÃO: Garante que todos os dados são numéricos
-        # errors='coerce' transforma qualquer texto que não seja número em um valor vazio
-        df_portfolio = df_portfolio.apply(pd.to_numeric, errors='coerce')
-        # Remove linhas que possam ter tido erros de conversão
-        df_portfolio.dropna(inplace=True)
-
-    except Exception as e:
-        st.error(f"Ocorreu um erro ao ler ou processar os arquivos de dados dos ativos: {e}")
-        st.stop()
-
-    except FileNotFoundError:
-        st.error(f"Erro: Arquivo não encontrado na pasta '{DATA_PATH}'. Verifique se o Google Drive está sincronizado e o caminho está correto.")
-        st.stop()
     except Exception as e:
         st.error(f"Ocorreu um erro ao ler os arquivos de dados dos ativos: {e}")
         st.stop()
 
+    st.sidebar.subheader("Período de Análise")
+    data_minima = df_portfolio_completo.index.min().date()
+    data_maxima = df_portfolio_completo.index.max().date()
+    data_inicio_default = data_maxima - timedelta(days=365)
+    if data_inicio_default < data_minima:
+        data_inicio_default = data_minima
+    data_inicio = st.sidebar.date_input("Data de Início", value=data_inicio_default, min_value=data_minima,
+                                        max_value=data_maxima, format="DD/MM/YYYY")
+    data_fim = st.sidebar.date_input("Data de Fim", value=data_maxima, min_value=data_minima, max_value=data_maxima,
+                                     format="DD/MM/YYYY")
 
-
-    # O resto do código continua daqui...
-    except FileNotFoundError:
-        st.error(
-            f"Erro: Arquivo não encontrado na pasta '{DATA_PATH}'. Verifique se o Google Drive está sincronizado e o caminho está correto.")
+    if data_inicio > data_fim:
+        st.sidebar.error("A data de início não pode ser posterior à data de fim.")
         st.stop()
-    except Exception as e:
-        st.error(f"Ocorreu um erro ao ler os arquivos de dados: {e}")
-        st.stop()
 
-    # Restante da lógica do aplicativo
+    data_inicio = pd.to_datetime(data_inicio)  # ← NOVA LINHA
+    data_fim = pd.to_datetime(data_fim)  # ← NOVA LINHA
+    df_portfolio = df_portfolio_completo.loc[data_inicio:data_fim]  # ← MODIFICADA
+
     pesos = []
     st.sidebar.subheader('Pesos da Carteira Atual (%)')
     for i, ativo in enumerate(ativos_selecionados):
@@ -184,20 +116,16 @@ if len(ativos_selecionados) >= 2:
         st.error("A soma dos pesos não pode ser zero.")
         st.stop()
 
-    # Esta linha agora funcionará, pois df_portfolio contém apenas números
+    pesos = np.array(pesos, dtype=float)  # ← isso garante o tipo certo para multiplicação
+    #st.write(df_portfolio[ativos_selecionados].dtypes) ## imprime o tipo de dados
+    #st.write(pesos)
     df_portfolio['Carteira'] = (df_portfolio[ativos_selecionados] * pesos).sum(axis=1)
 
-    # --- Seção 1: Análise da Carteira Atual ---
-    # ... (O restante do código para exibir os gráficos e a otimização continua o mesmo) ...
-    # (Por favor, use a última versão completa que funcionou visualmente para o restante do arquivo)
-
-#else:
-    #st.warning('Por favor, selecione pelo menos dois ativos para a análise.')
-
-    # --- Seção 1: Análise da Carteira Atual ---
-    st.header("Análise da Carteira Definida pelo Usuário")
+    # Centralizado
+    st.markdown(f"<h3 style='text-align: center;'>Análise da Carteira de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}</h3>",
+        unsafe_allow_html=True)
     col1, col2 = st.columns(2)
-    # Bloco de código NOVO E CORRIGIDO
+    # Bloco NOVO e CORRIGIDO (com lógica de busca inteligente)
 
     with col1:
         st.subheader('Composição da Carteira')
@@ -209,13 +137,24 @@ if len(ativos_selecionados) >= 2:
         else:  # Lógica para visão por Setor
             pesos_setor = {}
             for ativo, peso in zip(ativos_selecionados, pesos):
-                # --- AQUI ESTÁ A CORREÇÃO ---
-                # Usamos .get() para uma busca segura no dicionário.
-                # Se o 'ativo' não for encontrado no MAPA_ATIVOS, ele retorna um valor padrão: {'setor': 'Outros'}.
-                info_ativo = MAPA_ATIVOS.get(ativo, {'setor': 'Outros'})
-                setor = info_ativo['setor']
 
-                # O resto da lógica para somar os pesos continua igual
+                # --- LÓGICA DE BUSCA INTELIGENTE ---
+                # 1. Tenta encontrar uma correspondência exata primeiro (bom para FIIs e Units como 'BTLG11.SA')
+                info_ativo = MAPA_GERAL_ATIVOS.get(ativo)
+
+                # 2. Se não encontrar, tenta encontrar pelo radical (ex: 'PETR4.SA' -> 'PETR.SA')
+                if not info_ativo:
+                    match = re.search(r'\d', ativo)  # Encontra o primeiro número no nome do ativo
+                    if match:
+                        indice_do_numero = match.start()
+                        ticker_base = ativo[:indice_do_numero] + '.SA'  # Cria o radical, ex: 'PETR.SA'
+                        info_ativo = MAPA_GERAL_ATIVOS.get(ticker_base, {'setor': 'Outros'})  # Tenta a busca de novo
+                    else:
+                        info_ativo = {'setor': 'Outros'}  # Se não tiver número, classifica como Outros
+
+                setor = info_ativo.get('setor', 'Outros')  # Busca segura final
+                # --- FIM DA LÓGICA ---
+
                 if setor in pesos_setor:
                     pesos_setor[setor] += peso
                 else:
@@ -227,51 +166,40 @@ if len(ativos_selecionados) >= 2:
 
         st.plotly_chart(fig_pizza, use_container_width=True)
 
-    # Bloco NOVO e CORRIGIDO (à prova de falhas)
-
     with col2:
         st.subheader('Carteira vs. Benchmark')
         benchmark_selecionado = st.selectbox("Selecione o Benchmark:", list(MAPA_BENCHMARK.keys()))
         caminho_bench = os.path.join(DATA_PATH, MAPA_BENCHMARK[benchmark_selecionado])
-
         try:
+            # Linha NOVA e CORRIGIDA do Benchmark
             df_bench = pd.read_csv(caminho_bench, index_col='Date', parse_dates=True, skiprows=[1])
             df_bench = df_bench.reindex(df_portfolio.index).ffill().dropna()
 
-            # Cria um DataFrame com os valores da carteira e do benchmark
-            df_comparativo = pd.DataFrame({
-                'Carteira': df_portfolio['Carteira'],
-                'Benchmark': df_bench['Close']
-            })
+            retornos_diarios_comp = pd.DataFrame(
+                {'Carteira': df_portfolio['Carteira'], 'Benchmark': df_bench['Close']}).pct_change().dropna()
 
-            # Calcula o retorno diário de cada um
-            retornos_diarios = df_comparativo.pct_change().dropna()
-
-            # --- NOVA VERIFICAÇÃO DE SEGURANÇA ---
-            # Se, após todos os tratamentos, não houver dados suficientes para calcular o retorno, avisa o usuário
-            if retornos_diarios.empty or len(retornos_diarios) < 2:
+            if retornos_diarios_comp.empty or len(retornos_diarios_comp) < 2:
                 st.warning(
-                    f"Dados insuficientes para o benchmark '{benchmark_selecionado}' no período selecionado para gerar o gráfico.")
+                    f"Dados insuficientes para o benchmark '{benchmark_selecionado}' no período para gerar o gráfico.")
             else:
-                # Calcula o retorno acumulado, começando de uma base 100
-                df_acumulado = (1 + retornos_diarios).cumprod() * 100
-                df_acumulado.iloc[0] = 100  # Garante que o primeiro valor é exatamente 100
-
-                # Cria o gráfico com os dados acumulados
+                df_acumulado = (1 + retornos_diarios_comp).cumprod() * 100
+                df_acumulado.iloc[0] = 100
                 fig_desempenho = go.Figure()
                 fig_desempenho.add_trace(
                     go.Scatter(x=df_acumulado.index, y=df_acumulado['Carteira'], mode='lines', name='Minha Carteira'))
                 fig_desempenho.add_trace(go.Scatter(x=df_acumulado.index, y=df_acumulado['Benchmark'], mode='lines',
                                                     name=benchmark_selecionado))
-                fig_desempenho.update_layout(title_text='Desempenho Comparativo (Retorno Acumulado)',
-                                             template='plotly_dark')
+                fig_desempenho.update_layout(title_text='Desempenho Comparativo (Base 100)', template='plotly_dark')
                 st.plotly_chart(fig_desempenho, use_container_width=True)
-
         except Exception as e:
             st.error(
                 f"Não foi possível carregar ou processar os dados do benchmark '{benchmark_selecionado}'. Verifique o arquivo .csv. Erro: {e}")
 
     st.markdown("---")
+
+
+
+    ## ------------------------------------
 
     # --- Seção 2: Otimização de Markowitz ---
     with st.expander("Clique aqui para Otimização de Risco e Retorno (Markowitz)"):

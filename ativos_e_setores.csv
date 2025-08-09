@@ -1,0 +1,393 @@
+Subsetor,Código
+,CÓDIGO
+"Petróleo, Gás e Biocombustíveis",AZTE
+"Petróleo, Gás e Biocombustíveis",BRAV
+"Petróleo, Gás e Biocombustíveis",CSAN
+"Petróleo, Gás e Biocombustíveis",RPMG
+"Petróleo, Gás e Biocombustíveis",PETR
+"Petróleo, Gás e Biocombustíveis",RECV
+"Petróleo, Gás e Biocombustíveis",PRIO
+"Petróleo, Gás e Biocombustíveis",RAIZ
+"Petróleo, Gás e Biocombustíveis",UGPA
+"Petróleo, Gás e Biocombustíveis",VBBR
+"Petróleo, Gás e Biocombustíveis",LUPA
+"Petróleo, Gás e Biocombustíveis",OPCT
+"Petróleo, Gás e Biocombustíveis",OSXB
+SUBSETOR,CÓDIGO
+Mineração,AURA
+Mineração,BRAP
+Mineração,CBAV
+Mineração,CMIN
+Mineração,LTEL
+Mineração,LTLA
+Mineração,VALE
+Siderurgia e Metalurgia,FESA
+Siderurgia e Metalurgia,GGBR
+Siderurgia e Metalurgia,GOAU
+Siderurgia e Metalurgia,CSNA
+Siderurgia e Metalurgia,USIM
+Siderurgia e Metalurgia,MGEL
+Siderurgia e Metalurgia,PATI
+Siderurgia e Metalurgia,TKNO
+Siderurgia e Metalurgia,PMAM
+Químicos,BRKM
+Químicos,DEXP
+Químicos,FHER
+Químicos,NUTR
+Químicos,VITT
+Químicos,CRPG
+Químicos,UNIP
+Madeira e Papel,DXCO
+Madeira e Papel,EUCA
+Madeira e Papel,KLBN
+Madeira e Papel,MSPA
+Madeira e Papel,NEMO
+Madeira e Papel,SUZB
+Embalagens,RANI
+Materiais Diversos,SNSY
+SUBSETOR,CÓDIGO
+Construção e Engenharia,ETER
+Construção e Engenharia,HAGA
+Construção e Engenharia,PTBL
+Construção e Engenharia,AZEV
+Construção e Engenharia,SOND
+Material de Transporte,EMBR
+Material de Transporte,FRAS
+Material de Transporte,POMO
+Material de Transporte,RAPT
+Material de Transporte,RCSL
+Material de Transporte,RSUL
+Material de Transporte,TUPY
+Material de Transporte,MWET
+Máquinas e Equipamentos,SHUL
+Máquinas e Equipamentos,WEGE
+Máquinas e Equipamentos,EALT
+Máquinas e Equipamentos,AERI
+Máquinas e Equipamentos,ARML
+Máquinas e Equipamentos,BDLL
+Máquinas e Equipamentos,INEP
+Máquinas e Equipamentos,KEPL
+Máquinas e Equipamentos,FRIO
+Máquinas e Equipamentos,MILS
+Máquinas e Equipamentos,NORD
+Máquinas e Equipamentos,PTCA
+Máquinas e Equipamentos,ROMI
+Máquinas e Equipamentos,MTSA
+Máquinas e Equipamentos,TASA
+Transporte,AZUL
+Transporte,GOLL
+Transporte,FRRN
+Transporte,VSPT
+Transporte,MRSA
+Transporte,RAIL
+Transporte,HBSA
+Transporte,LOGN
+Transporte,LUXM
+Transporte,JSLG
+Transporte,TGMA
+Transporte,CRTE
+Transporte,ECOR
+Transporte,MOTV
+Transporte,TPIS
+Transporte,AGRU
+Transporte,HMOB
+Transporte,IVPR
+Transporte,PSVM
+Transporte,STBP
+Transporte,PORT
+Serviços,BBML
+Serviços,CTAX
+Serviços,DTCY
+Serviços,ALPK
+Serviços,GGPS
+Serviços,PRNR
+Serviços,SEQL
+Serviços,VLID
+Comércio Varejista,EPAR
+Comércio Varejista,MMAQ
+Comércio Varejista,RBNS
+Comércio Varejista,WLMM
+SUBSETOR,CÓDIGO
+Agropecuária,TTEN
+Agropecuária,GRAO
+Agropecuária,AGXY
+Agropecuária,APTI
+Agropecuária,SOJA
+Agropecuária,AGRO
+Agropecuária,CTCA
+Agropecuária,EGGY
+Agropecuária,SLCE
+Agropecuária,LAND
+Alimentos Processados,JALL
+Alimentos Processados,SMTO
+Alimentos Processados,BRFS
+Alimentos Processados,BAUH
+Alimentos Processados,JBSS
+Alimentos Processados,MRFG
+Alimentos Processados,BEEF
+Alimentos Processados,MNPR
+Alimentos Processados,CAML
+Alimentos Processados,JOPA
+Alimentos Processados,MDIA
+Alimentos Processados,ODER
+Bebidas,ABEV
+Produtos de Cuidado Pessoal e de Limpeza,NATU
+Produtos de Cuidado Pessoal e de Limpeza,BOBR
+Comércio e Distribuição,ASAI
+Comércio e Distribuição,GMAT
+Comércio e Distribuição,PCAR
+SUBSETOR,CÓDIGO
+Comércio Varejista,AZZA
+Comércio Varejista,CEAB
+Comércio Varejista,CGRA
+Comércio Varejista,GUAR
+Comércio Varejista,AMAR
+Comércio Varejista,LREN
+Comércio Varejista,VSTE
+Comércio Varejista,ALLD
+Comércio Varejista,BHIA
+Comércio Varejista,MGLU
+Comércio Varejista,AMER
+Comércio Varejista,ESPA
+Comércio Varejista,SBFG
+Comércio Varejista,LLBI
+Comércio Varejista,PETZ
+Comércio Varejista,LJQQ
+Construção Civil,AVLL
+Construção Civil,CALI
+Construção Civil,CURY
+Construção Civil,CYRE
+Construção Civil,DIRR
+Construção Civil,EVEN
+Construção Civil,EZTC
+Construção Civil,FIEI
+Construção Civil,GFSA
+Construção Civil,HBOR
+Construção Civil,INNC
+Construção Civil,JHSF
+Construção Civil,JFEN
+Construção Civil,KLAS
+Construção Civil,LAVV
+Construção Civil,MELK
+Construção Civil,MTRE
+Construção Civil,MDNE
+Construção Civil,MRVE
+Construção Civil,PDGR
+Construção Civil,PLPL
+Construção Civil,CCTY
+Construção Civil,RDNI
+Construção Civil,RSID
+Construção Civil,TCSA
+Construção Civil,TEGA
+Construção Civil,TEND
+Construção Civil,TRIS
+Construção Civil,VIVR
+"Tecidos, Vestuário e Calçados",CEDO
+"Tecidos, Vestuário e Calçados",CTNM
+"Tecidos, Vestuário e Calçados",DOHL
+"Tecidos, Vestuário e Calçados",CATA
+"Tecidos, Vestuário e Calçados",CTKA
+"Tecidos, Vestuário e Calçados",PTNT
+"Tecidos, Vestuário e Calçados",CTSA
+"Tecidos, Vestuário e Calçados",SGPS
+"Tecidos, Vestuário e Calçados",TXRX
+"Tecidos, Vestuário e Calçados",TFCO
+"Tecidos, Vestuário e Calçados",ALPA
+"Tecidos, Vestuário e Calçados",CAMB
+"Tecidos, Vestuário e Calçados",GRND
+"Tecidos, Vestuário e Calçados",VULC
+"Tecidos, Vestuário e Calçados",MNDL
+"Tecidos, Vestuário e Calçados",TECN
+"Tecidos, Vestuário e Calçados",VIVA
+Utilidades Domésticas,WHRL
+Utilidades Domésticas,TOKY
+Utilidades Domésticas,UCAS
+Utilidades Domésticas,WEST
+Utilidades Domésticas,HETA
+Automóveis e Motocicletas,AMOB
+Automóveis e Motocicletas,MYPK
+Automóveis e Motocicletas,LEVE
+Automóveis e Motocicletas,PLAS
+Hoteis e Restaurantes,HOOT
+Hoteis e Restaurantes,MEAL
+Hoteis e Restaurantes,ZAMP
+Viagens e Lazer,BMKS
+Viagens e Lazer,ESTR
+Viagens e Lazer,RVEE
+Viagens e Lazer,AHEB
+Viagens e Lazer,SHOW
+Viagens e Lazer,CVCB
+Viagens e Lazer,SMFT
+Diversos,ANIM
+Diversos,ATED
+Diversos,BIED
+Diversos,COGN
+Diversos,CSED
+Diversos,SEER
+Diversos,VTRU
+Diversos,YDUQ
+Diversos,RENT
+Diversos,MOVI
+Diversos,VAMO
+Diversos,DOTZ
+SUBSETOR,CÓDIGO
+Medicamentos e Outros Produtos,BIOM
+Medicamentos e Outros Produtos,OFSA
+"Serv.Méd.Hospit.,Análises e Diagnósticos",AALR
+"Serv.Méd.Hospit.,Análises e Diagnósticos",DASA
+"Serv.Méd.Hospit.,Análises e Diagnósticos",FLRY
+"Serv.Méd.Hospit.,Análises e Diagnósticos",HAPV
+"Serv.Méd.Hospit.,Análises e Diagnósticos",MATD
+"Serv.Méd.Hospit.,Análises e Diagnósticos",ODPV
+"Serv.Méd.Hospit.,Análises e Diagnósticos",ONCO
+"Serv.Méd.Hospit.,Análises e Diagnósticos",QUAL
+"Serv.Méd.Hospit.,Análises e Diagnósticos",RDOR
+Equipamentos,BALM
+Equipamentos,LMED
+Comércio e Distribuição,BLAU
+Comércio e Distribuição,DMVF
+Comércio e Distribuição,PNVL
+Comércio e Distribuição,EUFA
+Comércio e Distribuição,HYPE
+Comércio e Distribuição,PGMN
+Comércio e Distribuição,PFRM
+Comércio e Distribuição,RADL
+Comércio e Distribuição,VVEO
+SUBSETOR,CÓDIGO
+Computadores e Equipamentos,INTB
+Computadores e Equipamentos,MLAS
+Computadores e Equipamentos,POSI
+Programas e Serviços,BMOB
+Programas e Serviços,BRQB
+Programas e Serviços,ENJU
+Programas e Serviços,IFCM
+Programas e Serviços,LWSA
+Programas e Serviços,CASH
+Programas e Serviços,NGRD
+Programas e Serviços,PDTC
+Programas e Serviços,QUSW
+Programas e Serviços,REAG
+Programas e Serviços,TRAD
+Programas e Serviços,TOTS
+Programas e Serviços,LVTC
+SUBSETOR,CÓDIGO
+Telecomunicações,BRST
+Telecomunicações,DESK
+Telecomunicações,OIBR
+Telecomunicações,TELB
+Telecomunicações,VIVT
+Telecomunicações,TIMS
+Telecomunicações,FIQE
+SUBSETOR,CÓDIGO
+Energia Elétrica,AESO
+Energia Elétrica,AFLT
+Energia Elétrica,ALUP
+Energia Elétrica,CBEE
+Energia Elétrica,AURE
+Energia Elétrica,CEBR
+Energia Elétrica,CEED
+Energia Elétrica,CLSC
+Energia Elétrica,GPAR
+Energia Elétrica,CMIG
+Energia Elétrica,CEEB
+Energia Elétrica,COCE
+Energia Elétrica,COMR
+Energia Elétrica,CPLE
+Energia Elétrica,CPFE
+Energia Elétrica,EKTR
+Energia Elétrica,ELET
+Energia Elétrica,EMAE
+Energia Elétrica,ENGI
+Energia Elétrica,ENMT
+Energia Elétrica,ENEV
+Energia Elétrica,EGIE
+Energia Elétrica,EQPA
+Energia Elétrica,EQMA
+Energia Elétrica,EQTL
+Energia Elétrica,GEPA
+Energia Elétrica,ISAE
+Energia Elétrica,LIGH
+Energia Elétrica,LIGT
+Energia Elétrica,NEOE
+Energia Elétrica,PRMN
+Energia Elétrica,REDE
+Energia Elétrica,RNEW
+Energia Elétrica,SRNA
+Energia Elétrica,TAEE
+Água e Saneamento,AMBP
+Água e Saneamento,CASN
+Água e Saneamento,CSMG
+Água e Saneamento,IGSN
+Água e Saneamento,ORVR
+Água e Saneamento,SBSP
+Água e Saneamento,SAPR
+Gás,CEGR
+Gás,CGAS
+Gás,PASS
+SUBSETOR,CÓDIGO
+Intermediários Financeiros,ABCB
+Intermediários Financeiros,RPAD
+Intermediários Financeiros,BAZA
+Intermediários Financeiros,BMGB
+Intermediários Financeiros,BPAN
+Intermediários Financeiros,BGIP
+Intermediários Financeiros,BEES
+Intermediários Financeiros,BPAR
+Intermediários Financeiros,BRSR
+Intermediários Financeiros,BRBI
+Intermediários Financeiros,BBDC
+Intermediários Financeiros,BBAS
+Intermediários Financeiros,BSLI
+Intermediários Financeiros,BPAC
+Intermediários Financeiros,INBR
+Intermediários Financeiros,ITUB
+Intermediários Financeiros,BMIN
+Intermediários Financeiros,BMEB
+Intermediários Financeiros,BNBR
+Intermediários Financeiros,PINE
+Intermediários Financeiros,SANB
+Intermediários Financeiros,MERC
+Securitizadoras de Recebíveis,BSCS
+Securitizadoras de Recebíveis,RBRA
+Securitizadoras de Recebíveis,PLSC
+Serviços Financeiros Diversos,G2DI
+Serviços Financeiros Diversos,GPIV
+Serviços Financeiros Diversos,PPLA
+Serviços Financeiros Diversos,B3SA
+Serviços Financeiros Diversos,CSUD
+Previdência e Seguros,BBSE
+Previdência e Seguros,CXSE
+Previdência e Seguros,PSSA
+Previdência e Seguros,IRBR
+Previdência e Seguros,WIZC
+Exploração de Imóveis,ALOS
+Exploração de Imóveis,GSHP
+Exploração de Imóveis,HBTS
+Exploração de Imóveis,HBRE
+Exploração de Imóveis,IGTI
+Exploração de Imóveis,LOGG
+Exploração de Imóveis,MNZC
+Exploração de Imóveis,MULT
+Exploração de Imóveis,PEAB
+Exploração de Imóveis,SCAR
+Exploração de Imóveis,SYNE
+Exploração de Imóveis,LPSB
+Exploração de Imóveis,NEXP
+Holdings Diversificadas,ADMF
+Holdings Diversificadas,ITSA
+Holdings Diversificadas,MOAR
+Holdings Diversificadas,SIMH
+Outros Títulos,CTBA
+Outros Títulos,MCRJ
+Outros Títulos,PMSP
+SUBSETOR,CÓDIGO
+Outros,QVQP
+Outros,BETP
+Outros,MAPT
+Outros,FICT
+Outros,OPGM
+Outros,FIGE
+Outros,PPAR
+Outros,PRPT
+Outros,OPSE
+Outros,OPTS
