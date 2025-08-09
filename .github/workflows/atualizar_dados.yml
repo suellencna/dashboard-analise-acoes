@@ -1,0 +1,41 @@
+name: Atualização Diária de Dados
+
+on:
+  workflow_dispatch: # Permite iniciar manualmente
+  schedule:
+    # Roda todo dia útil (seg-sex) às 09:00 UTC (06:00 no horário de Brasília)
+    - cron: '0 9 * * 1-5'
+
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v3
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instalar Dependências
+        run: |
+          pip install yfinance pandas requests python-bcb
+
+      - name: Executar Pipeline de Coleta de Dados
+        run: |
+          python pipeline_dados.py
+
+      - name: Commit dos Arquivos de Dados
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add dados/
+          # Apenas faz o commit se houver alguma alteração nos arquivos
+          git diff --quiet && git diff --staged --quiet || git commit -m "Atualização automática dos dados históricos"
+          
+      - name: Push das Alterações
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
