@@ -38,7 +38,9 @@ def coletar_dados_yfinance(tickers, pasta_destino):
         print(f"Buscando yfinance para: {ticker}...")
         try:
             dados = yf.download(ticker, start='2020-01-01', progress=False)
-            if dados.empty: continue
+            if dados.empty:
+                print(f" -> Alerta: Nenhum dado retornado para {ticker}. Pulando.")
+                continue
 
             dados.reset_index(inplace=True)
             dados_padronizados = dados[['Date', 'Close']]
