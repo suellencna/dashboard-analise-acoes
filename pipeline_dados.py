@@ -1,4 +1,3 @@
-# pipeline_dados.py
 import yfinance as yf
 import pandas as pd
 import os
@@ -6,12 +5,15 @@ import requests
 from bcb import sgs
 
 # --- CONFIGURAÇÃO ---
-# No ambiente do GitHub, salvaremos os dados na pasta 'dados' do projeto
+# No ambiente do GitHub, os dados são salvos na pasta 'dados' do projeto
 DATA_PATH = "dados"
 
 
-# --- FUNÇÃO PARA PEGAR TICKERS DE AÇÕES E FIIs ---
+# --- FUNÇÃO PARA OBTER TICKERS (AÇÕES OU FIIs) ---
 def obter_tickers_fundamentus(tipo='acoes'):
+    """
+    Busca a lista de tickers de ações ou FIIs do site Fundamentus.
+    """
     subdominio = 'resultado' if tipo == 'acoes' else 'fii_resultado'
     print(f"Buscando a lista de tickers de {tipo}...")
     try:
@@ -27,10 +29,13 @@ def obter_tickers_fundamentus(tipo='acoes'):
         return []
 
 
-# --- FUNÇÃO PARA COLETAR E PADRONIZAR DADOS DO YFINANCE ---
+# --- FUNÇÃO PARA COLETAR DADOS DO YFINANCE ---
 def coletar_dados_yfinance(tickers, pasta_destino):
+    """
+    Baixa o histórico de uma lista de tickers e salva em formato padronizado.
+    """
     for ticker in tickers:
-        print(f"Buscando dados para: {ticker}...")
+        print(f"Buscando yfinance para: {ticker}...")
         try:
             dados = yf.download(ticker, start='2020-01-01', progress=False)
             if dados.empty: continue
@@ -50,9 +55,12 @@ def coletar_dados_yfinance(tickers, pasta_destino):
 
 # --- FUNÇÃO PARA COLETAR DADOS DO BANCO CENTRAL ---
 def coletar_dados_bcb(pasta_destino):
+    """
+    Busca dados de CDI e IPCA do Banco Central do Brasil.
+    """
     codigos_bcb = {'CDI': 12, 'IPCA': 1178.94}
     for nome, codigo in codigos_bcb.items():
-        print(f"Buscando dados para: {nome}...")
+        print(f"Buscando BCB para: {nome}...")
         try:
             dados = sgs.get({nome: codigo}, start='2020-01-01')
             dados.rename(columns={nome: 'Close'}, inplace=True)
@@ -69,12 +77,13 @@ if __name__ == '__main__':
     if not os.path.exists(DATA_PATH):
         os.makedirs(DATA_PATH)
 
-    # Coleta de Ações e FIIs
-    tickers_acoes = obter_todos_tickers_acoes()
-    tickers_fiis = obter_todos_tickers_fiis()
+    # Coleta de Tickers
+    tickers_acoes = obter_tickers_fundamentus(tipo='acoes')
+    tickers_fiis = obter_tickers_fundamentus(tipo='fiis')
     tickers_benchmarks_yf = ["^BVSP", "IFIX.SA", "IDIV.SA"]
     todos_tickers_yf = list(set(tickers_acoes + tickers_fiis + tickers_benchmarks_yf))
 
+    # Coleta de Dados Históricos
     coletar_dados_yfinance(todos_tickers_yf, DATA_PATH)
 
     # Coleta de Indicadores do BCB
