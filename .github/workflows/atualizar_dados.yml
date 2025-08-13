@@ -18,9 +18,10 @@ jobs:
         with:
           python-version: '3.11'
 
+# Bloco NOVO E CORRIGIDO
       - name: Instalar Dependências
         run: |
-          pip install yfinance pandas requests python-bcb
+          pip install yfinance pandas requests python-bcb html5lib lxml
 
       - name: Executar Pipeline de Coleta de Dados
         run: |
