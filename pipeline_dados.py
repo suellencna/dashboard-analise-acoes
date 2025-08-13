@@ -8,7 +8,7 @@ from bcb import sgs
 DATA_PATH = "dados"
 
 # --- LISTA DE BACKUP ---
-# Usada se a busca dinâmica no site falhar
+# Usada se a busca dinâmica no site Fundamentus falhar
 TICKERS_BACKUP = [
     'PETR4.SA', 'VALE3.SA', 'ITUB4.SA', 'BBDC4.SA', 'WEGE3.SA', 'B3SA3.SA',
     'SUZB3.SA', 'ITSA4.SA', 'ABEV3.SA', 'RENT3.SA', 'RAIL3.SA', 'BBAS3.SA'
@@ -32,11 +32,7 @@ def obter_tickers_fundamentus(tipo='acoes'):
         return []
 
 
-# --- FUNÇÃO PARA COLETAR DADOS DO YFINANCE ---
 def coletar_dados_yfinance(tickers, pasta_destino):
-    """
-    Baixa o histórico de uma lista de tickers e salva em formato padronizado.
-    """
     for ticker in tickers:
         print(f"Buscando yfinance para: {ticker}...")
         try:
@@ -58,13 +54,7 @@ def coletar_dados_yfinance(tickers, pasta_destino):
             print(f" -> FALHA ao buscar dados para {ticker}. Erro: {e}")
 
 
-
-
-# --- FUNÇÃO PARA COLETAR DADOS DO BANCO CENTRAL ---
 def coletar_dados_bcb(pasta_destino):
-    """
-    Busca dados de CDI e IPCA do Banco Central do Brasil.
-    """
     codigos_bcb = {'CDI': 12, 'IPCA': 1178.94}
     for nome, codigo in codigos_bcb.items():
         print(f"Buscando BCB para: {nome}...")
@@ -88,8 +78,8 @@ if __name__ == '__main__':
     tickers_fiis = obter_tickers_fundamentus(tipo='fiis')
 
     # Lógica de Resiliência: se a coleta falhar, usa o backup
-    if not tickers_acoes and not tickers_fiis:
-        print("Coleta dinâmica falhou. Usando lista de tickers de backup.")
+    if not tickers_acoes:
+        print("Coleta dinâmica de ações falhou. Usando lista de tickers de backup.")
         tickers_acoes = TICKERS_BACKUP
 
     tickers_benchmarks_yf = ["^BVSP", "IFIX.SA", "IDIV.SA"]
