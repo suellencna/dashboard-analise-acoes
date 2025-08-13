@@ -3,35 +3,41 @@ import pandas as pd
 import os
 import requests
 from bcb import sgs
+from io import StringIO  # Usado para ler texto como se fosse um arquivo
 
 # --- CONFIGURAÇÃO ---
 DATA_PATH = "dados"
 
-# --- LISTA DE BACKUP ---
-# Usada se a busca dinâmica no site Fundamentus falhar
-TICKERS_BACKUP = [
-    'PETR4.SA', 'VALE3.SA', 'ITUB4.SA', 'BBDC4.SA', 'WEGE3.SA', 'B3SA3.SA',
-    'SUZB3.SA', 'ITSA4.SA', 'ABEV3.SA', 'RENT3.SA', 'RAIL3.SA', 'BBAS3.SA'
-]
 
-
-# --- FUNÇÕES DE COLETA ---
+# --- FUNÇÃO ROBUSTA PARA OBTER TICKERS (AÇÕES OU FIIs) ---
 def obter_tickers_fundamentus(tipo='acoes'):
     subdominio = 'resultado' if tipo == 'acoes' else 'fii_resultado'
     print(f"Buscando a lista de tickers de {tipo}...")
     try:
         url = f'https://www.fundamentus.com.br/{subdominio}.php'
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get(url, headers=headers)
-        df_tickers = pd.read_html(response.text, decimal=',', thousands='.')[0]
-        tickers = [f"{ticker}.SA" for ticker in df_tickers['Papel'].tolist()]
-        print(f" -> {len(tickers)} tickers de {tipo} encontrados.")
+
+        # Cabeçalhos que imitam um navegador comum
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+
+        # Usamos uma sessão para a requisição
+        with requests.Session() as s:
+            response = s.get(url, headers=headers)
+            response.raise_for_status()  # Lança um erro se a requisição falhar (ex: 404, 500)
+
+            # Usamos StringIO para garantir que o pandas leia o texto corretamente
+            tabela = pd.read_html(StringIO(response.text), decimal=',', thousands='.')[0]
+
+        tickers = [f"{ticker}.SA" for ticker in tabela['Papel'].tolist()]
+        print(f" -> SUCESSO! {len(tickers)} tickers de {tipo} encontrados.")
         return tickers
     except Exception as e:
         print(f" -> FALHA ao buscar tickers de {tipo}. Erro: {e}")
         return []
 
 
+# --- FUNÇÃO PARA COLETAR DADOS DO YFINANCE ---
 def coletar_dados_yfinance(tickers, pasta_destino):
     for ticker in tickers:
         print(f"Buscando yfinance para: {ticker}...")
@@ -54,6 +60,7 @@ def coletar_dados_yfinance(tickers, pasta_destino):
             print(f" -> FALHA ao buscar dados para {ticker}. Erro: {e}")
 
 
+# --- FUNÇÃO PARA COLETAR DADOS DO BANCO CENTRAL ---
 def coletar_dados_bcb(pasta_destino):
     codigos_bcb = {'CDI': 12, 'IPCA': 1178.94}
     for nome, codigo in codigos_bcb.items():
@@ -77,10 +84,8 @@ if __name__ == '__main__':
     tickers_acoes = obter_tickers_fundamentus(tipo='acoes')
     tickers_fiis = obter_tickers_fundamentus(tipo='fiis')
 
-    # Lógica de Resiliência: se a coleta falhar, usa o backup
-    if not tickers_acoes:
-        print("Coleta dinâmica de ações falhou. Usando lista de tickers de backup.")
-        tickers_acoes = TICKERS_BACKUP
+    if not tickers_acoes and not tickers_fiis:
+        raise RuntimeError("Não foi possível obter a lista de tickers de ações e FIIs. Processo interrompido.")
 
     tickers_benchmarks_yf = ["^BVSP", "IFIX.SA", "IDIV.SA"]
     todos_tickers_yf = list(set(tickers_acoes + tickers_fiis + tickers_benchmarks_yf))
