@@ -1,41 +1,21 @@
 import yfinance as yf
 import pandas as pd
 import os
-import requests
 from bcb import sgs
-from io import StringIO  # Usado para ler texto como se fosse um arquivo
 
-# --- CONFIGURAÇÃO ---
 DATA_PATH = "dados"
 
-
-# --- FUNÇÃO ROBUSTA PARA OBTER TICKERS (AÇÕES OU FIIs) ---
-def obter_tickers_fundamentus(tipo='acoes'):
-    subdominio = 'resultado' if tipo == 'acoes' else 'fii_resultado'
-    print(f"Buscando a lista de tickers de {tipo}...")
+def ler_lista_tickers(caminho_arquivo="lista_tickers.txt"):
+    """Lê a lista de tickers de um arquivo de texto."""
+    print(f"Lendo a lista de tickers do arquivo '{caminho_arquivo}'...")
     try:
-        url = f'https://www.fundamentus.com.br/{subdominio}.php'
-
-        # Cabeçalhos que imitam um navegador comum
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-
-        # Usamos uma sessão para a requisição
-        with requests.Session() as s:
-            response = s.get(url, headers=headers)
-            response.raise_for_status()  # Lança um erro se a requisição falhar (ex: 404, 500)
-
-            # Usamos StringIO para garantir que o pandas leia o texto corretamente
-            tabela = pd.read_html(StringIO(response.text), decimal=',', thousands='.')[0]
-
-        tickers = [f"{ticker}.SA" for ticker in tabela['Papel'].tolist()]
-        print(f" -> SUCESSO! {len(tickers)} tickers de {tipo} encontrados.")
+        with open(caminho_arquivo, 'r') as f:
+            tickers = [linha.strip() for linha in f if linha.strip()]
+        print(f" -> {len(tickers)} tickers encontrados na lista.")
         return tickers
-    except Exception as e:
-        print(f" -> FALHA ao buscar tickers de {tipo}. Erro: {e}")
+    except FileNotFoundError:
+        print(f" -> ERRO: Arquivo '{caminho_arquivo}' não encontrado.")
         return []
-
 
 # --- FUNÇÃO PARA COLETAR DADOS DO YFINANCE ---
 def coletar_dados_yfinance(tickers, pasta_destino):
@@ -81,14 +61,12 @@ if __name__ == '__main__':
     if not os.path.exists(DATA_PATH):
         os.makedirs(DATA_PATH)
 
-    tickers_acoes = obter_tickers_fundamentus(tipo='acoes')
-    tickers_fiis = obter_tickers_fundamentus(tipo='fiis')
-
-    if not tickers_acoes and not tickers_fiis:
-        raise RuntimeError("Não foi possível obter a lista de tickers de ações e FIIs. Processo interrompido.")
+    tickers_a_buscar = ler_lista_tickers()
+    if not tickers_a_buscar:
+        raise RuntimeError("Lista de tickers está vazia. Processo interrompido.")
 
     tickers_benchmarks_yf = ["^BVSP", "IFIX.SA", "IDIV.SA"]
-    todos_tickers_yf = list(set(tickers_acoes + tickers_fiis + tickers_benchmarks_yf))
+    todos_tickers_yf = list(set(tickers_a_buscar + tickers_benchmarks_yf))
 
     coletar_dados_yfinance(todos_tickers_yf, DATA_PATH)
     coletar_dados_bcb(DATA_PATH)
