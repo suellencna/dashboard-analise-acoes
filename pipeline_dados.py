@@ -5,15 +5,18 @@ import requests
 from bcb import sgs
 
 # --- CONFIGURAÇÃO ---
-# No ambiente do GitHub, os dados são salvos na pasta 'dados' do projeto
 DATA_PATH = "dados"
 
+# --- LISTA DE BACKUP ---
+# Usada se a busca dinâmica no site falhar
+TICKERS_BACKUP = [
+    'PETR4.SA', 'VALE3.SA', 'ITUB4.SA', 'BBDC4.SA', 'WEGE3.SA', 'B3SA3.SA',
+    'SUZB3.SA', 'ITSA4.SA', 'ABEV3.SA', 'RENT3.SA', 'RAIL3.SA', 'BBAS3.SA'
+]
 
-# --- FUNÇÃO PARA OBTER TICKERS (AÇÕES OU FIIs) ---
+
+# --- FUNÇÕES DE COLETA ---
 def obter_tickers_fundamentus(tipo='acoes'):
-    """
-    Busca a lista de tickers de ações ou FIIs do site Fundamentus.
-    """
     subdominio = 'resultado' if tipo == 'acoes' else 'fii_resultado'
     print(f"Buscando a lista de tickers de {tipo}...")
     try:
@@ -55,6 +58,8 @@ def coletar_dados_yfinance(tickers, pasta_destino):
             print(f" -> FALHA ao buscar dados para {ticker}. Erro: {e}")
 
 
+
+
 # --- FUNÇÃO PARA COLETAR DADOS DO BANCO CENTRAL ---
 def coletar_dados_bcb(pasta_destino):
     """
@@ -79,16 +84,18 @@ if __name__ == '__main__':
     if not os.path.exists(DATA_PATH):
         os.makedirs(DATA_PATH)
 
-    # Coleta de Tickers
     tickers_acoes = obter_tickers_fundamentus(tipo='acoes')
     tickers_fiis = obter_tickers_fundamentus(tipo='fiis')
+
+    # Lógica de Resiliência: se a coleta falhar, usa o backup
+    if not tickers_acoes and not tickers_fiis:
+        print("Coleta dinâmica falhou. Usando lista de tickers de backup.")
+        tickers_acoes = TICKERS_BACKUP
+
     tickers_benchmarks_yf = ["^BVSP", "IFIX.SA", "IDIV.SA"]
     todos_tickers_yf = list(set(tickers_acoes + tickers_fiis + tickers_benchmarks_yf))
 
-    # Coleta de Dados Históricos
     coletar_dados_yfinance(todos_tickers_yf, DATA_PATH)
-
-    # Coleta de Indicadores do BCB
     coletar_dados_bcb(DATA_PATH)
 
     print("\nPipeline de dados finalizado!")
