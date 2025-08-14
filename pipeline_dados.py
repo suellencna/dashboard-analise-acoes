@@ -65,7 +65,7 @@ if __name__ == '__main__':
     if not tickers_a_buscar:
         raise RuntimeError("Lista de tickers está vazia. Processo interrompido.")
 
-    tickers_benchmarks_yf = ["^BVSP", "IFIX.SA", "IDIV.SA"]
+    tickers_benchmarks_yf = ["^BVSP"]
     todos_tickers_yf = list(set(tickers_a_buscar + tickers_benchmarks_yf))
 
     coletar_dados_yfinance(todos_tickers_yf, DATA_PATH)
