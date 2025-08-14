@@ -8,7 +8,7 @@ import os
 PASTA_INPUT = "downloads_brutos"
 
 # Pasta de destino dos arquivos limpos (a mesma que o app.py usa)
-PASTA_OUTPUT = "G:/Meu Drive/DADOS_ACOES"
+PASTA_OUTPUT = "dados"
 
 # Dicionário para mapear o nome do arquivo baixado para o nosso nome padrão
 # Se o nome do arquivo baixado for diferente, apenas ajuste aqui.
