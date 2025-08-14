@@ -240,6 +240,24 @@ if len(ativos_selecionados) >= 2:
                 indice_min_risco = res['risco'].argmin()
 
                 st.subheader('Resultados da Otimização')
+                # Bloco de código para ADICIONAR
+
+                # --- INÍCIO DO TEXTO EXPLICATIVO ---
+                st.info("""
+                                #### Entendendo o Gráfico de Markowitz
+
+                                * **O que é?** Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
+
+                                * **O que o gráfico significa?**
+                                    * **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
+                                    * **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.
+                                    * **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.
+                                    * **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
+                                    * **"X" Vermelho:** A carteira com o menor risco possível.
+
+                                * **Como usar?** Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
+                                """)
+                # --- FIM DO TEXTO EXPLICATIVO ---
                 col_graf_fronteira, col_graf_pesos = st.columns([0.6, 0.4])
 
                 with col_graf_fronteira:
