@@ -1,0 +1,18 @@
+credentials:
+  usernames:
+    # Este é o nome de usuário que a pessoa usará para logar
+    suellen:
+      # O e-mail do usuário
+      email: suellencna@gmail.com
+      # O nome completo do usuário
+      name: Suellen
+      # A senha, mas CRIPTOGRAFADA. Nunca coloque a senha real aqui!
+      password: 'Senha123'
+# Configurações do "cookie" de login para manter o usuário logado
+cookie:
+  expiry_days: 30
+  key: 'chave_secreta_aleatoria_123' # Mude isso para qualquer texto aleatório
+  name: 'auth_cookie'
+preauthorized:
+  emails:
+  - suellencna@gmail.com
