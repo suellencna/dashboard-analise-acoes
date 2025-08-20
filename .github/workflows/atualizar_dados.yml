@@ -9,7 +9,7 @@ jobs:
   build-and-commit:
     runs-on: ubuntu-latest
 
-    # --- AQUI ESTÁ A CORREÇÃO ---
+
     # Damos permissão ao robô para escrever no repositório
     permissions:
       contents: write
