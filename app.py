@@ -12,6 +12,8 @@ import re
 import sqlite3
 from passlib.context import CryptContext
 
+print("--- DEBUG: Script iniciado, importações concluídas ---")
+
 # Crie uma instância do CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -64,7 +66,7 @@ if st.session_state["authentication_status"]:
     st.sidebar.title(f'Bem-vindo(a), *{st.session_state["name"]}*!')
 
     # AQUI COMEÇA SEU CÓDIGO DO DASHBOARD
-
+    print("--- DEBUG: Iniciando a lógica de exibição do Streamlit ---")
 
     # Se o usuário estiver LOGADO, mostra o dashboard
     if st.session_state["authentication_status"]:
@@ -89,6 +91,7 @@ if st.session_state["authentication_status"]:
 
             # Bloco CORRIGIDO para leitura dos ativos
             try:
+                print("--- DEBUG: Tentando conectar ao banco de dados ---")
                 lista_dfs = []
                 for ativo in ativos_selecionados:
                     caminho_arquivo = os.path.join(DATA_PATH, f"{ativo}.csv")
@@ -101,8 +104,10 @@ if st.session_state["authentication_status"]:
                 df_portfolio_completo = df_portfolio_completo.apply(pd.to_numeric, errors='coerce')
                 df_portfolio_completo.sort_index(inplace=True)
                 df_portfolio_completo.dropna(inplace=True)
+                print("--- DEBUG: Conexão com o banco de dados bem-sucedida ---")
 
             except Exception as e:
+                print(f"--- DEBUG: FALHA ao conectar ao banco de dados. Erro: {e}")
                 st.error(f"Ocorreu um erro ao ler os arquivos de dados dos ativos: {e}")
                 st.stop()
 
