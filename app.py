@@ -15,15 +15,14 @@ from passlib.context import CryptContext
 print("--- DEBUG: Script iniciado, importações concluídas ---")
 
 # Crie uma instância do CryptContext
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+#pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Função para verificar o login
+
+# Função de verificação de login (VERSÃO DE TESTE - SEMPRE FALHA)
 def check_login(email, password):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-    cursor.execute("SELECT name, hashed_password FROM users WHERE email = ?", (email,))
-    user_data = cursor.fetchone()
-    conn.close()
+    st.error("Login temporariamente desativado para teste. Verificando se o app para de travar.")
+    print("--- DEBUG: A função de login de TESTE foi chamada ---")
+    return False, None
 
     if user_data:
         name, hashed_password = user_data
