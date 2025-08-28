@@ -3,7 +3,6 @@ import streamlit as st
 import sqlalchemy
 import os
 from passlib.context import CryptContext
-# ... (adicione aqui o resto das suas importações: pandas, plotly, etc.)
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -17,16 +16,22 @@ st.set_page_config(page_title="Análise de Carteira", page_icon="💼", layout="
 
 # --- 2. CONFIGURAÇÃO DO BANCO DE DADOS E SENHA ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
-engine = sqlalchemy.create_engine(DATABASE_URL) if DATABASE_URL else None
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+engine = None
+pwd_context = None
+try:
+    if DATABASE_URL:
+        engine = sqlalchemy.create_engine(DATABASE_URL)
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    else:
+        st.error("ERRO CRÍTICO: A variável de ambiente DATABASE_URL não foi encontrada.")
+        st.stop()
+except Exception as e:
+    st.error(f"ERRO CRÍTICO na inicialização do sistema de autenticação: {e}")
+    st.stop()
 
 
 # --- 3. FUNÇÃO DE LOGIN ---
 def check_login(email, password):
-    if not engine or not pwd_context:
-        st.error("Sistema de login não pôde ser inicializado.")
-        return False, None
-
     user_data = None
     try:
         with engine.connect() as conn:
@@ -46,8 +51,7 @@ def check_login(email, password):
     return False, None
 
 
-
-# --- INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
+# --- 4. INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
 if "authentication_status" not in st.session_state:
     st.session_state["authentication_status"] = None
 if "name" not in st.session_state:
@@ -58,49 +62,34 @@ if 'ativos_otimizados' not in st.session_state:
     st.session_state.ativos_otimizados = []
 if 'gerar_analise_ia' not in st.session_state:
     st.session_state.gerar_analise_ia = False
-#print("--- DEBUG 8: Estado da sessão inicializado ---")
 
 # --- 5. LÓGICA DA INTERFACE ---
 if st.session_state.get("authentication_status"):
     # SE ESTIVER LOGADO, MOSTRA O DASHBOARD COMPLETO
 
+    # --- DADOS INICIAIS E MAPEAMENTOS (CARREGADOS APENAS APÓS O LOGIN) ---
+    DATA_PATH = "dados"
+    MAPA_GERAL_ATIVOS = {**MAPA_ATIVOS, **MAPA_FIIS}
+    MAPA_BENCHMARK = {'IBOVESPA': 'IBOV_BVSP.csv', 'IFIX': 'IFIX.SA.csv', 'IDIV': 'IDIV.SA.csv', 'CDI': 'CDI.csv',
+                      'IPCA': 'IPCA.csv'}
+    PREGOES_NO_ANO = 252
+    TAXA_LIVRE_DE_RISCO = 0.105
 
-# --- LÓGICA PRINCIPAL: LOGIN OU DASHBOARD ---
+    try:
+        todos_arquivos = os.listdir(DATA_PATH)
+        disponiveis = [arquivo.replace('.csv', '') for arquivo in todos_arquivos if arquivo.endswith('.SA.csv')]
+        disponiveis.sort()
+    except FileNotFoundError:
+        st.error(f"Pasta de dados '{DATA_PATH}' não encontrada.")
+        st.stop()
 
-# Se o usuário NÃO estiver logado, mostra o formulário de login
-if not st.session_state["authentication_status"]:
-    print("--- DEBUG 9: Exibindo tela de login ---")
-    st.sidebar.title("Login")
-    email = st.sidebar.text_input("Email")
-    password = st.sidebar.text_input("Senha", type="password")
-
-    st.warning('Por favor, insira seu usuário e senha para acessar')
-
-    if st.sidebar.button("Entrar"):
-        is_logged_in, user_name = check_login(email, password)
-        if is_logged_in:
-            st.session_state["authentication_status"] = True
-            st.session_state["name"] = user_name
-            st.rerun()
-        else:
-            st.session_state["authentication_status"] = False
-            st.rerun()
-
-    if st.session_state["authentication_status"] is False:
-        st.sidebar.error("Email ou senha incorreta.")
-
-# Se o usuário ESTIVER logado, mostra o dashboard
-else:
-    print("--- DEBUG 10: Exibindo o dashboard principal ---")
-
-    # --- Barra Lateral do Usuário Logado ---
+    # --- INÍCIO DO SEU CÓDIGO DO DASHBOARD ---
     st.sidebar.title(f'Bem-vindo(a), *{st.session_state["name"]}*!')
     if st.sidebar.button("Logout"):
         st.session_state["authentication_status"] = None
         st.session_state["name"] = None
         st.rerun()
 
-    # --- Título Principal ---
     st.title('Dashboard de Análise de Carteiras 💼')
 
     # --- Barra Lateral de Definição da Carteira ---
@@ -531,10 +520,23 @@ else:
 
 
 
-# Se o login falhar...
-elif st.session_state["authentication_status"] is False:
-    st.error('Usuário ou senha incorreta')
+else:
+    # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
+    st.sidebar.title("Login")
+    email = st.sidebar.text_input("Email")
+    password = st.sidebar.text_input("Senha", type="password")
 
-# Se ninguém tentou logar ainda (a tela inicial)...
-elif st.session_state["authentication_status"] is None:
     st.warning('Por favor, insira seu usuário e senha para acessar')
+
+    if st.sidebar.button("Entrar"):
+        is_logged_in, user_name = check_login(email, password)
+        if is_logged_in:
+            st.session_state["authentication_status"] = True
+            st.session_state["name"] = user_name
+            st.rerun()
+        else:
+            st.session_state["authentication_status"] = False
+            st.rerun()
+
+    if st.session_state["authentication_status"] is False:
+        st.sidebar.error("Email ou senha incorreta.")
