@@ -510,11 +510,11 @@ if st.session_state.get("authentication_status"):
             st.warning('Por favor, selecione pelo menos um ativo para a análise.')
 
     # Adiciona o botão de logout na barra lateral
-    authenticator.logout('Logout', 'sidebar')
+
     st.sidebar.title(f'Bem-vindo(a) *{st.session_state["name"]}*')
 
     # --- Configurações da Página e Estilo ---
-    # (Removido o st.set_page_config daqui pois ele deve ser a primeira coisa no script)
+    
     plt.style.use('seaborn-v0_8-darkgrid')
 
 
