@@ -1,9 +1,10 @@
-# app.py (VERSÃO CORRIGIDA E COM DEBUG)
-
-# --- BLOCO DE IMPORTAÇÕES ---
+# --- 1. BLOCO DE IMPORTAÇÕES E CONFIGURAÇÕES ---
 import streamlit as st
-import pandas as pd
+import sqlalchemy
 import os
+from passlib.context import CryptContext
+# ... (adicione aqui o resto das suas importações: pandas, plotly, etc.)
+import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
@@ -11,57 +12,40 @@ from datetime import datetime, timedelta
 from mapa_ativos import MAPA_ATIVOS
 from mapa_fiis import MAPA_FIIS
 import re
-import sqlalchemy
-from passlib.context import CryptContext
 
-print("--- DEBUG 1: Fim das importações ---")
-
-# --- CONFIGURAÇÃO DA PÁGINA (DEVE SER O PRIMEIRO COMANDO STREAMLIT) ---
 st.set_page_config(page_title="Análise de Carteira", page_icon="💼", layout="wide")
-print("--- DEBUG 2: st.set_page_config executado ---")
 
-# --- CONSTANTES E OBJETOS GLOBAIS ---
-try:
-    DATA_PATH = "dados"
-    MAPA_GERAL_ATIVOS = {**MAPA_ATIVOS, **MAPA_FIIS}
-    MAPA_BENCHMARK = {'IBOVESPA': 'IBOV_BVSP.csv', 'IFIX': 'IFIX.SA.csv', 'IDIV': 'IDIV.SA.csv', 'CDI': 'CDI.csv',
-                      'IPCA': 'IPCA.csv'}
-    PREGOES_NO_ANO = 252
-    TAXA_LIVRE_DE_RISCO = 0.105
-    print("--- DEBUG 3: Constantes definidas ---")
-
-    todos_arquivos = os.listdir(DATA_PATH)
-    disponiveis = [arquivo.replace('.csv', '') for arquivo in todos_arquivos if arquivo.endswith('.SA.csv')]
-    disponiveis.sort()
-    print("--- DEBUG 4: Lista de ativos disponíveis carregada ---")
-
-    # --- CONEXÃO COM BANCO DE DADOS E SENHA ---
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    engine = None
-    if DATABASE_URL:
-        engine = sqlalchemy.create_engine(DATABASE_URL)
-        print("--- DEBUG 5: Engine do SQLAlchemy criada ---")
-    else:
-        print("--- DEBUG 5: AVISO - DATABASE_URL não encontrada no ambiente ---")
-
-    # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    print("--- DEBUG 6: Contexto de senha (passlib) definido ---")
-
-except Exception as e:
-    print(f"--- ERRO FATAL NA INICIALIZAÇÃO: {e} ---")
-    st.error(f"Ocorreu um erro fatal durante a inicialização do aplicativo: {e}")
-    st.stop()
+# --- 2. CONFIGURAÇÃO DO BANCO DE DADOS E SENHA ---
+DATABASE_URL = os.environ.get('DATABASE_URL')
+engine = sqlalchemy.create_engine(DATABASE_URL) if DATABASE_URL else None
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-# --- DEFINIÇÃO DE FUNÇÕES ---
+# --- 3. FUNÇÃO DE LOGIN ---
 def check_login(email, password):
-    # ATENÇÃO: Esta é a versão de TESTE. O login sempre falhará.
-    st.error("Login temporariamente desativado para teste de inicialização.")
-    print("--- DEBUG: A função de login de TESTE foi chamada ---")
+    if not engine or not pwd_context:
+        st.error("Sistema de login não pôde ser inicializado.")
+        return False, None
+
+    user_data = None
+    try:
+        with engine.connect() as conn:
+            query = sqlalchemy.text("SELECT nome, senha_hash FROM usuarios WHERE email = :email")
+            result = conn.execute(query, {"email": email}).first()
+            if result:
+                user_data = result
+    except Exception as e:
+        st.error(f"Erro ao consultar o banco de dados: {e}")
+        return False, None
+
+    if user_data:
+        nome_usuario, senha_hash_salva = user_data
+        if pwd_context.verify(password, senha_hash_salva):
+            return True, nome_usuario
+
     return False, None
 
 
-print("--- DEBUG 7: Funções definidas ---")
 
 # --- INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
 if "authentication_status" not in st.session_state:
@@ -74,7 +58,12 @@ if 'ativos_otimizados' not in st.session_state:
     st.session_state.ativos_otimizados = []
 if 'gerar_analise_ia' not in st.session_state:
     st.session_state.gerar_analise_ia = False
-print("--- DEBUG 8: Estado da sessão inicializado ---")
+#print("--- DEBUG 8: Estado da sessão inicializado ---")
+
+# --- 5. LÓGICA DA INTERFACE ---
+if st.session_state.get("authentication_status"):
+    # SE ESTIVER LOGADO, MOSTRA O DASHBOARD COMPLETO
+
 
 # --- LÓGICA PRINCIPAL: LOGIN OU DASHBOARD ---
 
