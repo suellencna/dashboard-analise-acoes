@@ -1,3 +1,6 @@
+# app.py (VERSÃO CORRIGIDA E COM DEBUG)
+
+# --- BLOCO DE IMPORTAÇÕES ---
 import streamlit as st
 import pandas as pd
 import os
@@ -8,107 +11,286 @@ from datetime import datetime, timedelta
 from mapa_ativos import MAPA_ATIVOS
 from mapa_fiis import MAPA_FIIS
 import re
-# Adicione essas importações no topo do seu arquivo streamlit
-import sqlite3
+import sqlalchemy
 from passlib.context import CryptContext
 
-print("--- DEBUG: Script iniciado, importações concluídas ---")
+print("--- DEBUG 1: Fim das importações ---")
 
-# Crie uma instância do CryptContext
-#pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# --- CONFIGURAÇÃO DA PÁGINA (DEVE SER O PRIMEIRO COMANDO STREAMLIT) ---
+st.set_page_config(page_title="Análise de Carteira", page_icon="💼", layout="wide")
+print("--- DEBUG 2: st.set_page_config executado ---")
+
+# --- CONSTANTES E OBJETOS GLOBAIS ---
+try:
+    DATA_PATH = "dados"
+    MAPA_GERAL_ATIVOS = {**MAPA_ATIVOS, **MAPA_FIIS}
+    MAPA_BENCHMARK = {'IBOVESPA': 'IBOV_BVSP.csv', 'IFIX': 'IFIX.SA.csv', 'IDIV': 'IDIV.SA.csv', 'CDI': 'CDI.csv',
+                      'IPCA': 'IPCA.csv'}
+    PREGOES_NO_ANO = 252
+    TAXA_LIVRE_DE_RISCO = 0.105
+    print("--- DEBUG 3: Constantes definidas ---")
+
+    todos_arquivos = os.listdir(DATA_PATH)
+    disponiveis = [arquivo.replace('.csv', '') for arquivo in todos_arquivos if arquivo.endswith('.SA.csv')]
+    disponiveis.sort()
+    print("--- DEBUG 4: Lista de ativos disponíveis carregada ---")
+
+    # --- CONEXÃO COM BANCO DE DADOS E SENHA ---
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    engine = None
+    if DATABASE_URL:
+        engine = sqlalchemy.create_engine(DATABASE_URL)
+        print("--- DEBUG 5: Engine do SQLAlchemy criada ---")
+    else:
+        print("--- DEBUG 5: AVISO - DATABASE_URL não encontrada no ambiente ---")
+
+    # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    print("--- DEBUG 6: Contexto de senha (passlib) definido ---")
+
+except Exception as e:
+    print(f"--- ERRO FATAL NA INICIALIZAÇÃO: {e} ---")
+    st.error(f"Ocorreu um erro fatal durante a inicialização do aplicativo: {e}")
+    st.stop()
 
 
-# Função de verificação de login (VERSÃO DE TESTE - SEMPRE FALHA)
+# --- DEFINIÇÃO DE FUNÇÕES ---
 def check_login(email, password):
-    st.error("Login temporariamente desativado para teste. Verificando se o app para de travar.")
+    # ATENÇÃO: Esta é a versão de TESTE. O login sempre falhará.
+    st.error("Login temporariamente desativado para teste de inicialização.")
     print("--- DEBUG: A função de login de TESTE foi chamada ---")
     return False, None
 
-    if user_data:
-        name, hashed_password = user_data
-        # Compara a senha fornecida com o hash salvo
-        if pwd_context.verify(password, hashed_password):
-            return True, name
-    return False, None
 
-# --- TELA DE LOGIN ---
-# Inicializa o estado da sessão (se ainda não existir)
+print("--- DEBUG 7: Funções definidas ---")
+
+# --- INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
 if "authentication_status" not in st.session_state:
     st.session_state["authentication_status"] = None
 if "name" not in st.session_state:
     st.session_state["name"] = None
+if 'resultados_otimizacao' not in st.session_state:
+    st.session_state.resultados_otimizacao = None
+if 'ativos_otimizados' not in st.session_state:
+    st.session_state.ativos_otimizados = []
+if 'gerar_analise_ia' not in st.session_state:
+    st.session_state.gerar_analise_ia = False
+print("--- DEBUG 8: Estado da sessão inicializado ---")
 
-# Se o usuário não estiver logado, mostra o formulário de login
+# --- LÓGICA PRINCIPAL: LOGIN OU DASHBOARD ---
+
+# Se o usuário NÃO estiver logado, mostra o formulário de login
 if not st.session_state["authentication_status"]:
+    print("--- DEBUG 9: Exibindo tela de login ---")
     st.sidebar.title("Login")
     email = st.sidebar.text_input("Email")
     password = st.sidebar.text_input("Senha", type="password")
+
+    st.warning('Por favor, insira seu usuário e senha para acessar')
 
     if st.sidebar.button("Entrar"):
         is_logged_in, user_name = check_login(email, password)
         if is_logged_in:
             st.session_state["authentication_status"] = True
             st.session_state["name"] = user_name
-            st.rerun() # Recarrega a página para mostrar o dashboard
+            st.rerun()
         else:
-            st.sidebar.error("Email ou senha incorreta.")
+            st.session_state["authentication_status"] = False
+            st.rerun()
 
-# --- LÓGICA DE EXIBIÇÃO DO APLICATIVO ---
-# Se o usuário estiver logado com sucesso...
-if st.session_state["authentication_status"]:
-    # Botão de Logout
+    if st.session_state["authentication_status"] is False:
+        st.sidebar.error("Email ou senha incorreta.")
+
+# Se o usuário ESTIVER logado, mostra o dashboard
+else:
+    print("--- DEBUG 10: Exibindo o dashboard principal ---")
+
+    # --- Barra Lateral do Usuário Logado ---
+    st.sidebar.title(f'Bem-vindo(a), *{st.session_state["name"]}*!')
     if st.sidebar.button("Logout"):
         st.session_state["authentication_status"] = None
         st.session_state["name"] = None
         st.rerun()
 
-    st.sidebar.title(f'Bem-vindo(a), *{st.session_state["name"]}*!')
+    # --- Título Principal ---
+    st.title('Dashboard de Análise de Carteiras 💼')
 
-    # AQUI COMEÇA SEU CÓDIGO DO DASHBOARD
-    print("--- DEBUG: Iniciando a lógica de exibição do Streamlit ---")
+    # --- Barra Lateral de Definição da Carteira ---
+    st.sidebar.header('Definição da Carteira')
+    default_selection = [ativo for ativo in ['PETR4.SA', 'WEGE3.SA', 'ITUB4.SA'] if ativo in disponiveis]
+    ativos_selecionados = st.sidebar.multiselect('Selecione os Ativos', disponiveis, default=default_selection)
+    st.sidebar.caption("Aviso: Esta ferramenta não constitui recomendação de investimento.")
 
-    # Se o usuário estiver LOGADO, mostra o dashboard
-    if st.session_state["authentication_status"]:
-        # Botão de Logout e Mensagem de Boas-vindas na barra lateral
-        authenticator.logout('Logout', 'sidebar')
-        st.sidebar.title(f'Bem-vindo(a), *{st.session_state["name"]}*!')
+    # O resto do seu código do dashboard...
+    # ... (cole aqui toda a lógica de análise de carteira que começa com "if len(ativos_selecionados) >= 2:")
 
-        # Título Principal do Dashboard
-        st.title('Dashboard de Análise de Carteiras 💼')
+    if len(ativos_selecionados) >= 2:
 
-        # Barra Lateral com as opções do Dashboard
-        st.sidebar.header('Definição da Carteira')
-        default_selection = [ativo for ativo in ['PETR4.SA', 'WEGE3.SA', 'ITUB4.SA'] if ativo in disponiveis]
-        ativos_selecionados = st.sidebar.multiselect('Selecione os Ativos', disponiveis, default=default_selection)
-        st.sidebar.caption("Aviso: Esta ferramenta não constitui recomendação de investimento.")
+        # Bloco CORRIGIDO para leitura dos ativos
+        try:
+            lista_dfs = []
+            for ativo in ativos_selecionados:
+                caminho_arquivo = os.path.join(DATA_PATH, f"{ativo}.csv")
+                df_ativo = pd.read_csv(caminho_arquivo, index_col='Date', parse_dates=True, skiprows=[1])
+                df_ativo.rename(columns={'Close': ativo}, inplace=True)
+                lista_dfs.append(df_ativo)
 
-        if sorted(st.session_state.ativos_otimizados) != sorted(ativos_selecionados):
-            st.session_state.resultados_otimizacao = None
-            st.session_state.gerar_analise_ia = False
+            df_portfolio_completo = pd.concat(lista_dfs, axis=1)
+            df_portfolio_completo = df_portfolio_completo.apply(pd.to_numeric, errors='coerce')
+            df_portfolio_completo.sort_index(inplace=True)
+            df_portfolio_completo.dropna(inplace=True)
 
-        if len(ativos_selecionados) >= 2:
+        except Exception as e:
+            st.error(f"Ocorreu um erro ao ler os arquivos de dados dos ativos: {e}")
+            st.stop()
 
-            # Bloco CORRIGIDO para leitura dos ativos
+            # app.py (VERSÃO CORRIGIDA E COM DEBUG)
+
+            # --- BLOCO DE IMPORTAÇÕES ---
+            import streamlit as st
+            import pandas as pd
+            import os
+            import numpy as np
+            import plotly.graph_objects as go
+            import matplotlib.pyplot as plt
+            from datetime import datetime, timedelta
+            from mapa_ativos import MAPA_ATIVOS
+            from mapa_fiis import MAPA_FIIS
+            import re
+            import sqlalchemy
+            from passlib.context import CryptContext
+
+            print("--- DEBUG 1: Fim das importações ---")
+
+            # --- CONFIGURAÇÃO DA PÁGINA (DEVE SER O PRIMEIRO COMANDO STREAMLIT) ---
+            st.set_page_config(page_title="Análise de Carteira", page_icon="💼", layout="wide")
+            print("--- DEBUG 2: st.set_page_config executado ---")
+
+            # --- CONSTANTES E OBJETOS GLOBAIS ---
             try:
-                print("--- DEBUG: Tentando conectar ao banco de dados ---")
-                lista_dfs = []
-                for ativo in ativos_selecionados:
-                    caminho_arquivo = os.path.join(DATA_PATH, f"{ativo}.csv")
-                    # Adicionamos skiprows=[1] para pular a linha extra que causa erros
-                    df_ativo = pd.read_csv(caminho_arquivo, index_col='Date', parse_dates=True, skiprows=[1])
-                    df_ativo.rename(columns={'Close': ativo}, inplace=True)
-                    lista_dfs.append(df_ativo)
+                DATA_PATH = "dados"
+                MAPA_GERAL_ATIVOS = {**MAPA_ATIVOS, **MAPA_FIIS}
+                MAPA_BENCHMARK = {'IBOVESPA': 'IBOV_BVSP.csv', 'IFIX': 'IFIX.SA.csv', 'IDIV': 'IDIV.SA.csv',
+                                  'CDI': 'CDI.csv',
+                                  'IPCA': 'IPCA.csv'}
+                PREGOES_NO_ANO = 252
+                TAXA_LIVRE_DE_RISCO = 0.105
+                print("--- DEBUG 3: Constantes definidas ---")
 
-                df_portfolio_completo = pd.concat(lista_dfs, axis=1)
-                df_portfolio_completo = df_portfolio_completo.apply(pd.to_numeric, errors='coerce')
-                df_portfolio_completo.sort_index(inplace=True)
-                df_portfolio_completo.dropna(inplace=True)
-                print("--- DEBUG: Conexão com o banco de dados bem-sucedida ---")
+                todos_arquivos = os.listdir(DATA_PATH)
+                disponiveis = [arquivo.replace('.csv', '') for arquivo in todos_arquivos if arquivo.endswith('.SA.csv')]
+                disponiveis.sort()
+                print("--- DEBUG 4: Lista de ativos disponíveis carregada ---")
+
+                # --- CONEXÃO COM BANCO DE DADOS E SENHA ---
+                DATABASE_URL = os.environ.get('DATABASE_URL')
+                engine = None
+                if DATABASE_URL:
+                    engine = sqlalchemy.create_engine(DATABASE_URL)
+                    print("--- DEBUG 5: Engine do SQLAlchemy criada ---")
+                else:
+                    print("--- DEBUG 5: AVISO - DATABASE_URL não encontrada no ambiente ---")
+
+                # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+                print("--- DEBUG 6: Contexto de senha (passlib) definido ---")
 
             except Exception as e:
-                print(f"--- DEBUG: FALHA ao conectar ao banco de dados. Erro: {e}")
-                st.error(f"Ocorreu um erro ao ler os arquivos de dados dos ativos: {e}")
+                print(f"--- ERRO FATAL NA INICIALIZAÇÃO: {e} ---")
+                st.error(f"Ocorreu um erro fatal durante a inicialização do aplicativo: {e}")
                 st.stop()
+
+
+            # --- DEFINIÇÃO DE FUNÇÕES ---
+            def check_login(email, password):
+                # ATENÇÃO: Esta é a versão de TESTE. O login sempre falhará.
+                st.error("Login temporariamente desativado para teste de inicialização.")
+                print("--- DEBUG: A função de login de TESTE foi chamada ---")
+                return False, None
+
+
+            print("--- DEBUG 7: Funções definidas ---")
+
+            # --- INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
+            if "authentication_status" not in st.session_state:
+                st.session_state["authentication_status"] = None
+            if "name" not in st.session_state:
+                st.session_state["name"] = None
+            if 'resultados_otimizacao' not in st.session_state:
+                st.session_state.resultados_otimizacao = None
+            if 'ativos_otimizados' not in st.session_state:
+                st.session_state.ativos_otimizados = []
+            if 'gerar_analise_ia' not in st.session_state:
+                st.session_state.gerar_analise_ia = False
+            print("--- DEBUG 8: Estado da sessão inicializado ---")
+
+            # --- LÓGICA PRINCIPAL: LOGIN OU DASHBOARD ---
+
+            # Se o usuário NÃO estiver logado, mostra o formulário de login
+            if not st.session_state["authentication_status"]:
+                print("--- DEBUG 9: Exibindo tela de login ---")
+                st.sidebar.title("Login")
+                email = st.sidebar.text_input("Email")
+                password = st.sidebar.text_input("Senha", type="password")
+
+                st.warning('Por favor, insira seu usuário e senha para acessar')
+
+                if st.sidebar.button("Entrar"):
+                    is_logged_in, user_name = check_login(email, password)
+                    if is_logged_in:
+                        st.session_state["authentication_status"] = True
+                        st.session_state["name"] = user_name
+                        st.rerun()
+                    else:
+                        st.session_state["authentication_status"] = False
+                        st.rerun()
+
+                if st.session_state["authentication_status"] is False:
+                    st.sidebar.error("Email ou senha incorreta.")
+
+            # Se o usuário ESTIVER logado, mostra o dashboard
+            else:
+                print("--- DEBUG 10: Exibindo o dashboard principal ---")
+
+                # --- Barra Lateral do Usuário Logado ---
+                st.sidebar.title(f'Bem-vindo(a), *{st.session_state["name"]}*!')
+                if st.sidebar.button("Logout"):
+                    st.session_state["authentication_status"] = None
+                    st.session_state["name"] = None
+                    st.rerun()
+
+                # --- Título Principal ---
+                st.title('Dashboard de Análise de Carteiras 💼')
+
+                # --- Barra Lateral de Definição da Carteira ---
+                st.sidebar.header('Definição da Carteira')
+                default_selection = [ativo for ativo in ['PETR4.SA', 'WEGE3.SA', 'ITUB4.SA'] if ativo in disponiveis]
+                ativos_selecionados = st.sidebar.multiselect('Selecione os Ativos', disponiveis,
+                                                             default=default_selection)
+                st.sidebar.caption("Aviso: Esta ferramenta não constitui recomendação de investimento.")
+
+                # O resto do seu código do dashboard...
+                # ... (cole aqui toda a lógica de análise de carteira que começa com "if len(ativos_selecionados) >= 2:")
+
+                if len(ativos_selecionados) >= 2:
+
+                    # Bloco CORRIGIDO para leitura dos ativos
+                    try:
+                        lista_dfs = []
+                        for ativo in ativos_selecionados:
+                            caminho_arquivo = os.path.join(DATA_PATH, f"{ativo}.csv")
+                            df_ativo = pd.read_csv(caminho_arquivo, index_col='Date', parse_dates=True, skiprows=[1])
+                            df_ativo.rename(columns={'Close': ativo}, inplace=True)
+                            lista_dfs.append(df_ativo)
+
+                        df_portfolio_completo = pd.concat(lista_dfs, axis=1)
+                        df_portfolio_completo = df_portfolio_completo.apply(pd.to_numeric, errors='coerce')
+                        df_portfolio_completo.sort_index(inplace=True)
+                        df_portfolio_completo.dropna(inplace=True)
+
+                    except Exception as e:
+                        st.error(f"Ocorreu um erro ao ler os arquivos de dados dos ativos: {e}")
+                        st.stop()
+
+                    # ... Atualizado para login usuarios até aqui
 
             st.sidebar.subheader("Período de Análise")
             data_minima = df_portfolio_completo.index.min().date()
@@ -357,12 +539,7 @@ if st.session_state["authentication_status"]:
     # (Removido o st.set_page_config daqui pois ele deve ser a primeira coisa no script)
     plt.style.use('seaborn-v0_8-darkgrid')
 
-    # --- DADOS INICIAIS E MAPEAMENTOS ---
-    DATA_PATH = "dados"
-    # ... (e todo o resto do seu código que já funcionava)
 
-    st.title('Dashboard de Análise de Carteiras 💼')
-    # ... (e assim por diante)
 
 
 # Se o login falhar...
