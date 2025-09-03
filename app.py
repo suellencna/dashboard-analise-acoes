@@ -343,16 +343,29 @@ if st.session_state.get("authentication_status"):
                         df_pesos_otimos = pd.DataFrame(pesos_otimos, index=st.session_state.ativos_otimizados,
                                                        columns=['Peso'])
 
-                        # Novo código do gráfico de pizza com Plotly
                         fig_pie_otima = go.Figure(
                             data=[go.Pie(
                                 labels=df_pesos_otimos.index,
                                 values=df_pesos_otimos['Peso'],
                                 hole=.3,
-                                textinfo='label+percent'
+                                # Removemos 'label' de textinfo para não poluir o gráfico
+                                textinfo='percent'
                             )]
                         )
-                        fig_pie_otima.update_layout(showlegend=False)
+
+                        # --- Inclusão de Legenda ---
+                        fig_pie_otima.update_layout(
+                            # 1. Ativamos a legenda
+                            showlegend=True,
+                            # 2. Configuramos a posição da legenda
+                            legend=dict(
+                                orientation="h",  # 'h' para horizontal
+                                yanchor="bottom",
+                                y=-0.2,  # Posição vertical (abaixo do gráfico)
+                                xanchor="center",
+                                x=0.5  # Posição horizontal (centralizado)
+                            )
+                        )
                         st.plotly_chart(fig_pie_otima, use_container_width=True)
 
 
