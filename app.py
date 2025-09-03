@@ -297,7 +297,8 @@ if st.session_state.get("authentication_status"):
                     st.info("""
                                     #### Entendendo o Gráfico de Markowitz
 
-                                    * **O que é?** Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
+                                    * **O que é?** 
+                                        Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
 
                                     * **O que o gráfico significa?**
                                         * **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
@@ -306,7 +307,9 @@ if st.session_state.get("authentication_status"):
                                         * **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
                                         * **"X" Vermelho:** A carteira com o menor risco possível.
 
-                                    * **Como usar?** Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
+                                    * **Como usar?** 
+                                        Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
+                                    
                                     """)
                     # --- FIM DO TEXTO EXPLICATIVO ---
                     col_graf_fronteira, col_graf_pesos = st.columns([0.6, 0.4])
@@ -333,6 +336,26 @@ if st.session_state.get("authentication_status"):
                         ax.legend(loc='upper right', fontsize=8)  # <-- LEGENDA DE VOLTA
                         st.pyplot(fig)
 
+
+                    #Gráfico de Carteira ótima em pizza
+                    with col_graf_pesos:
+                        st.markdown("###### Composição da Carteira Ótima")
+                        df_pesos_otimos = pd.DataFrame(pesos_otimos, index=st.session_state.ativos_otimizados,
+                                                       columns=['Peso'])
+
+                        # Novo código do gráfico de pizza com Plotly
+                        fig_pie_otima = go.Figure(
+                            data=[go.Pie(
+                                labels=df_pesos_otimos.index,
+                                values=df_pesos_otimos['Peso'],
+                                hole=.3,
+                                textinfo='label+percent'
+                            )]
+                        )
+                        fig_pie_otima.update_layout(showlegend=False)
+                        st.plotly_chart(fig_pie_otima, use_container_width=True)
+                    # Gráfico de Carteira ótima em barra
+                    """
                     with col_graf_pesos:
                         st.markdown("###### Composição da Carteira Ótima")
                         df_pesos_otimos = pd.DataFrame(pesos_otimos, index=st.session_state.ativos_otimizados,
@@ -346,6 +369,7 @@ if st.session_state.get("authentication_status"):
                         ax_pesos.bar_label(barras, labels=rotulos, padding=3, fontsize=10)
                         ax_pesos.set_xlim(right=df_pesos_otimos['Peso'].max() * 1.25)
                         st.pyplot(fig_pesos)
+                        """
 
                     st.markdown("---")
                     st.subheader('Métricas dos Ativos para Comparação')
@@ -358,16 +382,43 @@ if st.session_state.get("authentication_status"):
                         "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
                     }, use_container_width=True, hide_index=True)
 
-                    if st.button('Gerar Análise da Carteira com IA', key='ia_btn'):
-                        st.session_state.gerar_analise_ia = True
+                    #Análise da Carteira por IA
+                    #substituido por calculo de valores
+                    
+                    st.markdown("---")
+                    st.subheader("Calcular Valor por Ativo na Carteira Ótima")
 
-                    if st.session_state.gerar_analise_ia:
-                        with st.spinner('A IA do Gemini está analisando a carteira...'):
-                            pesos_str = ", ".join([f"{t.replace('.SA', '')}: {p:.1%}" for t, p in
-                                                   zip(st.session_state.ativos_otimizados, pesos_otimos)])
-                            st.info('**Análise Qualitativa da Carteira Ótima (gerada por IA)**')
-                            st.write(
-                                f"A otimização matemática, buscando o maior retorno ajustado ao risco, sugeriu a alocação: **{pesos_str}**. Esta combinação busca o maior retorno ajustado ao risco, com base nos dados históricos. Ativos com maior peso provavelmente tiveram uma performance superior, enquanto os outros foram incluídos para otimizar a diversificação e reduzir o risco geral do portfólio.")
+                    valor_total = st.number_input(
+                        "Se eu investir (R$)",
+                        min_value=100.0,
+                        value=50000.0,
+                        step=500.0,
+                        format="%.2f"
+                    )
+
+                    if valor_total > 0:
+                        df_valores = pd.DataFrame({
+                            'Ativo': st.session_state.ativos_otimizados,
+                            'Peso (%)': pesos_otimos,
+                            'Valor (R$)': [p * valor_total for p in pesos_otimos]
+                        })
+
+                        st.dataframe(df_valores,
+                                     column_config={
+                                         "Peso (%)": st.column_config.ProgressColumn(
+                                             "Peso (%)",
+                                             format="%.2f%%",
+                                             min_value=0,
+                                             max_value=max(pesos_otimos)
+                                         ),
+                                         "Valor (R$)": st.column_config.NumberColumn(
+                                             "Valor (R$)",
+                                             format="R$ %.2f"
+                                         )
+                                     },
+                                     use_container_width=True,
+                                     hide_index=True
+                                     )
                 else:
                     st.info(
                         "A seleção de ativos mudou. Por favor, clique em 'Otimizar Carteira' novamente para recalcular.")
