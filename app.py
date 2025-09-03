@@ -441,21 +441,25 @@ if st.session_state.get("authentication_status"):
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
 
 else:
-    # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
-    st.sidebar.image("prints/slogan_preto.png")
+    # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN (NOVA VERSÃO)
+
+    # 1. Cria um layout centralizado na página principal
+    col1, col2, col3 = st.columns([1, 2, 1])  # Colunas vazias nas laterais (proporção 1:2:1)
+
+    with col2:  # Todo o conteúdo a seguir ficará na coluna central
+        st.image("prints/slogan_preto.jpg", width=400)  # Imagem GRANDE e centralizada
+        st.warning('Por favor, insira seu usuário e senha para acessar')
+
+    # 2. Mantém o formulário de login na barra lateral para uma aparência limpa
     st.sidebar.title("Login")
     email = st.sidebar.text_input("Email")
     password = st.sidebar.text_input("Senha", type="password")
 
-    st.warning('Por favor, insira seu usuário e senha para acessar')
-
     if st.sidebar.button("Entrar"):
-        # Atualizado para receber 3 valores
         is_logged_in, user_name, ultima_carteira = check_login(email, password)
         if is_logged_in:
             st.session_state["authentication_status"] = True
             st.session_state["name"] = user_name
-            # Salva a carteira na sessão para usarmos depois
             st.session_state["ultima_carteira"] = ultima_carteira
             st.session_state.email = email
             st.rerun()
