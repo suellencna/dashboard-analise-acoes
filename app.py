@@ -354,22 +354,7 @@ if st.session_state.get("authentication_status"):
                         )
                         fig_pie_otima.update_layout(showlegend=False)
                         st.plotly_chart(fig_pie_otima, use_container_width=True)
-                    # Gráfico de Carteira ótima em barra
-                    """
-                    with col_graf_pesos:
-                        st.markdown("###### Composição da Carteira Ótima")
-                        df_pesos_otimos = pd.DataFrame(pesos_otimos, index=st.session_state.ativos_otimizados,
-                                                       columns=['Peso'])
-                        fig_pesos, ax_pesos = plt.subplots(figsize=(8, 5))
-                        barras = ax_pesos.barh(df_pesos_otimos.index, df_pesos_otimos['Peso'],
-                                               color=cores_ativos[:len(st.session_state.ativos_otimizados)])
-                        ax_pesos.set_xlabel('Percentual (%)')
-                        ax_pesos.set_title('Alocação por Ativo')
-                        rotulos = [f'{p * 100:.1f}%' for p in df_pesos_otimos['Peso']]
-                        ax_pesos.bar_label(barras, labels=rotulos, padding=3, fontsize=10)
-                        ax_pesos.set_xlim(right=df_pesos_otimos['Peso'].max() * 1.25)
-                        st.pyplot(fig_pesos)
-                        """
+
 
                     st.markdown("---")
                     st.subheader('Métricas dos Ativos para Comparação')
@@ -384,9 +369,9 @@ if st.session_state.get("authentication_status"):
 
                     #Análise da Carteira por IA
                     #substituido por calculo de valores
-                    
+
                     st.markdown("---")
-                    st.subheader("Calcular Valor por Ativo na Carteira Ótima")
+                    st.subheader("Calculo em R$ de quanto teria de cada ativo")
 
                     valor_total = st.number_input(
                         "Se eu investir (R$)",
