@@ -64,6 +64,8 @@ if "name" not in st.session_state:
 if st.session_state.get("authentication_status"):
     # SE ESTIVER LOGADO, MOSTRA O DASHBOARD COMPLETO
     # (TODO O SEU CÓDIGO DO DASHBOARD VAI AQUI DENTRO)
+    st.sidebar.image("prints/slogan_preto.jpg", width=150)
+    st.sidebar.title(f'Bem-vindo(a), {st.session_state["name"]}!')
     plt.style.use('seaborn-v0_8-darkgrid')
     # --- DADOS INICIAIS E MAPEAMENTOS ---
     DATA_PATH = "dados"
@@ -440,6 +442,7 @@ if st.session_state.get("authentication_status"):
 
 else:
     # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
+    st.sidebar.image("prints/slogan_preto.jpg")
     st.sidebar.title("Login")
     email = st.sidebar.text_input("Email")
     password = st.sidebar.text_input("Senha", type="password")
