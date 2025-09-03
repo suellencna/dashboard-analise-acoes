@@ -447,7 +447,7 @@ else:
     col1, col2, col3 = st.columns([1, 2, 1])  # Colunas vazias nas laterais (proporção 1:2:1)
 
     with col2:  # Todo o conteúdo a seguir ficará na coluna central
-        st.image("prints/slogan_preto.jpg", width=400)  # Imagem GRANDE e centralizada
+        st.image("prints/slogan_preto.png", width=400)  # Imagem GRANDE e centralizada
         st.warning('Por favor, insira seu usuário e senha para acessar')
 
     # 2. Mantém o formulário de login na barra lateral para uma aparência limpa
