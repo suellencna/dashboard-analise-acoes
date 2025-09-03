@@ -37,20 +37,22 @@ def check_login(email, password):
     user_data = None
     try:
         with engine.connect() as conn:
-            query = sqlalchemy.text("SELECT nome, senha_hash FROM usuarios WHERE email = :email")
+            # Modificamos a query para buscar a nova coluna 'ultima_carteira'
+            query = sqlalchemy.text("SELECT nome, senha_hash, ultima_carteira FROM usuarios WHERE email = :email")
             result = conn.execute(query, {"email": email}).first()
             if result:
                 user_data = result
     except Exception as e:
         st.error(f"Erro ao consultar o banco de dados: {e}")
-        return False, None
+        return False, None, None  # Retorna 3 valores em caso de erro
 
     if user_data:
-        nome_usuario, senha_hash_salva = user_data
+        nome_usuario, senha_hash_salva, ultima_carteira = user_data
         if pwd_context.verify(password, senha_hash_salva):
-            return True, nome_usuario
+            # Retorna a carteira junto com o nome
+            return True, nome_usuario, ultima_carteira
 
-    return False, None
+    return False, None, None  # Retorna 3 valores em caso de falha
 
 # --- 4. INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
 if "authentication_status" not in st.session_state:
@@ -92,26 +94,35 @@ if st.session_state.get("authentication_status"):
 
     st.title('Dashboard de Análise de Carteiras 💼')
 
+    #--- INICIO DEFINIÇÃO DE CARTEIRA
     st.sidebar.header('Definição da Carteira')
 
-    # Cria uma lista padrão segura, pegando os 3 primeiros ativos da lista de disponíveis
-    default_selection = disponiveis[:3] if len(disponiveis) >= 3 else disponiveis
+    # Lógica para carregar a carteira salva
+    default_selection = []
+    carteira_salva_str = st.session_state.get("ultima_carteira")
+    if carteira_salva_str:
+        default_selection = [ativo for ativo in carteira_salva_str.split(',') if ativo in disponiveis]
 
-    ativos_selecionados = st.sidebar.multiselect('Selecione os Ativos', disponiveis,
-                                                 default=default_selection)
-    st.sidebar.caption("Aviso: Esta ferramenta não constitui recomendação de investimento.")
+    # Se não houver carteira salva, usa o padrão antigo
+    if not default_selection:
+        default_selection = [ativo for ativo in ['PETR4.SA', 'WEGE3.SA', 'ITUB4.SA'] if ativo in disponiveis]
 
-    if 'resultados_otimizacao' not in st.session_state:
-        st.session_state.resultados_otimizacao = None
-    if 'ativos_otimizados' not in st.session_state:
-        st.session_state.ativos_otimizados = []
-    if 'gerar_analise_ia' not in st.session_state:
-        st.session_state.gerar_analise_ia = False
+    ativos_selecionados = st.sidebar.multiselect('Selecione os Ativos', disponiveis, default=default_selection)
 
-    if sorted(st.session_state.ativos_otimizados) != sorted(ativos_selecionados):
-        st.session_state.resultados_otimizacao = None
-        st.session_state.gerar_analise_ia = False
-
+    # Lógica para SALVAR a carteira no banco de dados se houver mudança
+    nova_carteira_str = ",".join(ativos_selecionados)
+    if nova_carteira_str != carteira_salva_str:
+        try:
+            with engine.connect() as conn:
+                query = sqlalchemy.text("UPDATE usuarios SET ultima_carteira = :carteira WHERE email = :email")
+                # Assumindo que o email do usuário logado está em st.session_state
+                # Precisamos adicioná-lo ao session_state no login!
+                conn.execute(query, {"carteira": nova_carteira_str, "email": st.session_state.email})
+                conn.commit()
+                st.session_state["ultima_carteira"] = nova_carteira_str  # Atualiza o estado da sessão
+        except Exception as e:
+            st.sidebar.error(f"Erro ao salvar a carteira: {e}")
+    #---- FIM DA DEFINIÇÃO DE CARTEIRA
     if len(ativos_selecionados) >= 2:
         # Bloco de código NOVO E CORRIGIDO
 
@@ -343,27 +354,31 @@ if st.session_state.get("authentication_status"):
                         df_pesos_otimos = pd.DataFrame(pesos_otimos, index=st.session_state.ativos_otimizados,
                                                        columns=['Peso'])
 
+                        # --- ALTERAÇÃO AQUI: Criando as legendas personalizadas ---
+                        legendas_personalizadas = [f"{ativo} ({peso:.2%})" for ativo, peso in
+                                                   df_pesos_otimos['Peso'].items()]
+
                         fig_pie_otima = go.Figure(
                             data=[go.Pie(
-                                labels=df_pesos_otimos.index,
+                                # Usamos as legendas personalizadas aqui
+                                labels=legendas_personalizadas,
                                 values=df_pesos_otimos['Peso'],
                                 hole=.3,
-                                # Removemos 'label' de textinfo para não poluir o gráfico
-                                textinfo='percent'
+                                # E voltamos o textinfo para mostrar tudo no gráfico também
+                                textinfo='label+percent',
+                                # Isso garante que o texto dentro da pizza não use a legenda personalizada
+                                texttemplate='%{label}<br>%{percent}'
                             )]
                         )
 
-                        # --- Inclusão de Legenda ---
                         fig_pie_otima.update_layout(
-                            # 1. Ativamos a legenda
                             showlegend=True,
-                            # 2. Configuramos a posição da legenda
                             legend=dict(
-                                orientation="h",  # 'h' para horizontal
+                                orientation="h",
                                 yanchor="bottom",
-                                y=-0.2,  # Posição vertical (abaixo do gráfico)
+                                y=-0.2,
                                 xanchor="center",
-                                x=0.5  # Posição horizontal (centralizado)
+                                x=0.5
                             )
                         )
                         st.plotly_chart(fig_pie_otima, use_container_width=True)
@@ -384,7 +399,7 @@ if st.session_state.get("authentication_status"):
                     #substituido por calculo de valores
 
                     st.markdown("---")
-                    st.subheader("Calculo em R$ de quanto teria de cada ativo")
+                    st.subheader("Calculo em R$ por ativo")
 
                     valor_total = st.number_input(
                         "Se eu investir (R$)",
@@ -432,10 +447,14 @@ else:
     st.warning('Por favor, insira seu usuário e senha para acessar')
 
     if st.sidebar.button("Entrar"):
-        is_logged_in, user_name = check_login(email, password)
+        # Atualizado para receber 3 valores
+        is_logged_in, user_name, ultima_carteira = check_login(email, password)
         if is_logged_in:
             st.session_state["authentication_status"] = True
             st.session_state["name"] = user_name
+            # Salva a carteira na sessão para usarmos depois
+            st.session_state["ultima_carteira"] = ultima_carteira
+            st.session_state.email = email
             st.rerun()
         else:
             st.session_state["authentication_status"] = False
