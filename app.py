@@ -37,22 +37,25 @@ def check_login(email, password):
     user_data = None
     try:
         with engine.connect() as conn:
-            # Modificamos a query para buscar a nova coluna 'ultima_carteira'
-            query = sqlalchemy.text("SELECT nome, senha_hash, ultima_carteira FROM usuarios WHERE email = :email")
+            # Query atualizada para buscar as novas colunas
+            query = sqlalchemy.text(
+                "SELECT nome, senha_hash, ultima_carteira, ultimos_pesos, data_inicio_salva, data_fim_salva "
+                "FROM usuarios WHERE email = :email"
+            )
             result = conn.execute(query, {"email": email}).first()
             if result:
                 user_data = result
     except Exception as e:
         st.error(f"Erro ao consultar o banco de dados: {e}")
-        return False, None, None  # Retorna 3 valores em caso de erro
+        return False, None, None, None, None, None  # Retorna 6 valores
 
     if user_data:
-        nome_usuario, senha_hash_salva, ultima_carteira = user_data
+        nome_usuario, senha_hash_salva, ultima_carteira, ultimos_pesos, data_inicio, data_fim = user_data
         if pwd_context.verify(password, senha_hash_salva):
-            # Retorna a carteira junto com o nome
-            return True, nome_usuario, ultima_carteira
+            # Retorna todos os dados do usuário
+            return True, nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim
 
-    return False, None, None  # Retorna 3 valores em caso de falha
+    return False, None, None, None, None, None  # Retorna 6 valores
 
 # --- 4. INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
 if "authentication_status" not in st.session_state:
@@ -124,6 +127,7 @@ if st.session_state.get("authentication_status"):
                 st.session_state["ultima_carteira"] = nova_carteira_str  # Atualiza o estado da sessão
         except Exception as e:
             st.sidebar.error(f"Erro ao salvar a carteira: {e}")
+
     #---- FIM DA DEFINIÇÃO DE CARTEIRA
     if len(ativos_selecionados) >= 2:
         # Bloco de código NOVO E CORRIGIDO
@@ -150,13 +154,17 @@ if st.session_state.get("authentication_status"):
         st.sidebar.subheader("Período de Análise")
         data_minima = df_portfolio_completo.index.min().date()
         data_maxima = df_portfolio_completo.index.max().date()
-        data_inicio_default = data_maxima - timedelta(days=365)
-        if data_inicio_default < data_minima:
-            data_inicio_default = data_minima
-        data_inicio = st.sidebar.date_input("Data de Início", value=data_inicio_default, min_value=data_minima,
-                                            max_value=data_maxima, format="DD/MM/YYYY")
-        data_fim = st.sidebar.date_input("Data de Fim", value=data_maxima, min_value=data_minima, max_value=data_maxima,
-                                         format="DD/MM/YYYY")
+
+        # Usa a data salva, ou um padrão se não houver
+        data_inicio_salva = st.session_state.get("data_inicio_salva")
+        data_fim_salva = st.session_state.get("data_fim_salva")
+
+        data_inicio = st.sidebar.date_input("Data de Início",
+                                            value=data_inicio_salva or (data_maxima - timedelta(days=365)),
+                                            min_value=data_minima, max_value=data_maxima, format="DD/MM/YYYY")
+        data_fim = st.sidebar.date_input("Data de Fim",
+                                         value=data_fim_salva or data_maxima,
+                                         min_value=data_minima, max_value=data_maxima, format="DD/MM/YYYY")
 
         if data_inicio > data_fim:
             st.sidebar.error("A data de início não pode ser posterior à data de fim.")
@@ -168,10 +176,53 @@ if st.session_state.get("authentication_status"):
 
         pesos = []
         st.sidebar.subheader('Pesos da Carteira Atual (%)')
+        # Converte a string de pesos salvos em uma lista de números
+        pesos_salvos_str = st.session_state.get("ultimos_pesos")
+        pesos_salvos = []
+        if pesos_salvos_str:
+            try:
+                pesos_salvos = [float(p) for p in pesos_salvos_str.split(',')]
+            except:
+                pesos_salvos = []  # Ignora se houver erro na conversão
+
         for i, ativo in enumerate(ativos_selecionados):
+            # Usa o peso salvo se ele existir para este ativo, senão usa o padrão
+            valor_padrao = pesos_salvos[i] if i < len(pesos_salvos) else round(100 / len(ativos_selecionados), 2)
             peso = st.sidebar.number_input(f'Peso para {ativo}', min_value=0.0, max_value=100.0,
-                                           value=round(100 / len(ativos_selecionados), 2), step=1.0, key=f'peso_{i}')
+                                           value=valor_padrao, step=1.0, key=f'peso_{i}')
             pesos.append(peso)
+
+        # Adicione este bloco na barra lateral, após os inputs de peso
+        if st.sidebar.button("Salvar Configuração da Carteira"):
+            # Formata os pesos para salvar como texto
+            pesos_para_salvar = ",".join([str(p) for p in pesos])
+
+            try:
+                with engine.connect() as conn:
+                    query = sqlalchemy.text(
+                        "UPDATE usuarios SET "
+                        "ultima_carteira = :carteira, "
+                        "ultimos_pesos = :pesos, "
+                        "data_inicio_salva = :data_inicio, "
+                        "data_fim_salva = :data_fim "
+                        "WHERE email = :email"
+                    )
+                    conn.execute(query, {
+                        "carteira": ",".join(ativos_selecionados),
+                        "pesos": pesos_para_salvar,
+                        "data_inicio": data_inicio,
+                        "data_fim": data_fim,
+                        "email": st.session_state.email
+                    })
+                    conn.commit()
+                    st.sidebar.success("Configuração salva com sucesso!")
+                    # Atualiza o estado da sessão com os novos valores
+                    st.session_state["ultima_carteira"] = ",".join(ativos_selecionados)
+                    st.session_state["ultimos_pesos"] = pesos_para_salvar
+                    st.session_state["data_inicio_salva"] = data_inicio
+                    st.session_state["data_fim_salva"] = data_fim
+            except Exception as e:
+                st.sidebar.error(f"Erro ao salvar: {e}")
 
         if sum(pesos) > 0:
             pesos = np.array(pesos) / sum(pesos)
@@ -455,14 +506,21 @@ else:
     email = st.sidebar.text_input("Email")
     password = st.sidebar.text_input("Senha", type="password")
 
+    # Tela de Login
     if st.sidebar.button("Entrar"):
-        is_logged_in, user_name, ultima_carteira = check_login(email, password)
+        # Atualizado para receber 6 valores
+        is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim = check_login(email, password)
         if is_logged_in:
             st.session_state["authentication_status"] = True
             st.session_state["name"] = user_name
+            st.session_state["email"] = email
+            # Armazena tudo na sessão
             st.session_state["ultima_carteira"] = ultima_carteira
-            st.session_state.email = email
+            st.session_state["ultimos_pesos"] = ultimos_pesos
+            st.session_state["data_inicio_salva"] = data_inicio
+            st.session_state["data_fim_salva"] = data_fim
             st.rerun()
+
         else:
             st.session_state["authentication_status"] = False
             st.rerun()
