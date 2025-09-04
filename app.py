@@ -69,7 +69,42 @@ if st.session_state.get("authentication_status"):
     # (TODO O SEU CÓDIGO DO DASHBOARD VAI AQUI DENTRO)
     st.sidebar.image("prints/slogan_preto.png", width=150)
     st.sidebar.title(f'Bem-vindo(a), {st.session_state["name"]}!')
+
+    #LOGOUT
+    # Inicializa o estado de confirmação do logout se não existir
+    if 'confirming_logout' not in st.session_state:
+        st.session_state.confirming_logout = False
+
+    # Se o usuário clicou em Logout, muda o estado para pedir confirmação
+    if st.sidebar.button("Logout", key="logout_initial"):
+        st.session_state.confirming_logout = True
+        st.rerun()
+
+    # Se o estado for de confirmação, mostra as opções
+    if st.session_state.confirming_logout:
+        st.sidebar.warning("Você tem certeza que deseja sair?")
+        col1, col2 = st.sidebar.columns(2)
+        with col1:
+            if st.button("Sim", use_container_width=True, type="primary"):
+                # Lógica de logout real
+                st.session_state["authentication_status"] = None
+                st.session_state["name"] = None
+                st.session_state["email"] = None  # Limpa todos os dados da sessão
+                st.session_state["ultima_carteira"] = None
+                st.session_state["ultimos_pesos"] = None
+                st.session_state["data_inicio_salva"] = None
+                st.session_state["data_fim_salva"] = None
+                st.session_state.confirming_logout = False
+                st.rerun()
+        with col2:
+            if st.button("Não", use_container_width=True):
+                st.session_state.confirming_logout = False
+                st.rerun()
+
+
     plt.style.use('seaborn-v0_8-darkgrid')
+
+
     # --- DADOS INICIAIS E MAPEAMENTOS ---
     DATA_PATH = "dados"
 
@@ -485,6 +520,100 @@ if st.session_state.get("authentication_status"):
                                      use_container_width=True,
                                      hide_index=True
                                      )
+                        # <<< COLE O NOVO CÓDIGO DE MONTE CARLO EXATAMENTE AQUI >>>
+
+                        st.markdown("---")
+                        with st.expander("Clique aqui para Projeção de Patrimônio Futuro (Monte Carlo)"):
+
+                            st.sidebar.subheader("Opções da Simulação de Monte Carlo")  # Movido para a sidebar
+                            valor_inicial = st.sidebar.number_input("Valor do Investimento Inicial (R$)",
+                                                                    min_value=1000.0, value=25000.0, step=1000.0)
+                            anos_projecao = st.sidebar.slider("Anos de Projeção", 1, 30, 10)
+                            num_simulacoes = st.sidebar.select_slider("Número de Simulações",
+                                                                      options=[100, 500, 1000, 5000], value=1000)
+
+                            if st.button('Simular Patrimônio Futuro'):
+                                # 1. PEGAR OS DADOS DA CARTEIRA ÓTIMA
+                                retorno_anual_esperado = res['retorno'][indice_max_sharpe]
+                                risco_anual_esperado = res['risco'][indice_max_sharpe]
+
+                                # 2. CONVERTER DADOS ANUAIS PARA DIÁRIOS
+                                retorno_diario_medio = retorno_anual_esperado / PREGOES_NO_ANO
+                                volatilidade_diaria = risco_anual_esperado / np.sqrt(PREGOES_NO_ANO)
+
+                                dias_projecao = anos_projecao * PREGOES_NO_ANO
+
+                                # 3. EXECUTAR A SIMULAÇÃO DE MONTE CARLO
+                                with st.spinner(
+                                        f"Simulando {num_simulacoes} futuros possíveis para os próximos {anos_projecao} anos..."):
+                                    matriz_resultados = np.zeros((dias_projecao, num_simulacoes))
+
+                                    for i in range(num_simulacoes):
+                                        retornos_aleatorios = np.random.normal(retorno_diario_medio,
+                                                                               volatilidade_diaria, dias_projecao)
+
+                                        caminho_patrimonio = np.zeros(dias_projecao)
+                                        caminho_patrimonio[0] = valor_inicial * (1 + retornos_aleatorios[0])
+
+                                        for j in range(1, dias_projecao):
+                                            caminho_patrimonio[j] = caminho_patrimonio[j - 1] * (
+                                                        1 + retornos_aleatorios[j])
+
+                                        matriz_resultados[:, i] = caminho_patrimonio
+
+                                    # 4. PREPARAR DADOS PARA PLOTAGEM
+                                    df_simulacao = pd.DataFrame(matriz_resultados)
+                                    # Use um índice de datas de negócios para um eixo X mais realista
+                                    datas_projecao = pd.bdate_range(start=datetime.now().date(), periods=dias_projecao)
+                                    df_simulacao.index = datas_projecao
+
+                                    # 5. GERAR O GRÁFICO (PLOTLY)
+                                    fig_mc = go.Figure()
+
+                                    # Adiciona todas as simulações com baixa opacidade
+                                    # Nota: para performance, podemos limitar a exibição a um subconjunto
+                                    simulacoes_a_mostrar = min(num_simulacoes, 500)
+                                    for i in range(simulacoes_a_mostrar):
+                                        fig_mc.add_trace(
+                                            go.Scatter(x=df_simulacao.index, y=df_simulacao.iloc[:, i], mode='lines',
+                                                       line=dict(width=1, color='lightblue'), showlegend=False,
+                                                       opacity=0.1))
+
+                                    # Adiciona as linhas de quantis
+                                    fig_mc.add_trace(
+                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.05, axis=1),
+                                                   mode='lines', line=dict(color='red', width=2),
+                                                   name='Pior Cenário (5%)'))
+                                    fig_mc.add_trace(
+                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.50, axis=1),
+                                                   mode='lines', line=dict(color='orange', width=3),
+                                                   name='Cenário Mediano (50%)'))
+                                    fig_mc.add_trace(
+                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.95, axis=1),
+                                                   mode='lines', line=dict(color='lightgreen', width=2),
+                                                   name='Melhor Cenário (95%)'))
+
+                                    fig_mc.update_layout(title_text=f'Projeção de Patrimônio em {anos_projecao} Anos',
+                                                         xaxis_title='Data', yaxis_title='Patrimônio (R$)',
+                                                         template='plotly_dark', showlegend=True)
+
+                                    st.plotly_chart(fig_mc, use_container_width=True)
+
+                                    # 6. TRADUZIR OS RESULTADOS
+                                    patrimonio_final_mediano = df_simulacao.iloc[-1].median()
+                                    patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
+                                    patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
+
+                                    st.info(f"""
+                                    #### Leitura do Gráfico:
+                                    Com base no perfil de risco/retorno da carteira otimizada, a simulação mostra que:
+
+                                    * **Cenário Mediano (Linha Laranja):** Há 50% de chance do seu patrimônio final ser superior a **R$ {patrimonio_final_mediano:,.2f}**. Este é o resultado mais provável estatisticamente.
+                                    * **Faixa de Resultados (Entre as linhas vermelha e verde):** Existe 90% de probabilidade de que, ao final de {anos_projecao} anos, seu patrimônio esteja entre **R$ {patrimonio_final_pior_cenario:,.2f}** e **R$ {patrimonio_final_melhor_cenario:,.2f}**.
+
+                                    Esta ferramenta ajuda a visualizar o impacto do tempo e da consistência nos seus investimentos, além de dar uma noção realista sobre a faixa de resultados possíveis.
+                                    """)
+
                 else:
                     st.info(
                         "A seleção de ativos mudou. Por favor, clique em 'Otimizar Carteira' novamente para recalcular.")
