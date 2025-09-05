@@ -538,21 +538,75 @@ if st.session_state.get("authentication_status"):
                                 st.session_state.monte_carlo_results = None
 
                             if st.button('Simular Patrimônio Futuro'):
-                                # ... (todo o código da simulação, da linha 1 à 6)
-                                # ... (copie e cole a lógica da simulação que já temos aqui)
-                                # ...
-                                # Ao final, em vez de mostrar o gráfico e o texto, guardamos eles no session_state
+                                # A LÓGICA DA SIMULAÇÃO PRECISA ESTAR AQUI DENTRO
+                                with st.spinner(f"Simulando {num_simulacoes} futuros possíveis..."):
+                                    # 1. PEGAR OS DADOS DA CARTEIRA ÓTIMA
+                                    retorno_anual_esperado = res['retorno'][indice_max_sharpe]
+                                    risco_anual_esperado = res['risco'][indice_max_sharpe]
 
-                                # Guardando o Dicionário de Resultados
-                                st.session_state.monte_carlo_results = {
-                                    "fig": fig_mc,
-                                    "mediano": patrimonio_final_mediano,
-                                    "pior": patrimonio_final_pior_cenario,
-                                    "melhor": patrimonio_final_melhor_cenario,
-                                    "anos": anos_projecao,
-                                    "investimento": valor_inicial,
-                                    "simulacoes": num_simulacoes
-                                }
+                                    # 2. CONVERTER DADOS ANUAIS PARA DIÁRIOS
+                                    retorno_diario_medio = retorno_anual_esperado / PREGOES_NO_ANO
+                                    volatilidade_diaria = risco_anual_esperado / np.sqrt(PREGOES_NO_ANO)
+                                    dias_projecao = anos_projecao * PREGOES_NO_ANO
+
+                                    # 3. EXECUTAR A SIMULAÇÃO
+                                    matriz_resultados = np.zeros((dias_projecao, num_simulacoes))
+                                    for i in range(num_simulacoes):
+                                        retornos_aleatorios = np.random.normal(retorno_diario_medio,
+                                                                               volatilidade_diaria, dias_projecao)
+                                        caminho_patrimonio = np.zeros(dias_projecao)
+                                        caminho_patrimonio[0] = valor_inicial * (1 + retornos_aleatorios[0])
+                                        for j in range(1, dias_projecao):
+                                            caminho_patrimonio[j] = caminho_patrimonio[j - 1] * (
+                                                        1 + retornos_aleatorios[j])
+                                        matriz_resultados[:, i] = caminho_patrimonio
+
+                                    # 4. PREPARAR DADOS E GRÁFICO
+                                    df_simulacao = pd.DataFrame(matriz_resultados)
+                                    datas_projecao = pd.bdate_range(start=datetime.now().date(), periods=dias_projecao)
+                                    df_simulacao.index = datas_projecao
+
+                                    fig_mc = go.Figure()  # <-- A variável 'fig_mc' é criada aqui
+
+                                    simulacoes_a_mostrar = min(num_simulacoes, 500)
+                                    for i in range(simulacoes_a_mostrar):
+                                        fig_mc.add_trace(
+                                            go.Scatter(x=df_simulacao.index, y=df_simulacao.iloc[:, i], mode='lines',
+                                                       line=dict(width=1, color='lightblue'), showlegend=False,
+                                                       opacity=0.1))
+
+                                    fig_mc.add_trace(
+                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.05, axis=1),
+                                                   mode='lines', line=dict(color='red', width=2),
+                                                   name='Pior Cenário (5%)'))
+                                    fig_mc.add_trace(
+                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.50, axis=1),
+                                                   mode='lines', line=dict(color='orange', width=3),
+                                                   name='Cenário Mediano (50%)'))
+                                    fig_mc.add_trace(
+                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.95, axis=1),
+                                                   mode='lines', line=dict(color='lightgreen', width=2),
+                                                   name='Melhor Cenário (95%)'))
+
+                                    fig_mc.update_layout(title_text=f'Projeção de Patrimônio em {anos_projecao} Anos',
+                                                         xaxis_title='Data', yaxis_title='Patrimônio (R$)',
+                                                         template='plotly_dark', showlegend=True)
+
+                                    # 5. PEGAR OS RESULTADOS FINAIS
+                                    patrimonio_final_mediano = df_simulacao.iloc[-1].median()
+                                    patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
+                                    patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
+
+                                    # 6. GUARDAR TUDO NO ESTADO DA SESSÃO
+                                    st.session_state.monte_carlo_results = {
+                                        "fig": fig_mc,
+                                        "mediano": patrimonio_final_mediano,
+                                        "pior": patrimonio_final_pior_cenario,
+                                        "melhor": patrimonio_final_melhor_cenario,
+                                        "anos": anos_projecao,
+                                        "investimento": valor_inicial,
+                                        "simulacoes": num_simulacoes
+                                    }
                                 st.rerun()  # Força o recarregamento para exibir os resultados
 
                             # Bloco que exibe os resultados se eles existirem no estado da sessão
