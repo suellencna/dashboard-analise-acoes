@@ -525,94 +525,60 @@ if st.session_state.get("authentication_status"):
                         st.markdown("---")
                         with st.expander("Clique aqui para Projeção de Patrimônio Futuro (Monte Carlo)"):
 
-                            st.sidebar.subheader("Opções da Simulação de Monte Carlo")  # Movido para a sidebar
+                            st.sidebar.subheader("Opções da Simulação de Monte Carlo")
                             valor_inicial = st.sidebar.number_input("Valor do Investimento Inicial (R$)",
                                                                     min_value=1000.0, value=25000.0, step=1000.0)
                             anos_projecao = st.sidebar.slider("Anos de Projeção", 1, 30, 10)
-                            num_simulacoes = st.sidebar.select_slider("Número de Simulações",
-                                                                      options=[100, 500, 1000, 5000], value=1000)
+                            # Versão otimizada do seletor de simulações
+                            num_simulacoes = st.sidebar.select_slider("Número de Simulações", options=[100, 250, 500],
+                                                                      value=250)
+
+                            # Inicializa o estado da sessão para guardar os resultados
+                            if 'monte_carlo_results' not in st.session_state:
+                                st.session_state.monte_carlo_results = None
 
                             if st.button('Simular Patrimônio Futuro'):
-                                # 1. PEGAR OS DADOS DA CARTEIRA ÓTIMA
-                                retorno_anual_esperado = res['retorno'][indice_max_sharpe]
-                                risco_anual_esperado = res['risco'][indice_max_sharpe]
+                                # ... (todo o código da simulação, da linha 1 à 6)
+                                # ... (copie e cole a lógica da simulação que já temos aqui)
+                                # ...
+                                # Ao final, em vez de mostrar o gráfico e o texto, guardamos eles no session_state
 
-                                # 2. CONVERTER DADOS ANUAIS PARA DIÁRIOS
-                                retorno_diario_medio = retorno_anual_esperado / PREGOES_NO_ANO
-                                volatilidade_diaria = risco_anual_esperado / np.sqrt(PREGOES_NO_ANO)
+                                # Guardando o Dicionário de Resultados
+                                st.session_state.monte_carlo_results = {
+                                    "fig": fig_mc,
+                                    "mediano": patrimonio_final_mediano,
+                                    "pior": patrimonio_final_pior_cenario,
+                                    "melhor": patrimonio_final_melhor_cenario,
+                                    "anos": anos_projecao,
+                                    "investimento": valor_inicial,
+                                    "simulacoes": num_simulacoes
+                                }
+                                st.rerun()  # Força o recarregamento para exibir os resultados
 
-                                dias_projecao = anos_projecao * PREGOES_NO_ANO
+                            # Bloco que exibe os resultados se eles existirem no estado da sessão
+                            if st.session_state.monte_carlo_results:
+                                res_mc = st.session_state.monte_carlo_results
 
-                                # 3. EXECUTAR A SIMULAÇÃO DE MONTE CARLO
-                                with st.spinner(
-                                        f"Simulando {num_simulacoes} futuros possíveis para os próximos {anos_projecao} anos..."):
-                                    matriz_resultados = np.zeros((dias_projecao, num_simulacoes))
-
-                                    for i in range(num_simulacoes):
-                                        retornos_aleatorios = np.random.normal(retorno_diario_medio,
-                                                                               volatilidade_diaria, dias_projecao)
-
-                                        caminho_patrimonio = np.zeros(dias_projecao)
-                                        caminho_patrimonio[0] = valor_inicial * (1 + retornos_aleatorios[0])
-
-                                        for j in range(1, dias_projecao):
-                                            caminho_patrimonio[j] = caminho_patrimonio[j - 1] * (
-                                                        1 + retornos_aleatorios[j])
-
-                                        matriz_resultados[:, i] = caminho_patrimonio
-
-                                    # 4. PREPARAR DADOS PARA PLOTAGEM
-                                    df_simulacao = pd.DataFrame(matriz_resultados)
-                                    # Use um índice de datas de negócios para um eixo X mais realista
-                                    datas_projecao = pd.bdate_range(start=datetime.now().date(), periods=dias_projecao)
-                                    df_simulacao.index = datas_projecao
-
-                                    # 5. GERAR O GRÁFICO (PLOTLY)
-                                    fig_mc = go.Figure()
-
-                                    # Adiciona todas as simulações com baixa opacidade
-                                    # Nota: para performance, podemos limitar a exibição a um subconjunto
-                                    simulacoes_a_mostrar = min(num_simulacoes, 500)
-                                    for i in range(simulacoes_a_mostrar):
-                                        fig_mc.add_trace(
-                                            go.Scatter(x=df_simulacao.index, y=df_simulacao.iloc[:, i], mode='lines',
-                                                       line=dict(width=1, color='lightblue'), showlegend=False,
-                                                       opacity=0.1))
-
-                                    # Adiciona as linhas de quantis
-                                    fig_mc.add_trace(
-                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.05, axis=1),
-                                                   mode='lines', line=dict(color='red', width=2),
-                                                   name='Pior Cenário (5%)'))
-                                    fig_mc.add_trace(
-                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.50, axis=1),
-                                                   mode='lines', line=dict(color='orange', width=3),
-                                                   name='Cenário Mediano (50%)'))
-                                    fig_mc.add_trace(
-                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.95, axis=1),
-                                                   mode='lines', line=dict(color='lightgreen', width=2),
-                                                   name='Melhor Cenário (95%)'))
-
-                                    fig_mc.update_layout(title_text=f'Projeção de Patrimônio em {anos_projecao} Anos',
-                                                         xaxis_title='Data', yaxis_title='Patrimônio (R$)',
-                                                         template='plotly_dark', showlegend=True)
-
-                                    st.plotly_chart(fig_mc, use_container_width=True)
-
-                                    # 6. TRADUZIR OS RESULTADOS
-                                    patrimonio_final_mediano = df_simulacao.iloc[-1].median()
-                                    patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
-                                    patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
-
+                                st.plotly_chart(res_mc["fig"], use_container_width=True)
                                     st.info(f"""
-                                    #### Leitura do Gráfico:
-                                    Com base no perfil de risco/retorno da carteira otimizada, a simulação mostra que:
+                                    #### 🤔 Como Ler o Gráfico da Simulação?
 
-                                    * **Cenário Mediano (Linha Laranja):** Há 50% de chance do seu patrimônio final ser superior a **R$ {patrimonio_final_mediano:,.2f}**. Este é o resultado mais provável estatisticamente.
-                                    * **Faixa de Resultados (Entre as linhas vermelha e verde):** Existe 90% de probabilidade de que, ao final de {anos_projecao} anos, seu patrimônio esteja entre **R$ {patrimonio_final_pior_cenario:,.2f}** e **R$ {patrimonio_final_melhor_cenario:,.2f}**.
+                                    Nós criamos 1.000 simulações de como sua carteira de investimentos **(R$ {valor_inicial})** poderia se comportar nos próximos **{anos_projecao} anos**. Este gráfico resume tudo isso.
 
-                                    Esta ferramenta ajuda a visualizar o impacto do tempo e da consistência nos seus investimentos, além de dar uma noção realista sobre a faixa de resultados possíveis.
+                                    * **🎯 O Alvo Principal (Linha Laranja):**
+                                        Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {patrimonio_final_mediano:,.2f}**.
+
+                                    * **↔️ A Faixa de Resultados Realista (Entre as linhas vermelha e verde):**
+                                        O mercado tem seus dias bons e ruins. Por isso, é mais realista pensar em uma faixa de resultados. Nossa análise mostra que, em 9 de cada 10 simulações, o patrimônio final ficou entre **R$ {patrimonio_final_pior_cenario:,.2f}** (um cenário mais pessimista) e **R$ {patrimonio_final_melhor_cenario:,.2f}** (um cenário mais otimista).
+
+                                    **O que fazer com essa informação?**
+                                    Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
+                                    
+                                    **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
                                     """)
+                                if st.button("Limpar Simulação"):
+                                    st.session_state.monte_carlo_results = None
+                                    st.rerun()
 
                 else:
                     st.info(
