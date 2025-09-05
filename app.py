@@ -560,22 +560,23 @@ if st.session_state.get("authentication_status"):
                                 res_mc = st.session_state.monte_carlo_results
 
                                 st.plotly_chart(res_mc["fig"], use_container_width=True)
-                                    st.info(f"""
-                                    #### 🤔 Como Ler o Gráfico da Simulação?
 
-                                    Nós criamos 1.000 simulações de como sua carteira de investimentos **(R$ {valor_inicial})** poderia se comportar nos próximos **{anos_projecao} anos**. Este gráfico resume tudo isso.
+                                st.info(f"""
+                                #### 🤔 Como Ler o Gráfico da Simulação?
 
-                                    * **🎯 O Alvo Principal (Linha Laranja):**
-                                        Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {patrimonio_final_mediano:,.2f}**.
+                                Nós criamos 1.000 simulações de como sua carteira de investimentos **(R$ {valor_inicial})** poderia se comportar nos próximos **{anos_projecao} anos**. Este gráfico resume tudo isso.
 
-                                    * **↔️ A Faixa de Resultados Realista (Entre as linhas vermelha e verde):**
-                                        O mercado tem seus dias bons e ruins. Por isso, é mais realista pensar em uma faixa de resultados. Nossa análise mostra que, em 9 de cada 10 simulações, o patrimônio final ficou entre **R$ {patrimonio_final_pior_cenario:,.2f}** (um cenário mais pessimista) e **R$ {patrimonio_final_melhor_cenario:,.2f}** (um cenário mais otimista).
+                                * **🎯 O Alvo Principal (Linha Laranja):**
+                                    Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {patrimonio_final_mediano:,.2f}**.
 
-                                    **O que fazer com essa informação?**
-                                    Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
-                                    
-                                    **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
-                                    """)
+                                * **↔️ A Faixa de Resultados Realista (Entre as linhas vermelha e verde):**
+                                    O mercado tem seus dias bons e ruins. Por isso, é mais realista pensar em uma faixa de resultados. Nossa análise mostra que, em 9 de cada 10 simulações, o patrimônio final ficou entre **R$ {patrimonio_final_pior_cenario:,.2f}** (um cenário mais pessimista) e **R$ {patrimonio_final_melhor_cenario:,.2f}** (um cenário mais otimista).
+
+                                **O que fazer com essa informação?**
+                                Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
+                                
+                                **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
+                                """)
                                 if st.button("Limpar Simulação"):
                                     st.session_state.monte_carlo_results = None
                                     st.rerun()
