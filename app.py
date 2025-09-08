@@ -625,8 +625,10 @@ if st.session_state.get("authentication_status"):
                                 * **🎯 O Alvo Principal (Linha Laranja):**
                                     Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc['mediano']:,.2f}**.
 
-                                * **↔️ A Faixa de Resultados Realista (Entre as linhas vermelha e verde):**
-                                    O mercado tem seus dias bons e ruins. Por isso, é mais realista pensar em uma faixa de resultados. Nossa análise mostra que, em 9 de cada 10 simulações, o patrimônio final ficou entre **R$ {res_mc['pior']:,.2f}** (um cenário mais pessimista) e **R$ {res_mc['melhor']:,.2f}** (um cenário mais otimista).
+                                * **↔️ A Faixa de Resultados Realista:**
+                                    Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
+                                    * **Cenário Pessimista:** R$ {res_mc['pior']:,.2f}
+                                    * **Cenário Otimista:** R$ {res_mc['melhor']:,.2f}
 
                                 **O que fazer com essa informação?**
                                 Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
