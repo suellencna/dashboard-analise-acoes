@@ -37,9 +37,7 @@ def hotmart_webhook():
     print("   - Cabeçalhos completos recebidos:")
     print(f"   - {request.headers}")
 
-    hottok_from_request = request.headers.get('Hottok')  # Tentativa com 'H' maiúsculo
-    if not hottok_from_request:
-        hottok_from_request = request.headers.get('hottok')  # Tentativa com 'h' minúsculo
+    hottok_from_request = request.headers.get('X-Hotmart-Hottok')
 
     if hottok_from_request:
         print(
