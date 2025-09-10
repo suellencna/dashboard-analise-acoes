@@ -33,14 +33,14 @@ except Exception as e:
 
 
 # --- 3. FUNÇÃO DE LOGIN ---
+
 def check_login(email, password):
     user_data = None
     try:
         with engine.connect() as conn:
-            # Query atualizada para buscar o status da assinatura
             query = sqlalchemy.text(
                 "SELECT nome, senha_hash, ultima_carteira, ultimos_pesos, "
-                "data_inicio_salva, data_fim_salva, status_assinatura "  # <-- Nova coluna
+                "data_inicio_salva, data_fim_salva, status_assinatura "
                 "FROM usuarios WHERE email = :email"
             )
             result = conn.execute(query, {"email": email}).first()
@@ -48,25 +48,22 @@ def check_login(email, password):
                 user_data = result
     except Exception as e:
         st.error(f"Erro ao consultar o banco de dados: {e}")
-        return False, "DB_ERROR"  # Retorna um código de erro
+        return False, "DB_ERROR", None, None, None, None  # Retorna 6 valores
 
     if user_data:
-        # Desempacota todos os dados, incluindo o novo status
         (nome_usuario, senha_hash_salva, ultima_carteira, ultimos_pesos,
          data_inicio, data_fim, status_assinatura) = user_data
 
-        # 1. Verifica a senha
         if pwd_context.verify(password, senha_hash_salva):
-            # 2. VERIFICA O STATUS DA ASSINATURA
             if status_assinatura == 'ativo':
-                # Login bem-sucedido!
-                return True, (nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim)
+                # Login bem-sucedido
+                return True, nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim
             else:
                 # Senha correta, mas assinatura inativa
-                return False, "INACTIVE_SUBSCRIPTION"
+                return False, "INACTIVE_SUBSCRIPTION", None, None, None, None
 
     # Email não encontrado ou senha incorreta
-    return False, "INVALID_CREDENTIALS"
+    return False, "INVALID_CREDENTIALS", None, None, None, None
 
 
 # --- 4. INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
@@ -674,30 +671,40 @@ else:
     password = st.sidebar.text_input("Senha", type="password")
 
     # Tela de Login
+    else:
+    # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
+    st.sidebar.image("prints/slogan_preto.png")
+    st.sidebar.title("Login")
+    email = st.sidebar.text_input("Email")
+    password = st.sidebar.text_input("Senha", type="password")
+
+    # Mensagem principal na tela
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.warning('Por favor, insira seu usuário e senha para acessar')
+
     if st.sidebar.button("Entrar"):
-        # Atualizado para receber 6 valores
+        # Lógica corrigida para chamar e desempacotar
         is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim = check_login(email, password)
+
         if is_logged_in:
             st.session_state["authentication_status"] = True
             st.session_state["name"] = user_name
             st.session_state["email"] = email
-            # Armazena tudo na sessão
             st.session_state["ultima_carteira"] = ultima_carteira
             st.session_state["ultimos_pesos"] = ultimos_pesos
             st.session_state["data_inicio_salva"] = data_inicio
             st.session_state["data_fim_salva"] = data_fim
             st.rerun()
-
-
         else:
-
             st.session_state["authentication_status"] = False
-            # Mostra mensagens de erro específicas
-            if data == "INACTIVE_SUBSCRIPTION":
+            # O 'user_name' aqui na verdade contém o código de erro
+            if user_name == "INACTIVE_SUBSCRIPTION":
                 st.sidebar.error("Sua assinatura não está ativa. Por favor, renove para ter acesso.")
             else:  # Para DB_ERROR ou INVALID_CREDENTIALS
                 st.sidebar.error("Email ou senha incorreta.")
 
-    if st.session_state["authentication_status"] is False:
-        st.sidebar.error("Email ou senha incorreta.")
+    # Este if pode ser removido pois a mensagem de erro já é tratada acima
+    # if st.session_state["authentication_status"] is False:
+    #     st.sidebar.error("Email ou senha incorreta.")
 
