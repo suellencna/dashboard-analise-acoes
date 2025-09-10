@@ -73,77 +73,54 @@ if "name" not in st.session_state:
     st.session_state["name"] = None
 
 # --- 5. LÓGICA DA INTERFACE ---
+# --- 5. LÓGICA DA INTERFACE ---
 if st.session_state.get("authentication_status"):
     # SE ESTIVER LOGADO, MOSTRA O DASHBOARD COMPLETO
-    # (TODO O SEU CÓDIGO DO DASHBOARD VAI AQUI DENTRO)
     st.sidebar.image("prints/slogan_preto.png", width=150)
     st.sidebar.title(f'Bem-vindo(a), {st.session_state["name"]}!')
 
-    #LOGOUT
-    # Inicializa o estado de confirmação do logout se não existir
+    # LÓGICA DO LOGOUT
     if 'confirming_logout' not in st.session_state:
         st.session_state.confirming_logout = False
-
-    # Se o usuário clicou em Logout, muda o estado para pedir confirmação
     if st.sidebar.button("Logout", key="logout_initial"):
         st.session_state.confirming_logout = True
         st.rerun()
-
-    # Se o estado for de confirmação, mostra as opções
     if st.session_state.confirming_logout:
         st.sidebar.warning("Você tem certeza que deseja sair?")
-        col1, col2 = st.sidebar.columns(2)
-        with col1:
-            if st.button("Sim", use_container_width=True, type="primary"):
-                # Lógica de logout real
-                st.session_state["authentication_status"] = None
-                st.session_state["name"] = None
-                st.session_state["email"] = None  # Limpa todos os dados da sessão
-                st.session_state["ultima_carteira"] = None
-                st.session_state["ultimos_pesos"] = None
-                st.session_state["data_inicio_salva"] = None
-                st.session_state["data_fim_salva"] = None
-                st.session_state.confirming_logout = False
-                st.rerun()
-        with col2:
-            if st.button("Não", use_container_width=True):
-                st.session_state.confirming_logout = False
-                st.rerun()
+        col1_logout, col2_logout = st.sidebar.columns(2)
+        if col1_logout.button("Sim", use_container_width=True, type="primary"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+        if col2_logout.button("Não", use_container_width=True):
+            st.session_state.confirming_logout = False
+            st.rerun()
 
+    # --- INÍCIO DO CÓDIGO DO DASHBOARD ---
 
     plt.style.use('seaborn-v0_8-darkgrid')
 
-
-    # --- DADOS INICIAIS E MAPEAMENTOS ---
+    # DADOS INICIAIS E MAPEAMENTOS
     DATA_PATH = "dados"
-
-    MAPA_GERAL_ATIVOS = {**MAPA_ATIVOS, **MAPA_FIIS}  # Mapa dos setores
-
-    # --- LÓGICA DINÂMICA PARA ENCONTRAR OS ATIVOS DISPONÍVEIS  E COMPATIVEL COM SETORES---
-    try:
-        # 1. Lê o nome de todos os arquivos na pasta de dados
-        todos_arquivos = os.listdir(DATA_PATH)
-        # 2. Filtra a lista para pegar apenas os arquivos de AÇÕES e FIIs (que terminam com .SA.csv)
-        disponiveis = [arquivo.replace('.csv', '') for arquivo in todos_arquivos if arquivo.endswith('.SA.csv')]
-        disponiveis.sort()  # Ordena a lista em ordem alfabética
-
-        if not disponiveis:
-            st.error(f"Nenhum arquivo de ativo (.SA.csv) encontrado na pasta '{DATA_PATH}'. Verifique os arquivos.")
-            st.stop()  # Para a execução se não encontrar arquivos
-
-    except FileNotFoundError:
-        st.error(f"Pasta de dados '{DATA_PATH}' não encontrada. Verifique o caminho no código.")
-        disponiveis = []  # Define uma lista vazia para evitar mais erros
-        st.stop()
-
+    MAPA_GERAL_ATIVOS = {**MAPA_ATIVOS, **MAPA_FIIS}
     MAPA_BENCHMARK = {'IBOVESPA': 'IBOV_BVSP.csv', 'IFIX': 'IFIX.SA.csv', 'IDIV': 'IDIV.SA.csv', 'CDI': 'CDI.csv',
                       'IPCA': 'IPCA.csv'}
     PREGOES_NO_ANO = 252
     TAXA_LIVRE_DE_RISCO = 0.105
 
+    try:
+        todos_arquivos = os.listdir(DATA_PATH)
+        disponiveis = [arquivo.replace('.csv', '') for arquivo in todos_arquivos if arquivo.endswith('.SA.csv')]
+        disponiveis.sort()
+        if not disponiveis:
+            st.error(f"Nenhum arquivo de ativo (.SA.csv) encontrado na pasta '{DATA_PATH}'.")
+            st.stop()
+    except FileNotFoundError:
+        st.error(f"Pasta de dados '{DATA_PATH}' não encontrada.")
+        st.stop()
+
     st.title('Dashboard de Análise de Carteiras 💼')
 
-    #--- INICIO DEFINIÇÃO DE CARTEIRA
     st.sidebar.header('Definição da Carteira')
 
     # Lógica para carregar a carteira salva
@@ -656,37 +633,18 @@ if st.session_state.get("authentication_status"):
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
 
 else:
-    # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN (NOVA VERSÃO)
-
-    # 1. Cria um layout centralizado na página principal
-    col1, col2, col3 = st.columns([1, 2, 1])  # Colunas vazias nas laterais (proporção 1:2:1)
-
-    with col2:  # Todo o conteúdo a seguir ficará na coluna central
-        st.image("prints/slogan_preto.png", width=400)  # Imagem GRANDE e centralizada
-        st.warning('Por favor, insira seu usuário e senha para acessar')
-
-    # 2. Mantém o formulário de login na barra lateral para uma aparência limpa
-    st.sidebar.title("Login")
-    email = st.sidebar.text_input("Email")
-    password = st.sidebar.text_input("Senha", type="password")
-
-    # Tela de Login
-    else:
     # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
-    st.sidebar.image("prints/slogan_preto.png")
-    st.sidebar.title("Login")
-    email = st.sidebar.text_input("Email")
-    password = st.sidebar.text_input("Senha", type="password")
-
-    # Mensagem principal na tela
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        st.image("prints/slogan_preto.png", width=400)
         st.warning('Por favor, insira seu usuário e senha para acessar')
 
-    if st.sidebar.button("Entrar"):
-        # Lógica corrigida para chamar e desempacotar
-        is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim = check_login(email, password)
+    st.sidebar.title("Login")
+    email = st.sidebar.text_input("Email")
+    password = st.sidebar.text_input("Senha", type="password")
 
+    if st.sidebar.button("Entrar"):
+        is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim = check_login(email, password)
         if is_logged_in:
             st.session_state["authentication_status"] = True
             st.session_state["name"] = user_name
@@ -698,13 +656,7 @@ else:
             st.rerun()
         else:
             st.session_state["authentication_status"] = False
-            # O 'user_name' aqui na verdade contém o código de erro
             if user_name == "INACTIVE_SUBSCRIPTION":
-                st.sidebar.error("Sua assinatura não está ativa. Por favor, renove para ter acesso.")
-            else:  # Para DB_ERROR ou INVALID_CREDENTIALS
+                st.sidebar.error("Sua assinatura não está ativa.")
+            else:
                 st.sidebar.error("Email ou senha incorreta.")
-
-    # Este if pode ser removido pois a mensagem de erro já é tratada acima
-    # if st.session_state["authentication_status"] is False:
-    #     st.sidebar.error("Email ou senha incorreta.")
-
