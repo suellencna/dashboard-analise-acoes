@@ -23,54 +23,40 @@ def index():
 
 @app.route('/webhook/hotmart', methods=['POST'])
 def hotmart_webhook():
-    print("--- NOVO WEBHOOK RECEBIDO ---")
-
-    # 1. Validação de Segurança
+    # ... (a parte de validação do Hottok continua igual)
     hottok_from_request = request.headers.get('X-Hotmart-Hottok')
     if not hottok_from_request or hottok_from_request != HOTMART_HOTTOK:
-        print("=> RESULTADO: FALHA NA AUTENTICAÇÃO.")
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
 
-    print("=> RESULTADO: AUTENTICAÇÃO BEM-SUCEDIDA!")
-
-    # 2. Extração de Dados e Criação do Usuário
     try:
         data = request.json
-
-        # --- LÓGICA DE EXTRAÇÃO CORRIGIDA ---
         evento = data.get('event')
         email = data['data']['buyer']['email']
-        nome = data['data']['buyer']['name']
-        print(f"--- Dados extraídos: Evento={evento}, Email={email}")
+        print(f"--- Webhook recebido: Evento={evento}, Email={email} ---")
 
+        novo_status = None
+        # Mapeia eventos da Hotmart para o status no nosso sistema
+        if evento in ['PURCHASE_APPROVED', 'SUBSCRIPTION_ACTIVATED']:
+            novo_status = 'ativo'
+        elif evento in ['SUBSCRIPTION_CANCELED', 'SUBSCRIPTION_EXPIRED', 'CHARGEBACK']:
+            novo_status = 'inativo'
+
+        # Se o evento for de criação de usuário
         if evento == 'PURCHASE_APPROVED':
-            print("--- Evento APROVADO. Tentando criar usuário... ---")
-            temp_password = secrets.token_urlsafe(8)
-            hashed_password = pwd_context.hash(temp_password)
+            # ... (código para CRIAR um novo usuário, como já tínhamos)
+            # ... (garanta que ao criar, o status_assinatura seja 'ativo')
+            pass  # Mantenha a lógica de criação que já funciona aqui
 
+        # Se for um evento para ATUALIZAR o status
+        if novo_status:
             with engine.connect() as conn:
-                query_check = sqlalchemy.text("SELECT email FROM usuarios WHERE email = :email")
-                result = conn.execute(query_check, {"email": email}).first()
-
-                if result:
-                    print(f"--- AVISO: Usuário com email {email} já existe. Nenhuma ação tomada. ---")
-                    return jsonify({"status": "ok", "message": "User already exists"}), 200
-
-                query_insert = sqlalchemy.text(
-                    "INSERT INTO usuarios (nome, email, senha_hash) VALUES (:nome, :email, :senha_hash)")
-                conn.execute(query_insert, {"nome": nome, "email": email, "senha_hash": hashed_password})
+                query = sqlalchemy.text("UPDATE usuarios SET status_assinatura = :status WHERE email = :email")
+                conn.execute(query, {"status": novo_status, "email": email})
                 conn.commit()
-                print(f"--- SUCESSO: Usuário {email} criado. ---")
+                print(f"--- SUCESSO: Status do usuário {email} atualizado para '{novo_status}'. ---")
 
-            return jsonify({"status": "success", "message": "User created"}), 201
+        return jsonify({"status": "success"}), 200
 
-        else:
-            print(f"--- AVISO: Evento '{evento}' ignorado. ---")
-            return jsonify({"status": "ignored", "message": f"Event '{evento}' is not 'PURCHASE_APPROVED'"}), 200
-
-    except KeyError as e:
-        print(f"--- ERRO 500: Chave não encontrada no payload da Hotmart: {e} ---")
-        return jsonify({"status": "error", "message": f"KeyError: {e}"}), 500
     except Exception as e:
-        print(f"--- ERRO 500: Ocorreu um erro interno no processamento: {e} ---")
+        print(f"--- ERRO 500 no processamento do webhook: {e} ---")
         return jsonify({"status": "error", "message": "Internal Server Error"}), 500

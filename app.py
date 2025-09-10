@@ -37,9 +37,10 @@ def check_login(email, password):
     user_data = None
     try:
         with engine.connect() as conn:
-            # Query atualizada para buscar as novas colunas
+            # Query atualizada para buscar o status da assinatura
             query = sqlalchemy.text(
-                "SELECT nome, senha_hash, ultima_carteira, ultimos_pesos, data_inicio_salva, data_fim_salva "
+                "SELECT nome, senha_hash, ultima_carteira, ultimos_pesos, "
+                "data_inicio_salva, data_fim_salva, status_assinatura "  # <-- Nova coluna
                 "FROM usuarios WHERE email = :email"
             )
             result = conn.execute(query, {"email": email}).first()
@@ -47,15 +48,26 @@ def check_login(email, password):
                 user_data = result
     except Exception as e:
         st.error(f"Erro ao consultar o banco de dados: {e}")
-        return False, None, None, None, None, None  # Retorna 6 valores
+        return False, "DB_ERROR"  # Retorna um código de erro
 
     if user_data:
-        nome_usuario, senha_hash_salva, ultima_carteira, ultimos_pesos, data_inicio, data_fim = user_data
-        if pwd_context.verify(password, senha_hash_salva):
-            # Retorna todos os dados do usuário
-            return True, nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim
+        # Desempacota todos os dados, incluindo o novo status
+        (nome_usuario, senha_hash_salva, ultima_carteira, ultimos_pesos,
+         data_inicio, data_fim, status_assinatura) = user_data
 
-    return False, None, None, None, None, None  # Retorna 6 valores
+        # 1. Verifica a senha
+        if pwd_context.verify(password, senha_hash_salva):
+            # 2. VERIFICA O STATUS DA ASSINATURA
+            if status_assinatura == 'ativo':
+                # Login bem-sucedido!
+                return True, (nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim)
+            else:
+                # Senha correta, mas assinatura inativa
+                return False, "INACTIVE_SUBSCRIPTION"
+
+    # Email não encontrado ou senha incorreta
+    return False, "INVALID_CREDENTIALS"
+
 
 # --- 4. INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
 if "authentication_status" not in st.session_state:
@@ -676,9 +688,15 @@ else:
             st.session_state["data_fim_salva"] = data_fim
             st.rerun()
 
+
         else:
+
             st.session_state["authentication_status"] = False
-            st.rerun()
+            # Mostra mensagens de erro específicas
+            if data == "INACTIVE_SUBSCRIPTION":
+                st.sidebar.error("Sua assinatura não está ativa. Por favor, renove para ter acesso.")
+            else:  # Para DB_ERROR ou INVALID_CREDENTIALS
+                st.sidebar.error("Email ou senha incorreta.")
 
     if st.session_state["authentication_status"] is False:
         st.sidebar.error("Email ou senha incorreta.")
