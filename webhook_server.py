@@ -1,4 +1,6 @@
-# webhook_server.py (Versão de Depuração Detalhada)
+# webhook_server.py (VERSÃO FINALÍSSIMA)
+
+# ... (mantenha todas as importações e configurações iniciais) ...
 from flask import Flask, request, jsonify
 import os
 import sqlalchemy
@@ -8,6 +10,7 @@ import time
 
 app = Flask(__name__)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 DATABASE_URL = os.environ.get('DATABASE_URL')
 HOTMART_HOTTOK = os.environ.get('HOTMART_HOTTOK')
 engine = sqlalchemy.create_engine(DATABASE_URL) if DATABASE_URL else None
@@ -34,17 +37,14 @@ def hotmart_webhook():
     try:
         data = request.json
 
-        # --- LÓGICA CORRIGIDA E ROBUSTA PARA PEGAR O STATUS ---
-        status = data.get('status')  # Tenta pegar do nível principal (comum em testes)
-        if not status and 'purchase' in data:
-            status = data['purchase'].get('status')  # Tenta pegar de dentro de 'purchase' (comum em produção)
+        # --- LÓGICA DE EXTRAÇÃO CORRIGIDA ---
+        evento = data.get('event')
+        email = data['data']['buyer']['email']
+        nome = data['data']['buyer']['name']
+        print(f"--- Dados extraídos: Evento={evento}, Email={email}")
 
-        email = data['buyer']['email']
-        nome = data['buyer']['name']
-        print(f"--- Dados extraídos: Status={status}, Email={email}")
-
-        if status == 'approved' or status == 'APPROVED':  # Aceita 'approved' ou 'APPROVED'
-            print("--- Status APROVADO. Tentando criar usuário... ---")
+        if evento == 'PURCHASE_APPROVED':
+            print("--- Evento APROVADO. Tentando criar usuário... ---")
             temp_password = secrets.token_urlsafe(8)
             hashed_password = pwd_context.hash(temp_password)
 
@@ -65,9 +65,12 @@ def hotmart_webhook():
             return jsonify({"status": "success", "message": "User created"}), 201
 
         else:
-            print(f"--- AVISO: Status '{status}' ignorado. ---")
-            return jsonify({"status": "ignored"}), 200
+            print(f"--- AVISO: Evento '{evento}' ignorado. ---")
+            return jsonify({"status": "ignored", "message": f"Event '{evento}' is not 'PURCHASE_APPROVED'"}), 200
 
+    except KeyError as e:
+        print(f"--- ERRO 500: Chave não encontrada no payload da Hotmart: {e} ---")
+        return jsonify({"status": "error", "message": f"KeyError: {e}"}), 500
     except Exception as e:
         print(f"--- ERRO 500: Ocorreu um erro interno no processamento: {e} ---")
         return jsonify({"status": "error", "message": "Internal Server Error"}), 500
