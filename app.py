@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from mapa_ativos import MAPA_ATIVOS
 from mapa_fiis import MAPA_FIIS
 import re
+import yfinance as yf
 
 # --- Configurações da Página e Estilo ---
 st.set_page_config(page_title="Análise de Carteira", page_icon="💼", layout="wide")
@@ -472,8 +473,9 @@ if st.session_state.get("authentication_status"):
                     #Análise da Carteira por IA
                     #substituido por calculo de valores
 
+                    # NOVO BLOCO DA CALCULADORA DE VALORES E AÇÕES
                     st.markdown("---")
-                    st.subheader("Calculo em R$ por ativo")
+                    st.subheader("Guia de Investimento para a Carteira Ótima")
 
                     valor_total = st.number_input(
                         "Se eu investir (R$)",
@@ -483,30 +485,58 @@ if st.session_state.get("authentication_status"):
                         format="%.2f"
                     )
 
-                    if valor_total > 0:
-                        df_valores = pd.DataFrame({
-                            'Ativo': st.session_state.ativos_otimizados,
-                            'Peso (%)': pesos_otimos,
-                            'Valor (R$)': [p * valor_total for p in pesos_otimos]
-                        })
+                    if st.button("Calcular Quantidade de Ações"):
+                        with st.spinner("Buscando preços atuais e calculando..."):
+                            try:
+                                # Pega a lista de tickers da carteira ótima
+                                tickers = st.session_state.ativos_otimizados
 
-                        st.dataframe(df_valores,
-                                     column_config={
-                                         "Peso (%)": st.column_config.ProgressColumn(
-                                             "Peso (%)",
-                                             format="%.2f%%",
-                                             min_value=0,
-                                             max_value=max(pesos_otimos)
-                                         ),
-                                         "Valor (R$)": st.column_config.NumberColumn(
-                                             "Valor (R$)",
-                                             format="R$ %.2f"
-                                         )
-                                     },
-                                     use_container_width=True,
-                                     hide_index=True
-                                     )
-                        # <<< COLE O NOVO CÓDIGO DE MONTE CARLO EXATAMENTE AQUI >>>
+                                # Baixa os dados mais recentes para todos os tickers de uma vez
+                                dados_recentes = yf.download(tickers, period="5d")['Close']
+
+                                # Pega o último preço de fechamento para cada ticker
+                                ultimos_precos = dados_recentes.iloc[-1]
+
+                                df_guia = pd.DataFrame({
+                                    'Ativo': tickers,
+                                    'Peso (%)': pesos_otimos
+                                })
+
+                                df_guia['Valor a Investir (R$)'] = df_guia['Peso (%)'] * valor_total
+                                df_guia['Último Preço (R$)'] = df_guia['Ativo'].map(ultimos_precos)
+                                # Calcula a quantidade de ações (arredondando para baixo, pois não se compra fração)
+                                df_guia['Quantidade de Ações'] = (
+                                            df_guia['Valor a Investir (R$)'] / df_guia['Último Preço (R$)']).astype(int)
+
+                                st.dataframe(df_guia,
+                                             column_config={
+                                                 "Peso (%)": st.column_config.ProgressColumn(
+                                                     "Peso (%)",
+                                                     format="%.2f%%",
+                                                     min_value=0,
+                                                     max_value=max(pesos_otimos) if any(pesos_otimos) else 1,
+                                                 ),
+                                                 "Valor a Investir (R$)": st.column_config.NumberColumn(
+                                                     "Valor a Investir (R$)",
+                                                     format="R$ %.2f"
+                                                 ),
+                                                 "Último Preço (R$)": st.column_config.NumberColumn(
+                                                     "Último Preço (R$)",
+                                                     format="R$ %.2f"
+                                                 ),
+                                                 "Quantidade de Ações": st.column_config.NumberColumn(
+                                                     "Qtde. Ações (aprox.)"
+                                                 )
+                                             },
+                                             use_container_width=True,
+                                             hide_index=True
+                                             )
+                            except Exception as e:
+                                st.error(
+                                    "Não foi possível buscar os preços atuais das ações. Tente novamente em alguns instantes.")
+                                st.error(f"Detalhe do erro: {e}")
+
+                        # <<< CÓDIGO DE MONTE CARLO COMEÇA AQUI >>>
 
                         st.markdown("---")
                         with st.expander("Clique aqui para Projeção de Patrimônio Futuro (Monte Carlo)"):
