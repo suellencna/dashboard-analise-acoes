@@ -7,7 +7,6 @@ import secrets
 import time
 
 app = Flask(__name__)
-# ... (o resto do seu código até a função do webhook) ...
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 DATABASE_URL = os.environ.get('DATABASE_URL')
 HOTMART_HOTTOK = os.environ.get('HOTMART_HOTTOK')
@@ -23,44 +22,52 @@ def index():
 def hotmart_webhook():
     print("--- NOVO WEBHOOK RECEBIDO ---")
 
-    # --- INÍCIO DO NOVO BLOCO DE DEBUG ---
-    print("1. VERIFICANDO A CHAVE SALVA NA RENDER:")
-    hotmart_hottok_from_env = os.environ.get('HOTMART_HOTTOK')
-    if hotmart_hottok_from_env:
-        # Mostra apenas os primeiros e últimos caracteres por segurança
-        print(
-            f"   - Chave encontrada. Inicia com '{hotmart_hottok_from_env[:4]}' e termina com '{hotmart_hottok_from_env[-4:]}'")
-    else:
-        print("   - ERRO: A variável de ambiente HOTMART_HOTTOK não foi encontrada pelo script!")
-
-    print("\n2. VERIFICANDO A CHAVE RECEBIDA DA HOTMART:")
-    print("   - Cabeçalhos completos recebidos:")
-    print(f"   - {request.headers}")
-
+    # 1. Validação de Segurança
     hottok_from_request = request.headers.get('X-Hotmart-Hottok')
-
-    if hottok_from_request:
-        print(
-            f"   - Chave 'Hottok' encontrada no cabeçalho. Inicia com '{hottok_from_request[:4]}' e termina com '{hottok_from_request[-4:]}'")
-    else:
-        print("   - ERRO: Nenhuma chave 'Hottok' ou 'hottok' foi encontrada nos cabeçalhos da Hotmart!")
-    # --- FIM DO NOVO BLOCO DE DEBUG ---
-
-    # Lógica de validação original
-    if not hottok_from_request or hottok_from_request != hotmart_hottok_from_env:
-        print("\n=> RESULTADO: FALHA NA AUTENTICAÇÃO. As chaves não batem ou uma delas está ausente.\n")
+    if not hottok_from_request or hottok_from_request != HOTMART_HOTTOK:
+        print("=> RESULTADO: FALHA NA AUTENTICAÇÃO.")
         return jsonify({"status": "error", "message": "Unauthorized"}), 401
 
-    print("\n=> RESULTADO: AUTENTICAÇÃO BEM-SUCEDIDA!")
-    # ... (resto do seu código para criar o usuário) ...
-    # ... (coloque o resto da sua função aqui, a partir da extração dos dados)
-    data = request.json
-    status = data['purchase']['status']
-    email = data['buyer']['email']
-    nome = data['buyer']['name']
+    print("=> RESULTADO: AUTENTICAÇÃO BEM-SUCEDIDA!")
 
-    if status == 'APPROVED':
-        # etc...
-        pass  # Apenas para o exemplo, cole seu código aqui
+    # 2. Extração de Dados e Criação do Usuário
+    try:
+        data = request.json
 
-    return jsonify({"status": "success"}), 200
+        # --- LÓGICA CORRIGIDA E ROBUSTA PARA PEGAR O STATUS ---
+        status = data.get('status')  # Tenta pegar do nível principal (comum em testes)
+        if not status and 'purchase' in data:
+            status = data['purchase'].get('status')  # Tenta pegar de dentro de 'purchase' (comum em produção)
+
+        email = data['buyer']['email']
+        nome = data['buyer']['name']
+        print(f"--- Dados extraídos: Status={status}, Email={email}")
+
+        if status == 'approved' or status == 'APPROVED':  # Aceita 'approved' ou 'APPROVED'
+            print("--- Status APROVADO. Tentando criar usuário... ---")
+            temp_password = secrets.token_urlsafe(8)
+            hashed_password = pwd_context.hash(temp_password)
+
+            with engine.connect() as conn:
+                query_check = sqlalchemy.text("SELECT email FROM usuarios WHERE email = :email")
+                result = conn.execute(query_check, {"email": email}).first()
+
+                if result:
+                    print(f"--- AVISO: Usuário com email {email} já existe. Nenhuma ação tomada. ---")
+                    return jsonify({"status": "ok", "message": "User already exists"}), 200
+
+                query_insert = sqlalchemy.text(
+                    "INSERT INTO usuarios (nome, email, senha_hash) VALUES (:nome, :email, :senha_hash)")
+                conn.execute(query_insert, {"nome": nome, "email": email, "senha_hash": hashed_password})
+                conn.commit()
+                print(f"--- SUCESSO: Usuário {email} criado. ---")
+
+            return jsonify({"status": "success", "message": "User created"}), 201
+
+        else:
+            print(f"--- AVISO: Status '{status}' ignorado. ---")
+            return jsonify({"status": "ignored"}), 200
+
+    except Exception as e:
+        print(f"--- ERRO 500: Ocorreu um erro interno no processamento: {e} ---")
+        return jsonify({"status": "error", "message": "Internal Server Error"}), 500
