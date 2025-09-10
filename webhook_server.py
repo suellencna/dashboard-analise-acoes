@@ -38,7 +38,7 @@ def hotmart_webhook():
         # Mapeia eventos da Hotmart para o status no nosso sistema
         if evento in ['PURCHASE_APPROVED', 'SUBSCRIPTION_ACTIVATED']:
             novo_status = 'ativo'
-        elif evento in ['SUBSCRIPTION_CANCELED', 'SUBSCRIPTION_EXPIRED', 'CHARGEBACK']:
+        elif evento in ['SUBSCRIPTION_CANCELED', 'PURCHASE_EXPIRED', 'CHARGEBACK']:  
             novo_status = 'inativo'
 
         # Se o evento for de criação de usuário
