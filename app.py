@@ -499,12 +499,11 @@ if st.session_state.get("authentication_status"):
 
                                 df_guia = pd.DataFrame({
                                     'Ativo': tickers,
-                                    'Peso (%)': pesos_otimos
+                                    # 1. Dados: Multiplicamos os pesos por 100 aqui
+                                    'Peso (%)': [p * 100 for p in pesos_otimos],
+                                    'Valor a Investir (R$)': [p * valor_total for p in pesos_otimos]
                                 })
-
-                                df_guia['Valor a Investir (R$)'] = df_guia['Peso (%)'] * valor_total
                                 df_guia['Último Preço (R$)'] = df_guia['Ativo'].map(ultimos_precos)
-                                # Calcula a quantidade de ações (arredondando para baixo, pois não se compra fração)
                                 df_guia['Quantidade de Ações'] = (
                                             df_guia['Valor a Investir (R$)'] / df_guia['Último Preço (R$)']).astype(int)
 
@@ -512,9 +511,11 @@ if st.session_state.get("authentication_status"):
                                              column_config={
                                                  "Peso (%)": st.column_config.ProgressColumn(
                                                      "Peso (%)",
-                                                     format="%.2f%%",
+                                                     # 2. Formatação: Para número inteiro
+                                                     format="%d%%",
                                                      min_value=0,
-                                                     max_value=max(pesos_otimos) if any(pesos_otimos) else 1,
+                                                     # 3. Valor Máximo: Ajustado para a escala de 100
+                                                     max_value=100,
                                                  ),
                                                  "Valor a Investir (R$)": st.column_config.NumberColumn(
                                                      "Valor a Investir (R$)",
@@ -629,9 +630,51 @@ if st.session_state.get("authentication_status"):
                             if st.session_state.monte_carlo_results:
                                 res_mc = st.session_state.monte_carlo_results
 
-                                st.plotly_chart(res_mc["fig"], use_container_width=True)
+                                # --- INÍCIO DO NOVO CÓDIGO DO RESUMO ---
 
-                                #Texto do Monte Carlo
+                                # 1. Calcular as porcentagens de retorno
+                                investimento_inicial = res_mc['investimento']
+                                retorno_mediano_pct = (res_mc['mediano'] / investimento_inicial - 1) * 100
+                                retorno_otimista_pct = (res_mc['melhor'] / investimento_inicial - 1) * 100
+                                retorno_pessimista_pct = (res_mc['pior'] / investimento_inicial - 1) * 100
+
+                                # Calcula a data final da projeção
+                                data_final_projecao = datetime.now().date() + timedelta(days=res_mc['anos'] * 365)
+
+                                st.subheader("Resumo da Projeção")
+
+                                # 2. Exibir o resumo em 4 colunas com st.metric
+                                col1, col2, col3, col4 = st.columns(4)
+
+                                with col1:
+                                    st.metric(
+                                        label=f"Cenário Atual ({datetime.now().strftime('%d %b %Y')})",
+                                        value=f"R$ {investimento_inicial:,.2f}",
+                                        delta="0.00%"
+                                    )
+                                with col2:
+                                    st.metric(
+                                        label=f"Esperado ({data_final_projecao.strftime('%d %b %Y')})",
+                                        value=f"R$ {res_mc['mediano']:,.2f}",
+                                        delta=f"{retorno_mediano_pct:.2f}%"
+                                    )
+                                with col3:
+                                    st.metric(
+                                        label=f"Otimista ({data_final_projecao.strftime('%d %b %Y')})",
+                                        value=f"R$ {res_mc['melhor']:,.2f}",
+                                        delta=f"{retorno_otimista_pct:.2f}%"
+                                    )
+                                with col4:
+                                    st.metric(
+                                        label=f"Pessimista ({data_final_projecao.strftime('%d %b %Y')})",
+                                        value=f"R$ {res_mc['pior']:,.2f}",
+                                        delta=f"{retorno_pessimista_pct:.2f}%"
+                                    )
+
+                                # --- FIM DO NOVO CÓDIGO DO RESUMO ---
+
+                                # O código existente para mostrar o gráfico e a interpretação continua abaixo
+                                st.plotly_chart(res_mc["fig"], use_container_width=True)
 
                                 st.info(f"""
                                 #### 🤔 Como Ler o Gráfico da Simulação?
@@ -655,7 +698,7 @@ if st.session_state.get("authentication_status"):
                                 if st.button("Limpar Simulação"):
                                     st.session_state.monte_carlo_results = None
                                     st.rerun()
-
+                                    
                 else:
                     st.info(
                         "A seleção de ativos mudou. Por favor, clique em 'Otimizar Carteira' novamente para recalcular.")
