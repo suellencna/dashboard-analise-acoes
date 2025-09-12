@@ -72,8 +72,13 @@ if "authentication_status" not in st.session_state:
     st.session_state["authentication_status"] = None
 if "name" not in st.session_state:
     st.session_state["name"] = None
+if 'resultados_otimizacao' not in st.session_state:
+    st.session_state.resultados_otimizacao = None
+if 'ativos_otimizados' not in st.session_state:
+    st.session_state.ativos_otimizados = []
+if 'gerar_analise_ia' not in st.session_state:
+    st.session_state.gerar_analise_ia = False
 
-# --- 5. LÓGICA DA INTERFACE ---
 # --- 5. LÓGICA DA INTERFACE ---
 if st.session_state.get("authentication_status"):
     # SE ESTIVER LOGADO, MOSTRA O DASHBOARD COMPLETO
@@ -173,7 +178,8 @@ if st.session_state.get("authentication_status"):
             st.error(f"Ocorreu um erro ao ler os arquivos de dados dos ativos: {e}")
             st.stop()
 
-        st.sidebar.subheader("Período de Análise")
+        st.sidebar.subheader('Opções de Otimização e Simulação')
+        num_carteiras_simuladas = st.sidebar.slider('Simulações de Markowitz', 1000, 10000, 5000, key='sim_markowitz')
         data_minima = df_portfolio_completo.index.min().date()
         data_maxima = df_portfolio_completo.index.max().date()
 
@@ -338,17 +344,17 @@ if st.session_state.get("authentication_status"):
 
         ## ------------------------------------
 
-        # --- Seção 2: Otimização de Risco e Retorno (Markowitz) ---
+
         # --- Seção 2: Otimização, Guia e Projeções (Tudo em Um) ---
         with st.expander("Clique aqui para Otimização e Projeções", expanded=True):
 
             # --- CONTROLES UNIFICADOS NA SIDEBAR ---
-            st.sidebar.subheader('Opções de Otimização e Simulação')
-            num_carteiras_simuladas = st.sidebar.slider('Simulações de Markowitz', 1000, 10000, 5000,
-                                                        key='sim_markowitz')
+            #st.sidebar.subheader('Opções de Otimização e Simulação')
+            #num_carteiras_simuladas = st.sidebar.slider('Simulações de Markowitz', 1000, 10000, 5000,
+            #                                            key='sim_markowitz')
             valor_investimento = st.sidebar.number_input("Valor do Investimento (R$)", min_value=1000.0, value=50000.0,
                                                          step=1000.0, key='val_investimento')
-            anos_projecao = st.sidebar.slider("Anos de Projeção", 1, 30, 10, key='anos_projecao')
+            anos_projecao = st.sidebar.slider("Anos de Projeção (Monte Carlo)", 1, 30, 10, key='anos_projecao')
             num_simulacoes_mc = st.sidebar.select_slider("Simulações de Monte Carlo", options=[100, 250, 500],
                                                          value=250, key='sim_mc')
 
@@ -361,7 +367,8 @@ if st.session_state.get("authentication_status"):
                     # 1. CÁLCULO DE MARKOWITZ
                     retornos_diarios = df_portfolio[ativos_selecionados].pct_change().dropna()
                     matriz_covariancia = retornos_diarios.cov() * PREGOES_NO_ANO
-                    resultados_retorno, resultados_risco, resultados_sharpe, matriz_pesos = [], [], [], []
+
+                    resultados_retorno, resultados_risco, resultados_sharpe, matriz_pesos = [[] for _ in range(4)]
                     for i in range(num_carteiras_simuladas):
                         pesos_sim = np.random.random(len(ativos_selecionados))
                         pesos_sim /= np.sum(pesos_sim)
@@ -372,6 +379,16 @@ if st.session_state.get("authentication_status"):
                         resultados_risco.append(risco)
                         resultados_sharpe.append((retorno - TAXA_LIVRE_DE_RISCO) / risco)
 
+                    st.session_state.resultados_otimizacao = {
+                        'risco': np.array(resultados_risco), 'retorno': np.array(resultados_retorno),
+                        'sharpe': np.array(resultados_sharpe),
+                        'pesos': matriz_pesos,
+                        'retornos_individuais': retornos_diarios.mean() * PREGOES_NO_ANO,
+                        'volatilidades_individuais': retornos_diarios.std() * np.sqrt(PREGOES_NO_ANO)
+                    }
+                    st.session_state.ativos_otimizados = ativos_selecionados.copy()
+
+
                     res_markowitz = {
                         'risco': np.array(resultados_risco), 'retorno': np.array(resultados_retorno),
                         'sharpe': np.array(resultados_sharpe), 'pesos': matriz_pesos,
@@ -381,11 +398,14 @@ if st.session_state.get("authentication_status"):
                     indice_max_sharpe = np.argmax(resultados_sharpe)
                     pesos_otimos = matriz_pesos[indice_max_sharpe]
 
-                    # 2. BUSCA DE PREÇOS E GUIA DE INVESTIMENTO
-                    tickers_otimizados = ativos_selecionados.copy()
-                    dados_recentes = yf.download(tickers_otimizados, period="5d")['Close']
+                    # 2. BUSCA DE PREÇOS E GUIA DE INVESTIMENTO (CÓDIGO MOVIDO)
+                    res = st.session_state.resultados_otimizacao
+                    indice_max_sharpe = res['sharpe'].argmax()
+                    pesos_otimos = res['pesos'][indice_max_sharpe]
+                    dados_recentes = yf.download(ativos_selecionados, period="5d")['Close']
                     ultimos_precos = dados_recentes.iloc[-1]
-                    df_guia = pd.DataFrame({'Ativo': tickers_otimizados, 'Peso (%)': [p * 100 for p in pesos_otimos]})
+                    df_guia = pd.DataFrame({'Ativo': ativos_selecionados, 'Peso (%)': [p * 100 for p in pesos_otimos]})
+
                     df_guia['Valor a Investir (R$)'] = df_guia['Peso (%)'] / 100 * valor_investimento
                     df_guia['Último Preço (R$)'] = df_guia['Ativo'].map(ultimos_precos)
                     df_guia['Quantidade de Ações'] = (
@@ -431,11 +451,11 @@ if st.session_state.get("authentication_status"):
                     patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
                     patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
 
-                    # 4. SALVAR TUDO NO st.session_state
+                    # 4. SALVAR TUDO EM UM ÚNICO LUGAR
                     st.session_state.resultados_gerados = {
-                        "markowitz": res_markowitz,
+                        "markowitz": res,
                         "guia_investimento": df_guia,
-                        "ativos_otimizados": tickers_otimizados,
+                        "ativos_otimizados": ativos_selecionados.copy(),
                         "monte_carlo_fig": fig_mc,
                         "monte_carlo_text_data": {
                             'investimento': valor_investimento, 'simulacoes': num_simulacoes_mc, 'anos': anos_projecao,
