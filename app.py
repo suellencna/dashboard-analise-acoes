@@ -338,18 +338,30 @@ if st.session_state.get("authentication_status"):
 
         ## ------------------------------------
 
-        # --- Seção 2: Otimização de Markowitz ---
-        with st.expander("Clique aqui para Otimização de Risco e Retorno (Markowitz)"):
-            st.sidebar.subheader('Opções de Otimização')
-            num_carteiras_simuladas = st.sidebar.slider('Número de Simulações', 1000, 20000, 5000, key='num_carteiras')
+        # --- Seção 2: Otimização de Risco e Retorno (Markowitz) ---
+        # --- Seção 2: Otimização, Guia e Projeções (Tudo em Um) ---
+        with st.expander("Clique aqui para Otimização e Projeções", expanded=True):
 
-            if st.button('Otimizar Carteira'):
-                st.session_state.gerar_analise_ia = False
-                with st.spinner('Calculando milhares de portfólios... Por favor, aguarde.'):
+            # --- CONTROLES UNIFICADOS NA SIDEBAR ---
+            st.sidebar.subheader('Opções de Otimização e Simulação')
+            num_carteiras_simuladas = st.sidebar.slider('Simulações de Markowitz', 1000, 10000, 5000,
+                                                        key='sim_markowitz')
+            valor_investimento = st.sidebar.number_input("Valor do Investimento (R$)", min_value=1000.0, value=50000.0,
+                                                         step=1000.0, key='val_investimento')
+            anos_projecao = st.sidebar.slider("Anos de Projeção", 1, 30, 10, key='anos_projecao')
+            num_simulacoes_mc = st.sidebar.select_slider("Simulações de Monte Carlo", options=[100, 250, 500],
+                                                         value=250, key='sim_mc')
+
+            # Inicializa o estado da sessão para guardar todos os resultados
+            if 'resultados_gerados' not in st.session_state:
+                st.session_state.resultados_gerados = None
+
+            if st.button('Otimizar Carteira e Gerar Projeções'):
+                with st.spinner('Realizando todos os cálculos... Isso pode levar um momento.'):
+                    # 1. CÁLCULO DE MARKOWITZ
                     retornos_diarios = df_portfolio[ativos_selecionados].pct_change().dropna()
                     matriz_covariancia = retornos_diarios.cov() * PREGOES_NO_ANO
-
-                    resultados_retorno, resultados_risco, resultados_sharpe, matriz_pesos = [[] for _ in range(4)]
+                    resultados_retorno, resultados_risco, resultados_sharpe, matriz_pesos = [], [], [], []
                     for i in range(num_carteiras_simuladas):
                         pesos_sim = np.random.random(len(ativos_selecionados))
                         pesos_sim /= np.sum(pesos_sim)
@@ -360,348 +372,259 @@ if st.session_state.get("authentication_status"):
                         resultados_risco.append(risco)
                         resultados_sharpe.append((retorno - TAXA_LIVRE_DE_RISCO) / risco)
 
-                    st.session_state.resultados_otimizacao = {
+                    res_markowitz = {
                         'risco': np.array(resultados_risco), 'retorno': np.array(resultados_retorno),
-                        'sharpe': np.array(resultados_sharpe),
-                        'pesos': matriz_pesos,
+                        'sharpe': np.array(resultados_sharpe), 'pesos': matriz_pesos,
                         'retornos_individuais': retornos_diarios.mean() * PREGOES_NO_ANO,
                         'volatilidades_individuais': retornos_diarios.std() * np.sqrt(PREGOES_NO_ANO)
                     }
-                    st.session_state.ativos_otimizados = ativos_selecionados.copy()
+                    indice_max_sharpe = np.argmax(resultados_sharpe)
+                    pesos_otimos = matriz_pesos[indice_max_sharpe]
 
-            if 'resultados_otimizacao' in st.session_state and st.session_state.resultados_otimizacao is not None:
-                if sorted(st.session_state.ativos_otimizados) == sorted(ativos_selecionados):
-                    res = st.session_state.resultados_otimizacao
-                    indice_max_sharpe = res['sharpe'].argmax()
-                    pesos_otimos = res['pesos'][indice_max_sharpe]
-                    indice_min_risco = res['risco'].argmin()
+                    # 2. BUSCA DE PREÇOS E GUIA DE INVESTIMENTO
+                    tickers_otimizados = ativos_selecionados.copy()
+                    dados_recentes = yf.download(tickers_otimizados, period="5d")['Close']
+                    ultimos_precos = dados_recentes.iloc[-1]
+                    df_guia = pd.DataFrame({'Ativo': tickers_otimizados, 'Peso (%)': [p * 100 for p in pesos_otimos]})
+                    df_guia['Valor a Investir (R$)'] = df_guia['Peso (%)'] / 100 * valor_investimento
+                    df_guia['Último Preço (R$)'] = df_guia['Ativo'].map(ultimos_precos)
+                    df_guia['Quantidade de Ações'] = (
+                                df_guia['Valor a Investir (R$)'] / df_guia['Último Preço (R$)']).astype(int)
 
-                    st.subheader('Resultados da Otimização')
-                    # Bloco de código para ADICIONAR
+                    # 3. CÁLCULO DE MONTE CARLO
+                    retorno_anual_esperado = resultados_retorno[indice_max_sharpe]
+                    risco_anual_esperado = resultados_risco[indice_max_sharpe]
+                    retorno_diario_medio = retorno_anual_esperado / PREGOES_NO_ANO
+                    volatilidade_diaria = risco_anual_esperado / np.sqrt(PREGOES_NO_ANO)
+                    dias_projecao = anos_projecao * PREGOES_NO_ANO
+                    matriz_resultados = np.zeros((dias_projecao, num_simulacoes_mc))
+                    for i in range(num_simulacoes_mc):
+                        retornos_aleatorios = np.random.normal(retorno_diario_medio, volatilidade_diaria, dias_projecao)
+                        caminho_patrimonio = np.zeros(dias_projecao)
+                        caminho_patrimonio[0] = valor_investimento * (1 + retornos_aleatorios[0])
+                        for j in range(1, dias_projecao):
+                            caminho_patrimonio[j] = caminho_patrimonio[j - 1] * (1 + retornos_aleatorios[j])
+                        matriz_resultados[:, i] = caminho_patrimonio
 
-                    # --- INÍCIO DO TEXTO EXPLICATIVO ---
-                    st.info("""
-                                    #### Entendendo o Gráfico de Markowitz
+                    df_simulacao = pd.DataFrame(matriz_resultados)
+                    datas_projecao = pd.bdate_range(start=datetime.now().date(), periods=dias_projecao)
+                    df_simulacao.index = datas_projecao
+                    fig_mc = go.Figure()
+                    simulacoes_a_mostrar = min(num_simulacoes_mc, 500)
+                    for i in range(simulacoes_a_mostrar):
+                        fig_mc.add_trace(go.Scatter(x=df_simulacao.index, y=df_simulacao.iloc[:, i], mode='lines',
+                                                    line=dict(width=1, color='lightblue'), showlegend=False,
+                                                    opacity=0.1))
+                    fig_mc.add_trace(
+                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.05, axis=1), mode='lines',
+                                   line=dict(color='red', width=2), name='Pior Cenário (5%)'))
+                    fig_mc.add_trace(
+                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.50, axis=1), mode='lines',
+                                   line=dict(color='orange', width=3), name='Cenário Mediano (50%)'))
+                    fig_mc.add_trace(
+                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.95, axis=1), mode='lines',
+                                   line=dict(color='lightgreen', width=2), name='Melhor Cenário (95%)'))
+                    fig_mc.update_layout(title_text=f'Projeção de Patrimônio em {anos_projecao} Anos',
+                                         xaxis_title='Data', yaxis_title='Patrimônio (R$)', template='plotly_dark',
+                                         showlegend=True)
+                    patrimonio_final_mediano = df_simulacao.iloc[-1].median()
+                    patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
+                    patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
 
-                                    * **O que é?** 
-                                        Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
+                    # 4. SALVAR TUDO NO st.session_state
+                    st.session_state.resultados_gerados = {
+                        "markowitz": res_markowitz,
+                        "guia_investimento": df_guia,
+                        "ativos_otimizados": tickers_otimizados,
+                        "monte_carlo_fig": fig_mc,
+                        "monte_carlo_text_data": {
+                            'investimento': valor_investimento, 'simulacoes': num_simulacoes_mc, 'anos': anos_projecao,
+                            'mediano': patrimonio_final_mediano, 'pior': patrimonio_final_pior_cenario,
+                            'melhor': patrimonio_final_melhor_cenario
+                        }
+                    }
+                st.rerun()
 
-                                    * **O que o gráfico significa?**
-                                        * **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
-                                        * **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.
-                                        * **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.
-                                        * **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
-                                        * **"X" Vermelho:** A carteira com o menor risco possível.
+            # --- BLOCO DE EXIBIÇÃO (SÓ MOSTRA OS RESULTADOS) ---
+            if st.session_state.resultados_gerados:
+                resultados = st.session_state.resultados_gerados
+                res = resultados["markowitz"]
+                ativos_otimizados = resultados["ativos_otimizados"]
+                indice_max_sharpe = res['sharpe'].argmax()
+                pesos_otimos = res['pesos'][indice_max_sharpe]
+                indice_min_risco = res['risco'].argmin()
 
-                                    * **Como usar?** 
-                                        Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
-                                    
-                                    """)
-                    # --- FIM DO TEXTO EXPLICATIVO ---
-                    col_graf_fronteira, col_graf_pesos = st.columns([0.6, 0.4])
+                # EXIBIÇÃO DE MARKOWITZ
+                st.subheader('Resultados da Otimização')
+                st.info("""
+                            #### Entendendo o Gráfico de Markowitz
 
-                    with col_graf_fronteira:
-                        st.markdown("###### Fronteira Eficiente")
-                        fig, ax = plt.subplots(figsize=(8, 5))
-                        ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
-                                   alpha=0.4)
+                            * **O que é?** 
+                                Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
 
-                        cores_ativos = ['#FF4B4B', '#3E6D8E', '#6B4E9A']
-                        for i, ticker in enumerate(st.session_state.ativos_otimizados):
-                            ax.scatter(res['volatilidades_individuais'][i], res['retornos_individuais'][i], marker='D',
-                                       color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
+                            * **O que o gráfico significa?**
+                                * **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
+                                * **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.
+                                * **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.
+                                * **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
+                                * **"X" Vermelho:** A carteira com o menor risco possível.
 
-                        ax.scatter(res['risco'][indice_min_risco], res['retorno'][indice_min_risco], marker='X',
-                                   color='red', s=200, label='Carteira Risco Mínimo', zorder=5)
-                        ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
-                                   color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
+                            * **Como usar?** 
+                                Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
 
-                        ax.set_title('Otimização de Portfólio', fontsize=12)
-                        ax.set_xlabel('Risco (Volatilidade)', fontsize=10)
-                        ax.set_ylabel('Retorno Esperado', fontsize=10)
-                        ax.legend(loc='upper right', fontsize=8)  # <-- LEGENDA DE VOLTA
-                        st.pyplot(fig)
+                            """)
+                col_graf_fronteira, col_graf_pesos = st.columns([0.6, 0.4])
+                with col_graf_fronteira:
+                    st.markdown("###### Fronteira Eficiente")
+                    fig, ax = plt.subplots(figsize=(8, 5))
+                    ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
+                               alpha=0.4)
 
+                    cores_ativos = ['#FF4B4B', '#3E6D8E', '#6B4E9A']
+                    for i, ticker in enumerate(st.session_state.ativos_otimizados):
+                        ax.scatter(res['volatilidades_individuais'][i], res['retornos_individuais'][i], marker='D',
+                                   color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
 
-                    #Gráfico de Carteira ótima em pizza
-                    with col_graf_pesos:
-                        st.markdown("###### Composição da Carteira Ótima")
-                        df_pesos_otimos = pd.DataFrame(pesos_otimos, index=st.session_state.ativos_otimizados,
-                                                       columns=['Peso'])
+                    ax.scatter(res['risco'][indice_min_risco], res['retorno'][indice_min_risco], marker='X',
+                               color='red', s=200, label='Carteira Risco Mínimo', zorder=5)
+                    ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
+                               color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
 
-                        # --- ALTERAÇÃO AQUI: Criando as legendas personalizadas ---
-                        legendas_personalizadas = [f"{ativo} ({peso:.2%})" for ativo, peso in
-                                                   df_pesos_otimos['Peso'].items()]
+                    ax.set_title('Otimização de Portfólio', fontsize=12)
+                    ax.set_xlabel('Risco (Volatilidade)', fontsize=10)
+                    ax.set_ylabel('Retorno Esperado', fontsize=10)
+                    ax.legend(loc='upper right', fontsize=8)  # <-- LEGENDA DE VOLTA
+                    st.pyplot(fig)
 
-                        fig_pie_otima = go.Figure(
-                            data=[go.Pie(
-                                # Usamos as legendas personalizadas aqui
-                                labels=legendas_personalizadas,
-                                values=df_pesos_otimos['Peso'],
-                                hole=.3,
-                                # E voltamos o textinfo para mostrar tudo no gráfico também
-                                textinfo='label+percent',
-                                # Isso garante que o texto dentro da pizza não use a legenda personalizada
-                                texttemplate='%{label}<br>%{percent}'
-                            )]
-                        )
+                with col_graf_pesos:
+                    st.markdown("###### Composição da Carteira Ótima")
+                    df_pesos_otimos = pd.DataFrame(pesos_otimos, index=st.session_state.ativos_otimizados,
+                                                   columns=['Peso'])
 
-                        fig_pie_otima.update_layout(
-                            showlegend=True,
-                            legend=dict(
-                                orientation="h",
-                                yanchor="bottom",
-                                y=-0.2,
-                                xanchor="center",
-                                x=0.5
-                            )
-                        )
-                        st.plotly_chart(fig_pie_otima, use_container_width=True)
+                    # --- ALTERAÇÃO AQUI: Criando as legendas personalizadas ---
+                    legendas_personalizadas = [f"{ativo} ({peso:.2%})" for ativo, peso in
+                                               df_pesos_otimos['Peso'].items()]
 
-
-                    st.markdown("---")
-                    st.subheader('Métricas dos Ativos para Comparação')
-                    df_metricas = pd.DataFrame({
-                        'Retorno Anual': res['retornos_individuais'],
-                        'Volatilidade': res['volatilidades_individuais']
-                    }).reset_index().rename(columns={'index': 'Ativo'})
-                    st.dataframe(df_metricas, column_config={
-                        "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
-                        "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
-                    }, use_container_width=True, hide_index=True)
-
-                    #Análise da Carteira por IA
-                    #substituido por calculo de valores
-
-                    # NOVO BLOCO DA CALCULADORA DE VALORES E AÇÕES
-                    st.markdown("---")
-                    st.subheader("Guia de Investimento para a Carteira Ótima")
-
-                    valor_total = st.number_input(
-                        "Se eu investir (R$)",
-                        min_value=100.0,
-                        value=50000.0,
-                        step=500.0,
-                        format="%.2f"
+                    fig_pie_otima = go.Figure(
+                        data=[go.Pie(
+                            # Usamos as legendas personalizadas aqui
+                            labels=legendas_personalizadas,
+                            values=df_pesos_otimos['Peso'],
+                            hole=.3,
+                            # E voltamos o textinfo para mostrar tudo no gráfico também
+                            textinfo='label+percent',
+                            # Isso garante que o texto dentro da pizza não use a legenda personalizada
+                            texttemplate='%{label}<br>%{percent}'
+                        )]
                     )
 
-                    if st.button("Calcular Quantidade de Ações"):
-                        with st.spinner("Buscando preços atuais e calculando..."):
-                            try:
-                                # Pega a lista de tickers da carteira ótima
-                                tickers = st.session_state.ativos_otimizados
+                    fig_pie_otima.update_layout(
+                        showlegend=True,
+                        legend=dict(
+                            orientation="h",
+                            yanchor="bottom",
+                            y=-0.2,
+                            xanchor="center",
+                            x=0.5
+                        )
+                    )
+                    st.plotly_chart(fig_pie_otima, use_container_width=True)
 
-                                # Baixa os dados mais recentes para todos os tickers de uma vez
-                                dados_recentes = yf.download(tickers, period="5d")['Close']
+                st.subheader('Métricas dos Ativos para Comparação')
+                # ... (seu código da tabela de métricas)
+                df_metricas = pd.DataFrame({
+                    'Retorno Anual': res['retornos_individuais'],
+                    'Volatilidade': res['volatilidades_individuais']
+                }).reset_index().rename(columns={'index': 'Ativo'})
+                st.dataframe(df_metricas, column_config={
+                    "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
+                    "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
+                }, use_container_width=True, hide_index=True)
 
-                                # Pega o último preço de fechamento para cada ticker
-                                ultimos_precos = dados_recentes.iloc[-1]
+                # EXIBIÇÃO DO GUIA DE INVESTIMENTO
+                st.markdown("---")
+                st.subheader("Guia de Investimento para a Carteira Ótima")
+                st.dataframe(resultados["guia_investimento"],
+                             column_config={
+                                 "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                             max_value=100),
+                                 "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
+                                                                                        format="R$ %.2f"),
+                                 "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                                                                                    format="R$ %.2f"),
+                                 "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                             },
+                             use_container_width=True, hide_index=True)
 
-                                df_guia = pd.DataFrame({
-                                    'Ativo': tickers,
-                                    # 1. Dados: Multiplicamos os pesos por 100 aqui
-                                    'Peso (%)': [p * 100 for p in pesos_otimos],
-                                    'Valor a Investir (R$)': [p * valor_total for p in pesos_otimos]
-                                })
-                                df_guia['Último Preço (R$)'] = df_guia['Ativo'].map(ultimos_precos)
-                                df_guia['Quantidade de Ações'] = (
-                                            df_guia['Valor a Investir (R$)'] / df_guia['Último Preço (R$)']).astype(int)
+                # EXIBIÇÃO DE MONTE CARLO
+                st.markdown("---")
+                st.subheader("Projeção de Patrimônio Futuro (Monte Carlo)")
+                res_mc_text = resultados["monte_carlo_text_data"]
+                # ... (seu código dos st.metric) ...
+                # --- INÍCIO DO CÓDIGO DO RESUMO COM st.metric ---
 
-                                st.dataframe(df_guia,
-                                             column_config={
-                                                 "Peso (%)": st.column_config.ProgressColumn(
-                                                     "Peso (%)",
-                                                     # 2. Formatação: Para número inteiro
-                                                     format="%d%%",
-                                                     min_value=0,
-                                                     # 3. Valor Máximo: Ajustado para a escala de 100
-                                                     max_value=100,
-                                                 ),
-                                                 "Valor a Investir (R$)": st.column_config.NumberColumn(
-                                                     "Valor a Investir (R$)",
-                                                     format="R$ %.2f"
-                                                 ),
-                                                 "Último Preço (R$)": st.column_config.NumberColumn(
-                                                     "Último Preço (R$)",
-                                                     format="R$ %.2f"
-                                                 ),
-                                                 "Quantidade de Ações": st.column_config.NumberColumn(
-                                                     "Qtde. Ações (aprox.)"
-                                                 )
-                                             },
-                                             use_container_width=True,
-                                             hide_index=True
-                                             )
-                            except Exception as e:
-                                st.error(
-                                    "Não foi possível buscar os preços atuais das ações. Tente novamente em alguns instantes.")
-                                st.error(f"Detalhe do erro: {e}")
+                # 1. Pega os dados do dicionário e calcula as porcentagens de retorno
+                investimento_inicial = res_mc_text['investimento']
+                retorno_mediano_pct = (res_mc_text['mediano'] / investimento_inicial - 1) * 100
+                retorno_otimista_pct = (res_mc_text['melhor'] / investimento_inicial - 1) * 100
+                retorno_pessimista_pct = (res_mc_text['pior'] / investimento_inicial - 1) * 100
 
-                        # <<< CÓDIGO DE MONTE CARLO COMEÇA AQUI >>>
+                # Calcula a data final da projeção
+                data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
 
-                        st.markdown("---")
-                        with st.expander("Clique aqui para Projeção de Patrimônio Futuro (Monte Carlo)"):
+                # 2. Exibe o resumo em 4 colunas com st.metric
+                col1, col2, col3, col4 = st.columns(4)
 
-                            st.sidebar.subheader("Opções da Simulação de Monte Carlo")
-                            valor_inicial = st.sidebar.number_input("Valor do Investimento Inicial (R$)",
-                                                                    min_value=1000.0, value=25000.0, step=1000.0)
-                            anos_projecao = st.sidebar.slider("Anos de Projeção", 1, 30, 10)
-                            # Versão otimizada do seletor de simulações
-                            num_simulacoes = st.sidebar.select_slider("Número de Simulações", options=[100, 250, 500],
-                                                                      value=250)
+                with col1:
+                    st.metric(
+                        label=f"Cenário Atual ({datetime.now().strftime('%d %b %Y')})",
+                        value=f"R$ {investimento_inicial:,.2f}",
+                        delta="0.00%"
+                    )
+                with col2:
+                    st.metric(
+                        label=f"Esperado ({data_final_projecao.strftime('%d %b %Y')})",
+                        value=f"R$ {res_mc_text['mediano']:,.2f}",
+                        delta=f"{retorno_mediano_pct:.2f}%"
+                    )
+                with col3:
+                    st.metric(
+                        label=f"Otimista ({data_final_projecao.strftime('%d %b %Y')})",
+                        value=f"R$ {res_mc_text['melhor']:,.2f}",
+                        delta=f"{retorno_otimista_pct:.2f}%"
+                    )
+                with col4:
+                    st.metric(
+                        label=f"Pessimista ({data_final_projecao.strftime('%d %b %Y')})",
+                        value=f"R$ {res_mc_text['pior']:,.2f}",
+                        delta=f"{retorno_pessimista_pct:.2f}%"
+                    )
 
-                            # Inicializa o estado da sessão para guardar os resultados
-                            if 'monte_carlo_results' not in st.session_state:
-                                st.session_state.monte_carlo_results = None
+                # --- FIM DO CÓDIGO DO RESUMO ---
 
-                            if st.button('Simular Patrimônio Futuro'):
-                                # A LÓGICA DA SIMULAÇÃO PRECISA ESTAR AQUI DENTRO
-                                with st.spinner(f"Simulando {num_simulacoes} futuros possíveis..."):
-                                    # 1. PEGAR OS DADOS DA CARTEIRA ÓTIMA
-                                    retorno_anual_esperado = res['retorno'][indice_max_sharpe]
-                                    risco_anual_esperado = res['risco'][indice_max_sharpe]
+                st.plotly_chart(resultados["monte_carlo_fig"], use_container_width=True)
+                st.info(f"""
+                            #### 🤔 Como Ler o Gráfico da Simulação?
 
-                                    # 2. CONVERTER DADOS ANUAIS PARA DIÁRIOS
-                                    retorno_diario_medio = retorno_anual_esperado / PREGOES_NO_ANO
-                                    volatilidade_diaria = risco_anual_esperado / np.sqrt(PREGOES_NO_ANO)
-                                    dias_projecao = anos_projecao * PREGOES_NO_ANO
+                            Nós criamos {res_mc['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc['anos']} anos**. Este gráfico resume tudo isso.
 
-                                    # 3. EXECUTAR A SIMULAÇÃO
-                                    matriz_resultados = np.zeros((dias_projecao, num_simulacoes))
-                                    for i in range(num_simulacoes):
-                                        retornos_aleatorios = np.random.normal(retorno_diario_medio,
-                                                                               volatilidade_diaria, dias_projecao)
-                                        caminho_patrimonio = np.zeros(dias_projecao)
-                                        caminho_patrimonio[0] = valor_inicial * (1 + retornos_aleatorios[0])
-                                        for j in range(1, dias_projecao):
-                                            caminho_patrimonio[j] = caminho_patrimonio[j - 1] * (
-                                                        1 + retornos_aleatorios[j])
-                                        matriz_resultados[:, i] = caminho_patrimonio
+                            * **🎯 O Alvo Principal (Linha Laranja):**
+                                Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc['mediano']:,.2f}**.
 
-                                    # 4. PREPARAR DADOS E GRÁFICO
-                                    df_simulacao = pd.DataFrame(matriz_resultados)
-                                    datas_projecao = pd.bdate_range(start=datetime.now().date(), periods=dias_projecao)
-                                    df_simulacao.index = datas_projecao
+                            * **↔️ A Faixa de Resultados Realista:**
+                                Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
+                                * **Cenário Pessimista:** R$ {res_mc['pior']:,.2f}
+                                * **Cenário Otimista:** R$ {res_mc['melhor']:,.2f}
 
-                                    fig_mc = go.Figure()  # <-- A variável 'fig_mc' é criada aqui
+                            **O que fazer com essa informação?**
+                            Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
 
-                                    simulacoes_a_mostrar = min(num_simulacoes, 500)
-                                    for i in range(simulacoes_a_mostrar):
-                                        fig_mc.add_trace(
-                                            go.Scatter(x=df_simulacao.index, y=df_simulacao.iloc[:, i], mode='lines',
-                                                       line=dict(width=1, color='lightblue'), showlegend=False,
-                                                       opacity=0.1))
+                            **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
+                            """)
 
-                                    fig_mc.add_trace(
-                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.05, axis=1),
-                                                   mode='lines', line=dict(color='red', width=2),
-                                                   name='Pior Cenário (5%)'))
-                                    fig_mc.add_trace(
-                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.50, axis=1),
-                                                   mode='lines', line=dict(color='orange', width=3),
-                                                   name='Cenário Mediano (50%)'))
-                                    fig_mc.add_trace(
-                                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.95, axis=1),
-                                                   mode='lines', line=dict(color='lightgreen', width=2),
-                                                   name='Melhor Cenário (95%)'))
-
-                                    fig_mc.update_layout(title_text=f'Projeção de Patrimônio em {anos_projecao} Anos',
-                                                         xaxis_title='Data', yaxis_title='Patrimônio (R$)',
-                                                         template='plotly_dark', showlegend=True)
-
-                                    # 5. PEGAR OS RESULTADOS FINAIS
-                                    patrimonio_final_mediano = df_simulacao.iloc[-1].median()
-                                    patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
-                                    patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
-
-                                    # 6. GUARDAR TUDO NO ESTADO DA SESSÃO
-                                    st.session_state.monte_carlo_results = {
-                                        "fig": fig_mc,
-                                        "mediano": patrimonio_final_mediano,
-                                        "pior": patrimonio_final_pior_cenario,
-                                        "melhor": patrimonio_final_melhor_cenario,
-                                        "anos": anos_projecao,
-                                        "investimento": valor_inicial,
-                                        "simulacoes": num_simulacoes
-                                    }
-                                st.rerun()  # Força o recarregamento para exibir os resultados
-
-                            # Bloco que exibe os resultados se eles existirem no estado da sessão
-                            if st.session_state.monte_carlo_results:
-                                res_mc = st.session_state.monte_carlo_results
-
-                                # --- INÍCIO DO NOVO CÓDIGO DO RESUMO ---
-
-                                # 1. Calcular as porcentagens de retorno
-                                investimento_inicial = res_mc['investimento']
-                                retorno_mediano_pct = (res_mc['mediano'] / investimento_inicial - 1) * 100
-                                retorno_otimista_pct = (res_mc['melhor'] / investimento_inicial - 1) * 100
-                                retorno_pessimista_pct = (res_mc['pior'] / investimento_inicial - 1) * 100
-
-                                # Calcula a data final da projeção
-                                data_final_projecao = datetime.now().date() + timedelta(days=res_mc['anos'] * 365)
-
-                                st.subheader("Resumo da Projeção")
-
-                                # 2. Exibir o resumo em 4 colunas com st.metric
-                                col1, col2, col3, col4 = st.columns(4)
-
-                                with col1:
-                                    st.metric(
-                                        label=f"Cenário Atual ({datetime.now().strftime('%d %b %Y')})",
-                                        value=f"R$ {investimento_inicial:,.2f}",
-                                        delta="0.00%"
-                                    )
-                                with col2:
-                                    st.metric(
-                                        label=f"Esperado ({data_final_projecao.strftime('%d %b %Y')})",
-                                        value=f"R$ {res_mc['mediano']:,.2f}",
-                                        delta=f"{retorno_mediano_pct:.2f}%"
-                                    )
-                                with col3:
-                                    st.metric(
-                                        label=f"Otimista ({data_final_projecao.strftime('%d %b %Y')})",
-                                        value=f"R$ {res_mc['melhor']:,.2f}",
-                                        delta=f"{retorno_otimista_pct:.2f}%"
-                                    )
-                                with col4:
-                                    st.metric(
-                                        label=f"Pessimista ({data_final_projecao.strftime('%d %b %Y')})",
-                                        value=f"R$ {res_mc['pior']:,.2f}",
-                                        delta=f"{retorno_pessimista_pct:.2f}%"
-                                    )
-
-                                # --- FIM DO NOVO CÓDIGO DO RESUMO ---
-
-                                # O código existente para mostrar o gráfico e a interpretação continua abaixo
-                                st.plotly_chart(res_mc["fig"], use_container_width=True)
-
-                                st.info(f"""
-                                #### 🤔 Como Ler o Gráfico da Simulação?
-
-                                Nós criamos {res_mc['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc['anos']} anos**. Este gráfico resume tudo isso.
-
-                                * **🎯 O Alvo Principal (Linha Laranja):**
-                                    Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc['mediano']:,.2f}**.
-
-                                * **↔️ A Faixa de Resultados Realista:**
-                                    Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
-                                    * **Cenário Pessimista:** R$ {res_mc['pior']:,.2f}
-                                    * **Cenário Otimista:** R$ {res_mc['melhor']:,.2f}
-
-                                **O que fazer com essa informação?**
-                                Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
-
-                                **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
-                                """)
-
-                                if st.button("Limpar Simulação"):
-                                    st.session_state.monte_carlo_results = None
-                                    st.rerun()
-                                    
-                else:
-                    st.info(
-                        "A seleção de ativos mudou. Por favor, clique em 'Otimizar Carteira' novamente para recalcular.")
+                if st.button("Limpar Análise"):
+                    st.session_state.resultados_gerados = None
+                    st.rerun()
     else:
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
 
