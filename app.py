@@ -200,7 +200,7 @@ if st.session_state.get("authentication_status"):
 
         data_inicio = pd.to_datetime(data_inicio)  # ← NOVA LINHA
         data_fim = pd.to_datetime(data_fim)  # ← NOVA LINHA
-        df_portfolio = df_portfolio_completo.loc[data_inicio:data_fim]  # ← MODIFICADA
+        df_portfolio = df_portfolio_completo.loc[data_inicio:data_fim].copy()  # ← MODIFICADA com .copy()
 
         pesos = []
         st.sidebar.subheader('Pesos da Carteira Atual (%)')
@@ -405,6 +405,7 @@ if st.session_state.get("authentication_status"):
         # --- Seção 2: Otimização, Guia e Projeções (Tudo em Um) ---
         
         # --- CONTROLES UNIFICADOS NA SIDEBAR ---
+        num_carteiras_simuladas = st.sidebar.slider('Simulações de Markowitz', 1000, 10000, 5000, key='sim_markowitz')
         valor_investimento = st.sidebar.number_input("Valor do Investimento (R$)", min_value=1000.0, value=50000.0,
                                                      step=1000.0, key='val_investimento')
         anos_projecao = st.sidebar.slider("Anos de Projeção (Monte Carlo)", 1, 30, 10, key='anos_projecao')
@@ -455,7 +456,7 @@ if st.session_state.get("authentication_status"):
                 res = st.session_state.resultados_otimizacao
                 indice_max_sharpe = res['sharpe'].argmax()
                 pesos_otimos = res['pesos'][indice_max_sharpe]
-                dados_recentes = yf.download(ativos_selecionados, period="5d")['Close']
+                dados_recentes = yf.download(ativos_selecionados, period="5d", auto_adjust=False)['Close']
                 ultimos_precos = dados_recentes.iloc[-1]
                 df_guia = pd.DataFrame({'Ativo': ativos_selecionados, 'Peso (%)': [p * 100 for p in pesos_otimos]})
 
