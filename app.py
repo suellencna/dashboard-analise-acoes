@@ -626,7 +626,7 @@ if st.session_state.get("authentication_status"):
                 marker_color='#FF6B6B',
                 text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
                 textposition='inside',
-                textfont=dict(size=20, color='white')
+                textfont=dict(size=24, color='white')
             ))
                 
             # Adicionar barras para carteira otimizada
@@ -638,7 +638,7 @@ if st.session_state.get("authentication_status"):
                 marker_color='#4ECDC4',
                 text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
                 textposition='inside',
-                textfont=dict(size=20, color='white')
+                textfont=dict(size=24, color='white')
             ))
             
             fig_comparacao.update_layout(
@@ -699,26 +699,11 @@ if st.session_state.get("authentication_status"):
                 """)
 
 
-                # EXIBIÇÃO DO GUIA DE INVESTIMENTO
-                st.markdown("---")
-                st.subheader("Guia de Investimento para a Carteira Ótima")
-                st.dataframe(resultados["guia_investimento"],
-                             column_config={
-                                 "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
-                                                                             max_value=100),
-                                 "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
-                                                                                        format="R$ %.2f"),
-                                 "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
-                                                                                    format="R$ %.2f"),
-                                 "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
-                             },
-                             use_container_width=True, hide_index=True)
-
                 # EXIBIÇÃO DE MONTE CARLO
                 st.markdown("---")
                 st.subheader("Projeção de Patrimônio Futuro (Monte Carlo)")
                 
-                col_graf_mc, col_metricas_mc = st.columns([1, 1])
+                col_graf_mc, col_metricas_mc = st.columns([2, 1])
                 
                 with col_graf_mc:
                     st.plotly_chart(resultados["monte_carlo_fig"], use_container_width=True)
@@ -778,6 +763,21 @@ if st.session_state.get("authentication_status"):
 
                         **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
                     """)
+
+                # EXIBIÇÃO DO GUIA DE INVESTIMENTO
+                st.markdown("---")
+                st.subheader("Guia de Investimento para a Carteira Ótima")
+                st.dataframe(resultados["guia_investimento"],
+                             column_config={
+                                 "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                             max_value=100),
+                                 "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
+                                                                                        format="R$ %.2f"),
+                                 "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                                                                                    format="R$ %.2f"),
+                                 "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                             },
+                             use_container_width=True, hide_index=True)
 
                 if st.button("Limpar Análise"):
                     st.session_state.resultados_gerados = None
