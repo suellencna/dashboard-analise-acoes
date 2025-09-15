@@ -544,61 +544,11 @@ if st.session_state.get("authentication_status"):
             pesos_otimos = res['pesos'][indice_max_sharpe]
             indice_min_risco = res['risco'].argmin()
 
-            # --- COMPARAÇÃO: CARTEIRA ATUAL vs OTIMIZADA (APENAS GRÁFICO) ---
-            st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
-            
-            # Garantir que todos os arrays tenham o mesmo tamanho
-            # Usar apenas os ativos que estão na carteira otimizada
-            ativos_comparacao = ativos_otimizados
-            pesos_atuais_comparacao = [pesos[i] if i < len(pesos) else 0 for i in range(len(ativos_comparacao))]
-            pesos_otimos_comparacao = pesos_otimos
-            
-            # Criar gráfico de barras horizontais
-            fig_comparacao = go.Figure()
-            
-            # Adicionar barras para carteira atual
-            fig_comparacao.add_trace(go.Bar(
-                y=ativos_comparacao,
-                x=[p * 100 for p in pesos_atuais_comparacao],
-                name='Carteira Atual',
-                orientation='h',
-                marker_color='#FF6B6B',
-                text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
-                textposition='inside',
-                textfont=dict(size=14, color='white')
-            ))
-                
-            # Adicionar barras para carteira otimizada
-            fig_comparacao.add_trace(go.Bar(
-                y=ativos_comparacao,
-                x=[p * 100 for p in pesos_otimos_comparacao],
-                name='Carteira Otimizada',
-                orientation='h',
-                marker_color='#4ECDC4',
-                text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
-                textposition='inside',
-                textfont=dict(size=14, color='white')
-            ))
-            
-            fig_comparacao.update_layout(
-                title='Comparação de Pesos por Ativo',
-                xaxis_title='Porcentagem (%)',
-                yaxis_title='Ativos',
-                template='plotly_dark',
-                height=400,
-                barmode='group'
-            )
-            
-            # Exibir apenas o gráfico (sem tabela)
-            st.plotly_chart(fig_comparacao, use_container_width=True)
-            
-            st.markdown("---")
-
             # --- COMPOSIÇÃO DA CARTEIRA ÓTIMA E MÉTRICAS ---
-            st.subheader('Composição da Carteira Ótima')
             col_pizza_otima, col_metricas = st.columns([1, 1])
             
             with col_pizza_otima:
+                st.subheader('Composição da Carteira Ótima')
                 # Criar DataFrame com os pesos ótimos
                 df_pesos_otimos = pd.DataFrame(pesos_otimos, index=ativos_otimizados, columns=['Peso'])
                 
@@ -642,7 +592,7 @@ if st.session_state.get("authentication_status"):
                 st.plotly_chart(fig_pie_otima, use_container_width=True)
             
             with col_metricas:
-                st.markdown("#### Métricas dos Ativos")
+                st.subheader('Métricas dos Ativos')
                 # ... (seu código da tabela de métricas) ...
                 df_metricas = pd.DataFrame({
                     'Retorno Anual': res['retornos_individuais'],
@@ -652,6 +602,56 @@ if st.session_state.get("authentication_status"):
                     "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
                     "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
                 }, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+
+            # --- COMPARAÇÃO: CARTEIRA ATUAL vs OTIMIZADA (APENAS GRÁFICO) ---
+            st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
+            
+            # Garantir que todos os arrays tenham o mesmo tamanho
+            # Usar apenas os ativos que estão na carteira otimizada
+            ativos_comparacao = ativos_otimizados
+            pesos_atuais_comparacao = [pesos[i] if i < len(pesos) else 0 for i in range(len(ativos_comparacao))]
+            pesos_otimos_comparacao = pesos_otimos
+            
+            # Criar gráfico de barras horizontais
+            fig_comparacao = go.Figure()
+            
+            # Adicionar barras para carteira atual
+            fig_comparacao.add_trace(go.Bar(
+                y=ativos_comparacao,
+                x=[p * 100 for p in pesos_atuais_comparacao],
+                name='Carteira Atual',
+                orientation='h',
+                marker_color='#FF6B6B',
+                text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
+                textposition='inside',
+                textfont=dict(size=20, color='white')
+            ))
+                
+            # Adicionar barras para carteira otimizada
+            fig_comparacao.add_trace(go.Bar(
+                y=ativos_comparacao,
+                x=[p * 100 for p in pesos_otimos_comparacao],
+                name='Carteira Otimizada',
+                orientation='h',
+                marker_color='#4ECDC4',
+                text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
+                textposition='inside',
+                textfont=dict(size=20, color='white')
+            ))
+            
+            fig_comparacao.update_layout(
+                title='Comparação de Pesos por Ativo',
+                xaxis_title='Porcentagem (%)',
+                yaxis_title='Ativos',
+                template='plotly_dark',
+                height=400,
+                barmode='group'
+            )
+            
+            # Exibir apenas o gráfico (sem tabela)
+            st.plotly_chart(fig_comparacao, use_container_width=True)
             
             st.markdown("---")
 
@@ -717,68 +717,67 @@ if st.session_state.get("authentication_status"):
                 # EXIBIÇÃO DE MONTE CARLO
                 st.markdown("---")
                 st.subheader("Projeção de Patrimônio Futuro (Monte Carlo)")
-                res_mc_text = resultados["monte_carlo_text_data"]
-                # ... (seu código dos st.metric) ...
-                # --- INÍCIO DO CÓDIGO DO RESUMO COM st.metric ---
+                
+                col_graf_mc, col_metricas_mc = st.columns([1, 1])
+                
+                with col_graf_mc:
+                    st.plotly_chart(resultados["monte_carlo_fig"], use_container_width=True)
+                
+                with col_metricas_mc:
+                    res_mc_text = resultados["monte_carlo_text_data"]
+                    
+                    # 1. Pega os dados do dicionário e calcula as porcentagens de retorno
+                    investimento_inicial = res_mc_text['investimento']
+                    retorno_mediano_pct = (res_mc_text['mediano'] / investimento_inicial - 1) * 100
+                    retorno_otimista_pct = (res_mc_text['melhor'] / investimento_inicial - 1) * 100
+                    retorno_pessimista_pct = (res_mc_text['pior'] / investimento_inicial - 1) * 100
 
-                # 1. Pega os dados do dicionário e calcula as porcentagens de retorno
-                investimento_inicial = res_mc_text['investimento']
-                retorno_mediano_pct = (res_mc_text['mediano'] / investimento_inicial - 1) * 100
-                retorno_otimista_pct = (res_mc_text['melhor'] / investimento_inicial - 1) * 100
-                retorno_pessimista_pct = (res_mc_text['pior'] / investimento_inicial - 1) * 100
+                    # Calcula a data final da projeção
+                    data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
 
-                # Calcula a data final da projeção
-                data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
-
-                # 2. Exibe o resumo em 4 colunas com st.metric
-                col1, col2, col3, col4 = st.columns(4)
-
-                with col1:
+                    # 2. Exibe o resumo em 4 linhas com st.metric
                     st.metric(
                         label=f"Cenário Atual ({datetime.now().strftime('%d %b %Y')})",
                         value=f"R$ {investimento_inicial:,.2f}",
                         delta="0.00%"
                     )
-                with col2:
+                    
                     st.metric(
                         label=f"Esperado ({data_final_projecao.strftime('%d %b %Y')})",
                         value=f"R$ {res_mc_text['mediano']:,.2f}",
                         delta=f"{retorno_mediano_pct:.2f}%"
                     )
-                with col3:
+                    
                     st.metric(
                         label=f"Otimista ({data_final_projecao.strftime('%d %b %Y')})",
                         value=f"R$ {res_mc_text['melhor']:,.2f}",
                         delta=f"{retorno_otimista_pct:.2f}%"
                     )
-                with col4:
+                    
                     st.metric(
                         label=f"Pessimista ({data_final_projecao.strftime('%d %b %Y')})",
                         value=f"R$ {res_mc_text['pior']:,.2f}",
                         delta=f"{retorno_pessimista_pct:.2f}%"
                     )
+                
+                # Explicação do Monte Carlo com botão de recolher/expandir
+                with st.expander("🤔 Como Ler o Gráfico da Simulação?", expanded=False):
+                    st.info(f"""
+                        Nós criamos {res_mc_text['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc_text['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc_text['anos']} anos**. Este gráfico resume tudo isso.
 
-                # --- FIM DO CÓDIGO DO RESUMO ---
+                        * **🎯 O Alvo Principal (Linha Laranja):**
+                            Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc_text['mediano']:,.2f}**.
 
-                st.plotly_chart(resultados["monte_carlo_fig"], use_container_width=True)
-                st.info(f"""
-                            #### 🤔 Como Ler o Gráfico da Simulação?
+                        * **↔️ A Faixa de Resultados Realista:**
+                            Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
+                            * **Cenário Pessimista:** R$ {res_mc_text['pior']:,.2f}
+                            * **Cenário Otimista:** R$ {res_mc_text['melhor']:,.2f}
 
-                            Nós criamos {res_mc_text['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc_text['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc_text['anos']} anos**. Este gráfico resume tudo isso.
+                        **O que fazer com essa informação?**
+                        Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
 
-                            * **🎯 O Alvo Principal (Linha Laranja):**
-                                Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc_text['mediano']:,.2f}**.
-
-                            * **↔️ A Faixa de Resultados Realista:**
-                                Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
-                                * **Cenário Pessimista:** R$ {res_mc_text['pior']:,.2f}
-                                * **Cenário Otimista:** R$ {res_mc_text['melhor']:,.2f}
-
-                            **O que fazer com essa informação?**
-                            Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
-
-                            **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
-                            """)
+                        **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
+                    """)
 
                 if st.button("Limpar Análise"):
                     st.session_state.resultados_gerados = None
