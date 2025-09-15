@@ -636,19 +636,19 @@ if st.session_state.get("authentication_status"):
 
                 cores_ativos = ['#FF4B4B', '#3E6D8E', '#6B4E9A']
                 for i, ticker in enumerate(st.session_state.ativos_otimizados):
-                        ax.scatter(res['volatilidades_individuais'][i], res['retornos_individuais'][i], marker='D',
-                                   color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
+                    ax.scatter(res['volatilidades_individuais'][i], res['retornos_individuais'][i], marker='D',
+                               color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
 
-                    ax.scatter(res['risco'][indice_min_risco], res['retorno'][indice_min_risco], marker='X',
-                               color='red', s=200, label='Carteira Risco Mínimo', zorder=5)
-                    ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
-                               color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
+                ax.scatter(res['risco'][indice_min_risco], res['retorno'][indice_min_risco], marker='X',
+                           color='red', s=200, label='Carteira Risco Mínimo', zorder=5)
+                ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
+                           color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
 
-                    ax.set_title('Otimização de Portfólio', fontsize=12)
-                    ax.set_xlabel('Risco (Volatilidade)', fontsize=10)
-                    ax.set_ylabel('Retorno Esperado', fontsize=10)
-                    ax.legend(loc='upper right', fontsize=8)  # <-- LEGENDA DE VOLTA
-                    st.pyplot(fig)
+                ax.set_title('Otimização de Portfólio', fontsize=12)
+                ax.set_xlabel('Risco (Volatilidade)', fontsize=10)
+                ax.set_ylabel('Retorno Esperado', fontsize=10)
+                ax.legend(loc='upper right', fontsize=8)  # <-- LEGENDA DE VOLTA
+                st.pyplot(fig)
 
                 with col_graf_pesos:
                     st.markdown("###### Composição da Carteira Ótima")
