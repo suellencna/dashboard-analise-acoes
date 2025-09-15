@@ -275,8 +275,36 @@ if st.session_state.get("authentication_status"):
             visao_pizza = st.radio("Visualizar por:", ('Ativo', 'Setor'), horizontal=True, key='visao_pizza')
 
             if visao_pizza == 'Ativo':
-                fig_pizza = go.Figure(
-                    data=[go.Pie(labels=ativos_selecionados, values=pesos, hole=.3, textinfo='label+percent')])
+                # Ordena ativos por peso (maior para menor)
+                ativos_pesos_ordenados = sorted(zip(ativos_selecionados, pesos), key=lambda x: x[1], reverse=True)
+                ativos_ordenados = [item[0] for item in ativos_pesos_ordenados]
+                pesos_ordenados = [item[1] for item in ativos_pesos_ordenados]
+                
+                fig_pizza = go.Figure(data=[go.Pie(
+                    labels=ativos_ordenados, 
+                    values=pesos_ordenados, 
+                    hole=.3, 
+                    textinfo='label+percent',
+                    textfont=dict(size=12, color='white'),
+                    marker=dict(
+                        line=dict(color='#FFFFFF', width=2),
+                        colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
+                    )
+                )])
+                fig_pizza.update_layout(
+                    title=dict(text="Composição por Ativo", font=dict(size=16, color='white')),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='white'),
+                    showlegend=True,
+                    legend=dict(
+                        orientation="v",
+                        yanchor="middle",
+                        y=0.5,
+                        xanchor="left",
+                        x=1.05
+                    )
+                )
             else:  # Lógica para visão por Setor
                 pesos_setor = {}
                 for ativo, peso in zip(ativos_selecionados, pesos):
@@ -304,9 +332,36 @@ if st.session_state.get("authentication_status"):
                     else:
                         pesos_setor[setor] = peso
 
-                fig_pizza = go.Figure(data=[
-                    go.Pie(labels=list(pesos_setor.keys()), values=list(pesos_setor.values()), hole=.3,
-                           textinfo='label+percent')])
+                # Ordena setores por peso (maior para menor)
+                setores_pesos_ordenados = sorted(pesos_setor.items(), key=lambda x: x[1], reverse=True)
+                setores_ordenados = [item[0] for item in setores_pesos_ordenados]
+                pesos_setores_ordenados = [item[1] for item in setores_pesos_ordenados]
+
+                fig_pizza = go.Figure(data=[go.Pie(
+                    labels=setores_ordenados, 
+                    values=pesos_setores_ordenados, 
+                    hole=.3,
+                    textinfo='label+percent',
+                    textfont=dict(size=12, color='white'),
+                    marker=dict(
+                        line=dict(color='#FFFFFF', width=2),
+                        colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
+                    )
+                )])
+                fig_pizza.update_layout(
+                    title=dict(text="Composição por Setor", font=dict(size=16, color='white')),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='white'),
+                    showlegend=True,
+                    legend=dict(
+                        orientation="v",
+                        yanchor="middle",
+                        y=0.5,
+                        xanchor="left",
+                        x=1.05
+                    )
+                )
 
             st.plotly_chart(fig_pizza, use_container_width=True)
 
@@ -525,27 +580,36 @@ if st.session_state.get("authentication_status"):
                     legendas_personalizadas = [f"{ativo} ({peso:.2%})" for ativo, peso in
                                                df_pesos_otimos['Peso'].items()]
 
+                    # Ordena a carteira ótima por peso (maior para menor)
+                    df_pesos_otimos_ordenado = df_pesos_otimos.sort_values('Peso', ascending=False)
+                    legendas_personalizadas_ordenadas = [f"{ativo} ({peso:.2%})" for ativo, peso in df_pesos_otimos_ordenado['Peso'].items()]
+
                     fig_pie_otima = go.Figure(
                         data=[go.Pie(
-                            # Usamos as legendas personalizadas aqui
-                            labels=legendas_personalizadas,
-                            values=df_pesos_otimos['Peso'],
+                            labels=legendas_personalizadas_ordenadas,
+                            values=df_pesos_otimos_ordenado['Peso'],
                             hole=.3,
-                            # E voltamos o textinfo para mostrar tudo no gráfico também
                             textinfo='label+percent',
-                            # Isso garante que o texto dentro da pizza não use a legenda personalizada
-                            texttemplate='%{label}<br>%{percent}'
+                            textfont=dict(size=12, color='white'),
+                            marker=dict(
+                                line=dict(color='#FFFFFF', width=2),
+                                colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
+                            )
                         )]
                     )
 
                     fig_pie_otima.update_layout(
+                        title=dict(text="Carteira Ótima", font=dict(size=16, color='white')),
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white'),
                         showlegend=True,
                         legend=dict(
-                            orientation="h",
-                            yanchor="bottom",
-                            y=-0.2,
-                            xanchor="center",
-                            x=0.5
+                            orientation="v",
+                            yanchor="middle",
+                            y=0.5,
+                            xanchor="left",
+                            x=1.05
                         )
                     )
                     st.plotly_chart(fig_pie_otima, use_container_width=True)
@@ -652,7 +716,7 @@ else:
     # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image("prints/slogan_preto.png", width=400)
+        st.image("prints/slogan_preto.png", width=500)
         st.warning('Por favor, insira seu usuário e senha para acessar')
 
     st.sidebar.title("Login")
