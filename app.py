@@ -156,6 +156,15 @@ if st.session_state.get("authentication_status"):
             st.sidebar.error(f"Erro ao salvar a carteira: {e}")
 
     #---- FIM DA DEFINIÇÃO DE CARTEIRA
+    
+    # --- BOTÃO DE OTIMIZAÇÃO (SEMPRE VISÍVEL) ---
+    st.markdown("---")
+    st.subheader("Otimização de Carteira")
+    
+    if len(ativos_selecionados) < 2:
+        st.warning("⚠️ Selecione pelo menos 2 ativos para realizar a otimização.")
+        st.stop()
+    
     if len(ativos_selecionados) >= 2:
         # Bloco de código NOVO E CORRIGIDO
 
