@@ -287,9 +287,10 @@ if st.session_state.get("authentication_status"):
                     textinfo='label+percent',
                     textfont=dict(size=12, color='white'),
                     marker=dict(
-                        line=dict(color='#FFFFFF', width=2),
                         colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
-                    )
+                    ),
+                    sort=False,
+                    direction='clockwise'
                 )])
                 fig_pizza.update_layout(
                     title=dict(text="Composição por Ativo", font=dict(size=16, color='white')),
@@ -344,9 +345,10 @@ if st.session_state.get("authentication_status"):
                     textinfo='label+percent',
                     textfont=dict(size=12, color='white'),
                     marker=dict(
-                        line=dict(color='#FFFFFF', width=2),
                         colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
-                    )
+                    ),
+                    sort=False,
+                    direction='clockwise'
                 )])
                 fig_pizza.update_layout(
                     title=dict(text="Composição por Setor", font=dict(size=16, color='white')),
@@ -592,9 +594,10 @@ if st.session_state.get("authentication_status"):
                             textinfo='label+percent',
                             textfont=dict(size=12, color='white'),
                             marker=dict(
-                                line=dict(color='#FFFFFF', width=2),
                                 colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
-                            )
+                            ),
+                            sort=False,
+                            direction='clockwise'
                         )]
                     )
 
@@ -690,15 +693,15 @@ if st.session_state.get("authentication_status"):
                 st.info(f"""
                             #### 🤔 Como Ler o Gráfico da Simulação?
 
-                            Nós criamos {res_mc['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc['anos']} anos**. Este gráfico resume tudo isso.
+                            Nós criamos {res_mc_text['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc_text['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc_text['anos']} anos**. Este gráfico resume tudo isso.
 
                             * **🎯 O Alvo Principal (Linha Laranja):**
-                                Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc['mediano']:,.2f}**.
+                                Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc_text['mediano']:,.2f}**.
 
                             * **↔️ A Faixa de Resultados Realista:**
                                 Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
-                                * **Cenário Pessimista:** R$ {res_mc['pior']:,.2f}
-                                * **Cenário Otimista:** R$ {res_mc['melhor']:,.2f}
+                                * **Cenário Pessimista:** R$ {res_mc_text['pior']:,.2f}
+                                * **Cenário Otimista:** R$ {res_mc_text['melhor']:,.2f}
 
                             **O que fazer com essa informação?**
                             Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
