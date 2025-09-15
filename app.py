@@ -564,7 +564,8 @@ if st.session_state.get("authentication_status"):
                 orientation='h',
                 marker_color='#FF6B6B',
                 text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
-                textposition='inside'
+                textposition='inside',
+                textfont=dict(size=14, color='white')
             ))
                 
             # Adicionar barras para carteira otimizada
@@ -575,7 +576,8 @@ if st.session_state.get("authentication_status"):
                 orientation='h',
                 marker_color='#4ECDC4',
                 text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
-                textposition='inside'
+                textposition='inside',
+                textfont=dict(size=14, color='white')
             ))
             
             fig_comparacao.update_layout(
@@ -592,26 +594,70 @@ if st.session_state.get("authentication_status"):
             
             st.markdown("---")
 
+            # --- COMPOSIÇÃO DA CARTEIRA ÓTIMA E MÉTRICAS ---
+            st.subheader('Composição da Carteira Ótima')
+            col_pizza_otima, col_metricas = st.columns([1, 1])
+            
+            with col_pizza_otima:
+                # Criar DataFrame com os pesos ótimos
+                df_pesos_otimos = pd.DataFrame(pesos_otimos, index=ativos_otimizados, columns=['Peso'])
+                
+                # --- ALTERAÇÃO AQUI: Criando as legendas personalizadas ---
+                legendas_personalizadas = [f"{ativo} ({peso:.2%})" for ativo, peso in
+                                           df_pesos_otimos['Peso'].items()]
+
+                # Ordena a carteira ótima por peso (maior para menor)
+                df_pesos_otimos_ordenado = df_pesos_otimos.sort_values('Peso', ascending=False)
+                legendas_personalizadas_ordenadas = [f"{ativo} ({peso:.2%})" for ativo, peso in df_pesos_otimos_ordenado['Peso'].items()]
+
+                fig_pie_otima = go.Figure(
+                    data=[go.Pie(
+                        labels=legendas_personalizadas_ordenadas,
+                        values=df_pesos_otimos_ordenado['Peso'],
+                        hole=.3,
+                        textinfo='percent',
+                        textfont=dict(size=12, color='white'),
+                        marker=dict(
+                            colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
+                        ),
+                        sort=False,
+                        direction='clockwise'
+                    )]
+                )
+
+                fig_pie_otima.update_layout(
+                    #title=dict(text="Carteira Ótima", font=dict(size=16, color='white')),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='white'),
+                    showlegend=True,
+                    legend=dict(
+                        orientation="v",
+                        yanchor="middle",
+                        y=0.5,
+                        xanchor="left",
+                        x=1.05
+                    )
+                )
+                st.plotly_chart(fig_pie_otima, use_container_width=True)
+            
+            with col_metricas:
+                st.markdown("#### Métricas dos Ativos")
+                # ... (seu código da tabela de métricas) ...
+                df_metricas = pd.DataFrame({
+                    'Retorno Anual': res['retornos_individuais'],
+                    'Volatilidade': res['volatilidades_individuais']
+                }).reset_index().rename(columns={'index': 'Ativo'})
+                st.dataframe(df_metricas, column_config={
+                    "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
+                    "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
+                }, use_container_width=True, hide_index=True)
+            
+            st.markdown("---")
+
             # EXIBIÇÃO DE MARKOWITZ
-            st.subheader('Resultados da Otimização')
-            st.info("""
-                #### Entendendo o Gráfico de Markowitz
-
-                            * **O que é?** 
-                                Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
-
-                            * **O que o gráfico significa?**
-                                * **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
-                                * **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.
-                                * **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.
-                                * **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
-                                * **"X" Vermelho:** A carteira com o menor risco possível.
-
-                            * **Como usar?** 
-                                Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
-
-                """)
-            col_graf_fronteira, col_graf_pesos = st.columns([0.6, 0.4])
+            st.subheader('Fronteira Eficiente de Markowitz')
+            col_graf_fronteira, col_explicacao = st.columns([0.6, 0.4])
             with col_graf_fronteira:
                 st.markdown("###### Fronteira Eficiente")
                 fig, ax = plt.subplots(figsize=(8, 5))
@@ -634,60 +680,24 @@ if st.session_state.get("authentication_status"):
                 ax.legend(loc='upper right', fontsize=8)  # <-- LEGENDA DE VOLTA
                 st.pyplot(fig)
 
-                with col_graf_pesos:
-                    st.markdown("###### Composição da Carteira Ótima")
-                    df_pesos_otimos = pd.DataFrame(pesos_otimos, index=st.session_state.ativos_otimizados,
-                                                   columns=['Peso'])
+            with col_explicacao:
+                st.info("""
+                    #### Entendendo o Gráfico de Markowitz
 
-                    # --- ALTERAÇÃO AQUI: Criando as legendas personalizadas ---
-                    legendas_personalizadas = [f"{ativo} ({peso:.2%})" for ativo, peso in
-                                               df_pesos_otimos['Peso'].items()]
+                    * **O que é?** 
+                        Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
 
-                    # Ordena a carteira ótima por peso (maior para menor)
-                    df_pesos_otimos_ordenado = df_pesos_otimos.sort_values('Peso', ascending=False)
-                    legendas_personalizadas_ordenadas = [f"{ativo} ({peso:.2%})" for ativo, peso in df_pesos_otimos_ordenado['Peso'].items()]
+                    * **O que o gráfico significa?**
+                        * **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
+                        * **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.
+                        * **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.
+                        * **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
+                        * **"X" Vermelho:** A carteira com o menor risco possível.
 
-                    fig_pie_otima = go.Figure(
-                        data=[go.Pie(
-                            labels=legendas_personalizadas_ordenadas,
-                            values=df_pesos_otimos_ordenado['Peso'],
-                            hole=.3,
-                            textinfo='percent',
-                            textfont=dict(size=12, color='white'),
-                            marker=dict(
-                                colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
-                            ),
-                            sort=False,
-                            direction='clockwise'
-                        )]
-                    )
+                    * **Como usar?** 
+                        Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
+                """)
 
-                    fig_pie_otima.update_layout(
-                        #title=dict(text="Carteira Ótima", font=dict(size=16, color='white')),
-                        paper_bgcolor='rgba(0,0,0,0)',
-                        plot_bgcolor='rgba(0,0,0,0)',
-                        font=dict(color='white'),
-                        showlegend=True,
-                        legend=dict(
-                            orientation="v",
-                            yanchor="middle",
-                            y=0.5,
-                            xanchor="left",
-                            x=1.05
-                        )
-                    )
-                    st.plotly_chart(fig_pie_otima, use_container_width=True)
-
-                st.subheader('Métricas dos Ativos para Comparação')
-                # ... (seu código da tabela de métricas)
-                df_metricas = pd.DataFrame({
-                    'Retorno Anual': res['retornos_individuais'],
-                    'Volatilidade': res['volatilidades_individuais']
-                }).reset_index().rename(columns={'index': 'Ativo'})
-                st.dataframe(df_metricas, column_config={
-                    "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
-                    "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
-                }, use_container_width=True, hide_index=True)
 
                 # EXIBIÇÃO DO GUIA DE INVESTIMENTO
                 st.markdown("---")
