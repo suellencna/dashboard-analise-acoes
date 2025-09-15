@@ -526,6 +526,15 @@ if st.session_state.get("authentication_status"):
                     }
                 }
 
+        # --- DETECÇÃO DE MUDANÇAS NOS ATIVOS ---
+        # Verificar se os ativos mudaram desde a última otimização
+        if st.session_state.resultados_gerados:
+            ativos_otimizados_anteriores = st.session_state.resultados_gerados.get("ativos_otimizados", [])
+            if set(ativos_selecionados) != set(ativos_otimizados_anteriores):
+                st.warning("⚠️ **Atenção:** Você alterou a seleção de ativos. Os resultados anteriores não são mais válidos. Clique no botão 'Otimização e Projeções' para recalcular.")
+                st.session_state.resultados_gerados = None
+                st.stop()
+
         # --- BLOCO DE EXIBIÇÃO (SÓ MOSTRA OS RESULTADOS) ---
         if st.session_state.resultados_gerados:
             resultados = st.session_state.resultados_gerados
@@ -535,38 +544,37 @@ if st.session_state.get("authentication_status"):
             pesos_otimos = res['pesos'][indice_max_sharpe]
             indice_min_risco = res['risco'].argmin()
 
-            # --- TABELA COMPARATIVA: CARTEIRA ATUAL vs OTIMIZADA ---
+            # --- COMPARAÇÃO: CARTEIRA ATUAL vs OTIMIZADA (APENAS GRÁFICO) ---
             st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
             
-            # Criar DataFrame comparativo
-            df_comparacao = pd.DataFrame({
-                'Ativo': ativos_selecionados,
-                'Peso Atual (%)': [p * 100 for p in pesos],  # pesos da carteira atual
-                'Peso Otimizado (%)': [p * 100 for p in pesos_otimos]  # pesos da carteira otimizada
-            })
-                
+            # Garantir que todos os arrays tenham o mesmo tamanho
+            # Usar apenas os ativos que estão na carteira otimizada
+            ativos_comparacao = ativos_otimizados
+            pesos_atuais_comparacao = [pesos[i] if i < len(pesos) else 0 for i in range(len(ativos_comparacao))]
+            pesos_otimos_comparacao = pesos_otimos
+            
             # Criar gráfico de barras horizontais
             fig_comparacao = go.Figure()
             
             # Adicionar barras para carteira atual
             fig_comparacao.add_trace(go.Bar(
-                y=df_comparacao['Ativo'],
-                x=df_comparacao['Peso Atual (%)'],
+                y=ativos_comparacao,
+                x=[p * 100 for p in pesos_atuais_comparacao],
                 name='Carteira Atual',
                 orientation='h',
                 marker_color='#FF6B6B',
-                text=[f"{p:.1f}%" for p in df_comparacao['Peso Atual (%)']],
+                text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
                 textposition='inside'
             ))
                 
             # Adicionar barras para carteira otimizada
             fig_comparacao.add_trace(go.Bar(
-                y=df_comparacao['Ativo'],
-                x=df_comparacao['Peso Otimizado (%)'],
+                y=ativos_comparacao,
+                x=[p * 100 for p in pesos_otimos_comparacao],
                 name='Carteira Otimizada',
                 orientation='h',
                 marker_color='#4ECDC4',
-                text=[f"{p:.1f}%" for p in df_comparacao['Peso Otimizado (%)']],
+                text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
                 textposition='inside'
             ))
             
@@ -579,32 +587,8 @@ if st.session_state.get("authentication_status"):
                 barmode='group'
             )
             
-            # Exibir tabela e gráfico
-            col_tabela, col_grafico = st.columns([1, 1])
-            
-            with col_tabela:
-                st.dataframe(
-                    df_comparacao,
-                    column_config={
-                        "Peso Atual (%)": st.column_config.ProgressColumn(
-                            "Peso Atual (%)", 
-                            format="%.1f%%", 
-                            min_value=0, 
-                            max_value=100
-                        ),
-                        "Peso Otimizado (%)": st.column_config.ProgressColumn(
-                            "Peso Otimizado (%)", 
-                            format="%.1f%%", 
-                            min_value=0, 
-                            max_value=100
-                        )
-                    },
-                    use_container_width=True,
-                    hide_index=True
-                )
-            
-            with col_grafico:
-                st.plotly_chart(fig_comparacao, use_container_width=True)
+            # Exibir apenas o gráfico (sem tabela)
+            st.plotly_chart(fig_comparacao, use_container_width=True)
             
             st.markdown("---")
 
