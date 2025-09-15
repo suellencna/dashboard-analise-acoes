@@ -403,123 +403,119 @@ if st.session_state.get("authentication_status"):
 
 
         # --- Seção 2: Otimização, Guia e Projeções (Tudo em Um) ---
-        with st.expander("Clique aqui para Otimização e Projeções", expanded=True):
+        
+        # --- CONTROLES UNIFICADOS NA SIDEBAR ---
+        valor_investimento = st.sidebar.number_input("Valor do Investimento (R$)", min_value=1000.0, value=50000.0,
+                                                     step=1000.0, key='val_investimento')
+        anos_projecao = st.sidebar.slider("Anos de Projeção (Monte Carlo)", 1, 30, 10, key='anos_projecao')
+        num_simulacoes_mc = st.sidebar.select_slider("Simulações de Monte Carlo", options=[100, 250, 500],
+                                                     value=250, key='sim_mc')
 
-            # --- CONTROLES UNIFICADOS NA SIDEBAR ---
-            #st.sidebar.subheader('Opções de Otimização e Simulação')
-            #num_carteiras_simuladas = st.sidebar.slider('Simulações de Markowitz', 1000, 10000, 5000,
-            #                                            key='sim_markowitz')
-            valor_investimento = st.sidebar.number_input("Valor do Investimento (R$)", min_value=1000.0, value=50000.0,
-                                                         step=1000.0, key='val_investimento')
-            anos_projecao = st.sidebar.slider("Anos de Projeção (Monte Carlo)", 1, 30, 10, key='anos_projecao')
-            num_simulacoes_mc = st.sidebar.select_slider("Simulações de Monte Carlo", options=[100, 250, 500],
-                                                         value=250, key='sim_mc')
+        # Inicializa o estado da sessão para guardar todos os resultados
+        if 'resultados_gerados' not in st.session_state:
+            st.session_state.resultados_gerados = None
 
-            # Inicializa o estado da sessão para guardar todos os resultados
-            if 'resultados_gerados' not in st.session_state:
-                st.session_state.resultados_gerados = None
+        if st.button('Clique aqui para Otimização e Projeções', type='primary', use_container_width=True):
+            with st.spinner('Realizando todos os cálculos... Isso pode levar um momento.'):
+                # 1. CÁLCULO DE MARKOWITZ
+                retornos_diarios = df_portfolio[ativos_selecionados].pct_change().dropna()
+                matriz_covariancia = retornos_diarios.cov() * PREGOES_NO_ANO
 
-            if st.button('Otimizar Carteira e Gerar Projeções'):
-                with st.spinner('Realizando todos os cálculos... Isso pode levar um momento.'):
-                    # 1. CÁLCULO DE MARKOWITZ
-                    retornos_diarios = df_portfolio[ativos_selecionados].pct_change().dropna()
-                    matriz_covariancia = retornos_diarios.cov() * PREGOES_NO_ANO
+                resultados_retorno, resultados_risco, resultados_sharpe, matriz_pesos = [[] for _ in range(4)]
+                for i in range(num_carteiras_simuladas):
+                    pesos_sim = np.random.random(len(ativos_selecionados))
+                    pesos_sim /= np.sum(pesos_sim)
+                    matriz_pesos.append(pesos_sim)
+                    retorno = np.sum(retornos_diarios.mean() * pesos_sim) * PREGOES_NO_ANO
+                    risco = np.sqrt(np.dot(pesos_sim.T, np.dot(matriz_covariancia, pesos_sim)))
+                    resultados_retorno.append(retorno)
+                    resultados_risco.append(risco)
+                    resultados_sharpe.append((retorno - TAXA_LIVRE_DE_RISCO) / risco)
 
-                    resultados_retorno, resultados_risco, resultados_sharpe, matriz_pesos = [[] for _ in range(4)]
-                    for i in range(num_carteiras_simuladas):
-                        pesos_sim = np.random.random(len(ativos_selecionados))
-                        pesos_sim /= np.sum(pesos_sim)
-                        matriz_pesos.append(pesos_sim)
-                        retorno = np.sum(retornos_diarios.mean() * pesos_sim) * PREGOES_NO_ANO
-                        risco = np.sqrt(np.dot(pesos_sim.T, np.dot(matriz_covariancia, pesos_sim)))
-                        resultados_retorno.append(retorno)
-                        resultados_risco.append(risco)
-                        resultados_sharpe.append((retorno - TAXA_LIVRE_DE_RISCO) / risco)
+                st.session_state.resultados_otimizacao = {
+                    'risco': np.array(resultados_risco), 'retorno': np.array(resultados_retorno),
+                    'sharpe': np.array(resultados_sharpe),
+                    'pesos': matriz_pesos,
+                    'retornos_individuais': retornos_diarios.mean() * PREGOES_NO_ANO,
+                    'volatilidades_individuais': retornos_diarios.std() * np.sqrt(PREGOES_NO_ANO)
+                }
+                st.session_state.ativos_otimizados = ativos_selecionados.copy()
 
-                    st.session_state.resultados_otimizacao = {
-                        'risco': np.array(resultados_risco), 'retorno': np.array(resultados_retorno),
-                        'sharpe': np.array(resultados_sharpe),
-                        'pesos': matriz_pesos,
-                        'retornos_individuais': retornos_diarios.mean() * PREGOES_NO_ANO,
-                        'volatilidades_individuais': retornos_diarios.std() * np.sqrt(PREGOES_NO_ANO)
+
+                res_markowitz = {
+                    'risco': np.array(resultados_risco), 'retorno': np.array(resultados_retorno),
+                    'sharpe': np.array(resultados_sharpe), 'pesos': matriz_pesos,
+                    'retornos_individuais': retornos_diarios.mean() * PREGOES_NO_ANO,
+                    'volatilidades_individuais': retornos_diarios.std() * np.sqrt(PREGOES_NO_ANO)
+                }
+                indice_max_sharpe = np.argmax(resultados_sharpe)
+                pesos_otimos = matriz_pesos[indice_max_sharpe]
+
+                # 2. BUSCA DE PREÇOS E GUIA DE INVESTIMENTO (CÓDIGO MOVIDO)
+                res = st.session_state.resultados_otimizacao
+                indice_max_sharpe = res['sharpe'].argmax()
+                pesos_otimos = res['pesos'][indice_max_sharpe]
+                dados_recentes = yf.download(ativos_selecionados, period="5d")['Close']
+                ultimos_precos = dados_recentes.iloc[-1]
+                df_guia = pd.DataFrame({'Ativo': ativos_selecionados, 'Peso (%)': [p * 100 for p in pesos_otimos]})
+
+                df_guia['Valor a Investir (R$)'] = df_guia['Peso (%)'] / 100 * valor_investimento
+                df_guia['Último Preço (R$)'] = df_guia['Ativo'].map(ultimos_precos)
+                df_guia['Quantidade de Ações'] = (
+                            df_guia['Valor a Investir (R$)'] / df_guia['Último Preço (R$)']).astype(int)
+
+                # 3. CÁLCULO DE MONTE CARLO
+                retorno_anual_esperado = resultados_retorno[indice_max_sharpe]
+                risco_anual_esperado = resultados_risco[indice_max_sharpe]
+                retorno_diario_medio = retorno_anual_esperado / PREGOES_NO_ANO
+                volatilidade_diaria = risco_anual_esperado / np.sqrt(PREGOES_NO_ANO)
+                dias_projecao = anos_projecao * PREGOES_NO_ANO
+                matriz_resultados = np.zeros((dias_projecao, num_simulacoes_mc))
+                for i in range(num_simulacoes_mc):
+                    retornos_aleatorios = np.random.normal(retorno_diario_medio, volatilidade_diaria, dias_projecao)
+                    caminho_patrimonio = np.zeros(dias_projecao)
+                    caminho_patrimonio[0] = valor_investimento * (1 + retornos_aleatorios[0])
+                    for j in range(1, dias_projecao):
+                        caminho_patrimonio[j] = caminho_patrimonio[j - 1] * (1 + retornos_aleatorios[j])
+                    matriz_resultados[:, i] = caminho_patrimonio
+
+                df_simulacao = pd.DataFrame(matriz_resultados)
+                datas_projecao = pd.bdate_range(start=datetime.now().date(), periods=dias_projecao)
+                df_simulacao.index = datas_projecao
+                fig_mc = go.Figure()
+                simulacoes_a_mostrar = min(num_simulacoes_mc, 500)
+                for i in range(simulacoes_a_mostrar):
+                    fig_mc.add_trace(go.Scatter(x=df_simulacao.index, y=df_simulacao.iloc[:, i], mode='lines',
+                                                line=dict(width=1, color='lightblue'), showlegend=False,
+                                                opacity=0.1))
+                fig_mc.add_trace(
+                    go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.05, axis=1), mode='lines',
+                               line=dict(color='red', width=2), name='Pior Cenário (5%)'))
+                fig_mc.add_trace(
+                    go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.50, axis=1), mode='lines',
+                               line=dict(color='orange', width=3), name='Cenário Mediano (50%)'))
+                fig_mc.add_trace(
+                    go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.95, axis=1), mode='lines',
+                               line=dict(color='lightgreen', width=2), name='Melhor Cenário (95%)'))
+                fig_mc.update_layout(title_text=f'Projeção de Patrimônio em {anos_projecao} Anos',
+                                     xaxis_title='Data', yaxis_title='Patrimônio (R$)', template='plotly_dark',
+                                     showlegend=True)
+                patrimonio_final_mediano = df_simulacao.iloc[-1].median()
+                patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
+                patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
+
+                # 4. SALVAR TUDO EM UM ÚNICO LUGAR
+                st.session_state.resultados_gerados = {
+                    "markowitz": res,
+                    "guia_investimento": df_guia,
+                    "ativos_otimizados": ativos_selecionados.copy(),
+                    "monte_carlo_fig": fig_mc,
+                    "monte_carlo_text_data": {
+                        'investimento': valor_investimento, 'simulacoes': num_simulacoes_mc, 'anos': anos_projecao,
+                        'mediano': patrimonio_final_mediano, 'pior': patrimonio_final_pior_cenario,
+                        'melhor': patrimonio_final_melhor_cenario
                     }
-                    st.session_state.ativos_otimizados = ativos_selecionados.copy()
-
-
-                    res_markowitz = {
-                        'risco': np.array(resultados_risco), 'retorno': np.array(resultados_retorno),
-                        'sharpe': np.array(resultados_sharpe), 'pesos': matriz_pesos,
-                        'retornos_individuais': retornos_diarios.mean() * PREGOES_NO_ANO,
-                        'volatilidades_individuais': retornos_diarios.std() * np.sqrt(PREGOES_NO_ANO)
-                    }
-                    indice_max_sharpe = np.argmax(resultados_sharpe)
-                    pesos_otimos = matriz_pesos[indice_max_sharpe]
-
-                    # 2. BUSCA DE PREÇOS E GUIA DE INVESTIMENTO (CÓDIGO MOVIDO)
-                    res = st.session_state.resultados_otimizacao
-                    indice_max_sharpe = res['sharpe'].argmax()
-                    pesos_otimos = res['pesos'][indice_max_sharpe]
-                    dados_recentes = yf.download(ativos_selecionados, period="5d")['Close']
-                    ultimos_precos = dados_recentes.iloc[-1]
-                    df_guia = pd.DataFrame({'Ativo': ativos_selecionados, 'Peso (%)': [p * 100 for p in pesos_otimos]})
-
-                    df_guia['Valor a Investir (R$)'] = df_guia['Peso (%)'] / 100 * valor_investimento
-                    df_guia['Último Preço (R$)'] = df_guia['Ativo'].map(ultimos_precos)
-                    df_guia['Quantidade de Ações'] = (
-                                df_guia['Valor a Investir (R$)'] / df_guia['Último Preço (R$)']).astype(int)
-
-                    # 3. CÁLCULO DE MONTE CARLO
-                    retorno_anual_esperado = resultados_retorno[indice_max_sharpe]
-                    risco_anual_esperado = resultados_risco[indice_max_sharpe]
-                    retorno_diario_medio = retorno_anual_esperado / PREGOES_NO_ANO
-                    volatilidade_diaria = risco_anual_esperado / np.sqrt(PREGOES_NO_ANO)
-                    dias_projecao = anos_projecao * PREGOES_NO_ANO
-                    matriz_resultados = np.zeros((dias_projecao, num_simulacoes_mc))
-                    for i in range(num_simulacoes_mc):
-                        retornos_aleatorios = np.random.normal(retorno_diario_medio, volatilidade_diaria, dias_projecao)
-                        caminho_patrimonio = np.zeros(dias_projecao)
-                        caminho_patrimonio[0] = valor_investimento * (1 + retornos_aleatorios[0])
-                        for j in range(1, dias_projecao):
-                            caminho_patrimonio[j] = caminho_patrimonio[j - 1] * (1 + retornos_aleatorios[j])
-                        matriz_resultados[:, i] = caminho_patrimonio
-
-                    df_simulacao = pd.DataFrame(matriz_resultados)
-                    datas_projecao = pd.bdate_range(start=datetime.now().date(), periods=dias_projecao)
-                    df_simulacao.index = datas_projecao
-                    fig_mc = go.Figure()
-                    simulacoes_a_mostrar = min(num_simulacoes_mc, 500)
-                    for i in range(simulacoes_a_mostrar):
-                        fig_mc.add_trace(go.Scatter(x=df_simulacao.index, y=df_simulacao.iloc[:, i], mode='lines',
-                                                    line=dict(width=1, color='lightblue'), showlegend=False,
-                                                    opacity=0.1))
-                    fig_mc.add_trace(
-                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.05, axis=1), mode='lines',
-                                   line=dict(color='red', width=2), name='Pior Cenário (5%)'))
-                    fig_mc.add_trace(
-                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.50, axis=1), mode='lines',
-                                   line=dict(color='orange', width=3), name='Cenário Mediano (50%)'))
-                    fig_mc.add_trace(
-                        go.Scatter(x=df_simulacao.index, y=df_simulacao.quantile(0.95, axis=1), mode='lines',
-                                   line=dict(color='lightgreen', width=2), name='Melhor Cenário (95%)'))
-                    fig_mc.update_layout(title_text=f'Projeção de Patrimônio em {anos_projecao} Anos',
-                                         xaxis_title='Data', yaxis_title='Patrimônio (R$)', template='plotly_dark',
-                                         showlegend=True)
-                    patrimonio_final_mediano = df_simulacao.iloc[-1].median()
-                    patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
-                    patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
-
-                    # 4. SALVAR TUDO EM UM ÚNICO LUGAR
-                    st.session_state.resultados_gerados = {
-                        "markowitz": res,
-                        "guia_investimento": df_guia,
-                        "ativos_otimizados": ativos_selecionados.copy(),
-                        "monte_carlo_fig": fig_mc,
-                        "monte_carlo_text_data": {
-                            'investimento': valor_investimento, 'simulacoes': num_simulacoes_mc, 'anos': anos_projecao,
-                            'mediano': patrimonio_final_mediano, 'pior': patrimonio_final_pior_cenario,
-                            'melhor': patrimonio_final_melhor_cenario
-                        }
-                    }
+                }
                 st.rerun()
 
             # --- BLOCO DE EXIBIÇÃO (SÓ MOSTRA OS RESULTADOS) ---
@@ -530,6 +526,79 @@ if st.session_state.get("authentication_status"):
                 indice_max_sharpe = res['sharpe'].argmax()
                 pesos_otimos = res['pesos'][indice_max_sharpe]
                 indice_min_risco = res['risco'].argmin()
+
+                # --- TABELA COMPARATIVA: CARTEIRA ATUAL vs OTIMIZADA ---
+                st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
+                
+                # Criar DataFrame comparativo
+                df_comparacao = pd.DataFrame({
+                    'Ativo': ativos_selecionados,
+                    'Peso Atual (%)': [p * 100 for p in pesos],  # pesos da carteira atual
+                    'Peso Otimizado (%)': [p * 100 for p in pesos_otimos]  # pesos da carteira otimizada
+                })
+                
+                # Criar gráfico de barras horizontais
+                fig_comparacao = go.Figure()
+                
+                # Adicionar barras para carteira atual
+                fig_comparacao.add_trace(go.Bar(
+                    y=df_comparacao['Ativo'],
+                    x=df_comparacao['Peso Atual (%)'],
+                    name='Carteira Atual',
+                    orientation='h',
+                    marker_color='#FF6B6B',
+                    text=[f"{p:.1f}%" for p in df_comparacao['Peso Atual (%)']],
+                    textposition='inside'
+                ))
+                
+                # Adicionar barras para carteira otimizada
+                fig_comparacao.add_trace(go.Bar(
+                    y=df_comparacao['Ativo'],
+                    x=df_comparacao['Peso Otimizado (%)'],
+                    name='Carteira Otimizada',
+                    orientation='h',
+                    marker_color='#4ECDC4',
+                    text=[f"{p:.1f}%" for p in df_comparacao['Peso Otimizado (%)']],
+                    textposition='inside'
+                ))
+                
+                fig_comparacao.update_layout(
+                    title='Comparação de Pesos por Ativo',
+                    xaxis_title='Porcentagem (%)',
+                    yaxis_title='Ativos',
+                    template='plotly_dark',
+                    height=400,
+                    barmode='group'
+                )
+                
+                # Exibir tabela e gráfico
+                col_tabela, col_grafico = st.columns([1, 1])
+                
+                with col_tabela:
+                    st.dataframe(
+                        df_comparacao,
+                        column_config={
+                            "Peso Atual (%)": st.column_config.ProgressColumn(
+                                "Peso Atual (%)", 
+                                format="%.1f%%", 
+                                min_value=0, 
+                                max_value=100
+                            ),
+                            "Peso Otimizado (%)": st.column_config.ProgressColumn(
+                                "Peso Otimizado (%)", 
+                                format="%.1f%%", 
+                                min_value=0, 
+                                max_value=100
+                            )
+                        },
+                        use_container_width=True,
+                        hide_index=True
+                    )
+                
+                with col_grafico:
+                    st.plotly_chart(fig_comparacao, use_container_width=True)
+                
+                st.markdown("---")
 
                 # EXIBIÇÃO DE MARKOWITZ
                 st.subheader('Resultados da Otimização')
@@ -591,7 +660,7 @@ if st.session_state.get("authentication_status"):
                             labels=legendas_personalizadas_ordenadas,
                             values=df_pesos_otimos_ordenado['Peso'],
                             hole=.3,
-                            textinfo='label+percent',
+                            textinfo='percent',
                             textfont=dict(size=12, color='white'),
                             marker=dict(
                                 colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F']
@@ -602,7 +671,7 @@ if st.session_state.get("authentication_status"):
                     )
 
                     fig_pie_otima.update_layout(
-                        title=dict(text="Carteira Ótima", font=dict(size=16, color='white')),
+                        #title=dict(text="Carteira Ótima", font=dict(size=16, color='white')),
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)',
                         font=dict(color='white'),
