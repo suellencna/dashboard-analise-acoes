@@ -593,6 +593,9 @@ if st.session_state.get("authentication_status"):
             
             with col_metricas:
                 st.subheader('Métricas dos Ativos')
+                print()
+                print()
+                
                 # ... (seu código da tabela de métricas) ...
                 df_metricas = pd.DataFrame({
                     'Retorno Anual': res['retornos_individuais'],
@@ -626,7 +629,7 @@ if st.session_state.get("authentication_status"):
                 marker_color='#FF6B6B',
                 text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
                 textposition='inside',
-                textfont=dict(size=24, color='white')
+                textfont=dict(size=28, color='white')
             ))
                 
             # Adicionar barras para carteira otimizada
@@ -638,7 +641,7 @@ if st.session_state.get("authentication_status"):
                 marker_color='#4ECDC4',
                 text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
                 textposition='inside',
-                textfont=dict(size=24, color='white')
+                textfont=dict(size=28, color='white')
             ))
             
             fig_comparacao.update_layout(
@@ -653,6 +656,72 @@ if st.session_state.get("authentication_status"):
             # Exibir apenas o gráfico (sem tabela)
             st.plotly_chart(fig_comparacao, use_container_width=True)
             
+            st.markdown("---")
+
+            # EXIBIÇÃO DE MONTE CARLO
+            st.subheader("Projeção de Patrimônio Futuro (Monte Carlo)")
+            
+            col_graf_mc, col_metricas_mc = st.columns([2, 1])
+            
+            with col_graf_mc:
+                st.plotly_chart(resultados["monte_carlo_fig"], use_container_width=True)
+            
+            with col_metricas_mc:
+                res_mc_text = resultados["monte_carlo_text_data"]
+                
+                # 1. Pega os dados do dicionário e calcula as porcentagens de retorno
+                investimento_inicial = res_mc_text['investimento']
+                retorno_mediano_pct = (res_mc_text['mediano'] / investimento_inicial - 1) * 100
+                retorno_otimista_pct = (res_mc_text['melhor'] / investimento_inicial - 1) * 100
+                retorno_pessimista_pct = (res_mc_text['pior'] / investimento_inicial - 1) * 100
+
+                # Calcula a data final da projeção
+                data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
+
+                # 2. Exibe o resumo em 4 linhas com st.metric
+                st.metric(
+                    label=f"Cenário Atual ({datetime.now().strftime('%d %b %Y')})",
+                    value=f"R$ {investimento_inicial:,.2f}",
+                    delta="0.00%"
+                )
+                
+                st.metric(
+                    label=f"Esperado ({data_final_projecao.strftime('%d %b %Y')})",
+                    value=f"R$ {res_mc_text['mediano']:,.2f}",
+                    delta=f"{retorno_mediano_pct:.2f}%"
+                )
+                
+                st.metric(
+                    label=f"Otimista ({data_final_projecao.strftime('%d %b %Y')})",
+                    value=f"R$ {res_mc_text['melhor']:,.2f}",
+                    delta=f"{retorno_otimista_pct:.2f}%"
+                )
+                
+                st.metric(
+                    label=f"Pessimista ({data_final_projecao.strftime('%d %b %Y')})",
+                    value=f"R$ {res_mc_text['pior']:,.2f}",
+                    delta=f"{retorno_pessimista_pct:.2f}%"
+                )
+            
+            # Explicação do Monte Carlo com botão de recolher/expandir
+            with st.expander("🤔 Como Ler o Gráfico da Simulação?", expanded=False):
+                st.info(f"""
+                    Nós criamos {res_mc_text['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc_text['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc_text['anos']} anos**. Este gráfico resume tudo isso.
+
+                    * **🎯 O Alvo Principal (Linha Laranja):**
+                        Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc_text['mediano']:,.2f}**.
+
+                    * **↔️ A Faixa de Resultados Realista:**
+                        Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
+                        * **Cenário Pessimista:** R$ {res_mc_text['pior']:,.2f}
+                        * **Cenário Otimista:** R$ {res_mc_text['melhor']:,.2f}
+
+                    **O que fazer com essa informação?**
+                    Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
+
+                    **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
+                """)
+
             st.markdown("---")
 
             # EXIBIÇÃO DE MARKOWITZ
@@ -699,70 +768,6 @@ if st.session_state.get("authentication_status"):
                 """)
 
 
-                # EXIBIÇÃO DE MONTE CARLO
-                st.markdown("---")
-                st.subheader("Projeção de Patrimônio Futuro (Monte Carlo)")
-                
-                col_graf_mc, col_metricas_mc = st.columns([2, 1])
-                
-                with col_graf_mc:
-                    st.plotly_chart(resultados["monte_carlo_fig"], use_container_width=True)
-                
-                with col_metricas_mc:
-                    res_mc_text = resultados["monte_carlo_text_data"]
-                    
-                    # 1. Pega os dados do dicionário e calcula as porcentagens de retorno
-                    investimento_inicial = res_mc_text['investimento']
-                    retorno_mediano_pct = (res_mc_text['mediano'] / investimento_inicial - 1) * 100
-                    retorno_otimista_pct = (res_mc_text['melhor'] / investimento_inicial - 1) * 100
-                    retorno_pessimista_pct = (res_mc_text['pior'] / investimento_inicial - 1) * 100
-
-                    # Calcula a data final da projeção
-                    data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
-
-                    # 2. Exibe o resumo em 4 linhas com st.metric
-                    st.metric(
-                        label=f"Cenário Atual ({datetime.now().strftime('%d %b %Y')})",
-                        value=f"R$ {investimento_inicial:,.2f}",
-                        delta="0.00%"
-                    )
-                    
-                    st.metric(
-                        label=f"Esperado ({data_final_projecao.strftime('%d %b %Y')})",
-                        value=f"R$ {res_mc_text['mediano']:,.2f}",
-                        delta=f"{retorno_mediano_pct:.2f}%"
-                    )
-                    
-                    st.metric(
-                        label=f"Otimista ({data_final_projecao.strftime('%d %b %Y')})",
-                        value=f"R$ {res_mc_text['melhor']:,.2f}",
-                        delta=f"{retorno_otimista_pct:.2f}%"
-                    )
-                    
-                    st.metric(
-                        label=f"Pessimista ({data_final_projecao.strftime('%d %b %Y')})",
-                        value=f"R$ {res_mc_text['pior']:,.2f}",
-                        delta=f"{retorno_pessimista_pct:.2f}%"
-                    )
-                
-                # Explicação do Monte Carlo com botão de recolher/expandir
-                with st.expander("🤔 Como Ler o Gráfico da Simulação?", expanded=False):
-                    st.info(f"""
-                        Nós criamos {res_mc_text['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc_text['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc_text['anos']} anos**. Este gráfico resume tudo isso.
-
-                        * **🎯 O Alvo Principal (Linha Laranja):**
-                            Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc_text['mediano']:,.2f}**.
-
-                        * **↔️ A Faixa de Resultados Realista:**
-                            Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
-                            * **Cenário Pessimista:** R$ {res_mc_text['pior']:,.2f}
-                            * **Cenário Otimista:** R$ {res_mc_text['melhor']:,.2f}
-
-                        **O que fazer com essa informação?**
-                        Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
-
-                        **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
-                    """)
 
                 # EXIBIÇÃO DO GUIA DE INVESTIMENTO
                 st.markdown("---")
