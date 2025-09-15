@@ -525,94 +525,93 @@ if st.session_state.get("authentication_status"):
                         'melhor': patrimonio_final_melhor_cenario
                     }
                 }
-                st.rerun()
 
-            # --- BLOCO DE EXIBIÇÃO (SÓ MOSTRA OS RESULTADOS) ---
-            if st.session_state.resultados_gerados:
-                resultados = st.session_state.resultados_gerados
-                res = resultados["markowitz"]
-                ativos_otimizados = resultados["ativos_otimizados"]
-                indice_max_sharpe = res['sharpe'].argmax()
-                pesos_otimos = res['pesos'][indice_max_sharpe]
-                indice_min_risco = res['risco'].argmin()
+        # --- BLOCO DE EXIBIÇÃO (SÓ MOSTRA OS RESULTADOS) ---
+        if st.session_state.resultados_gerados:
+            resultados = st.session_state.resultados_gerados
+            res = resultados["markowitz"]
+            ativos_otimizados = resultados["ativos_otimizados"]
+            indice_max_sharpe = res['sharpe'].argmax()
+            pesos_otimos = res['pesos'][indice_max_sharpe]
+            indice_min_risco = res['risco'].argmin()
 
-                # --- TABELA COMPARATIVA: CARTEIRA ATUAL vs OTIMIZADA ---
-                st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
+            # --- TABELA COMPARATIVA: CARTEIRA ATUAL vs OTIMIZADA ---
+            st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
+            
+            # Criar DataFrame comparativo
+            df_comparacao = pd.DataFrame({
+                'Ativo': ativos_selecionados,
+                'Peso Atual (%)': [p * 100 for p in pesos],  # pesos da carteira atual
+                'Peso Otimizado (%)': [p * 100 for p in pesos_otimos]  # pesos da carteira otimizada
+            })
                 
-                # Criar DataFrame comparativo
-                df_comparacao = pd.DataFrame({
-                    'Ativo': ativos_selecionados,
-                    'Peso Atual (%)': [p * 100 for p in pesos],  # pesos da carteira atual
-                    'Peso Otimizado (%)': [p * 100 for p in pesos_otimos]  # pesos da carteira otimizada
-                })
+            # Criar gráfico de barras horizontais
+            fig_comparacao = go.Figure()
+            
+            # Adicionar barras para carteira atual
+            fig_comparacao.add_trace(go.Bar(
+                y=df_comparacao['Ativo'],
+                x=df_comparacao['Peso Atual (%)'],
+                name='Carteira Atual',
+                orientation='h',
+                marker_color='#FF6B6B',
+                text=[f"{p:.1f}%" for p in df_comparacao['Peso Atual (%)']],
+                textposition='inside'
+            ))
                 
-                # Criar gráfico de barras horizontais
-                fig_comparacao = go.Figure()
-                
-                # Adicionar barras para carteira atual
-                fig_comparacao.add_trace(go.Bar(
-                    y=df_comparacao['Ativo'],
-                    x=df_comparacao['Peso Atual (%)'],
-                    name='Carteira Atual',
-                    orientation='h',
-                    marker_color='#FF6B6B',
-                    text=[f"{p:.1f}%" for p in df_comparacao['Peso Atual (%)']],
-                    textposition='inside'
-                ))
-                
-                # Adicionar barras para carteira otimizada
-                fig_comparacao.add_trace(go.Bar(
-                    y=df_comparacao['Ativo'],
-                    x=df_comparacao['Peso Otimizado (%)'],
-                    name='Carteira Otimizada',
-                    orientation='h',
-                    marker_color='#4ECDC4',
-                    text=[f"{p:.1f}%" for p in df_comparacao['Peso Otimizado (%)']],
-                    textposition='inside'
-                ))
-                
-                fig_comparacao.update_layout(
-                    title='Comparação de Pesos por Ativo',
-                    xaxis_title='Porcentagem (%)',
-                    yaxis_title='Ativos',
-                    template='plotly_dark',
-                    height=400,
-                    barmode='group'
+            # Adicionar barras para carteira otimizada
+            fig_comparacao.add_trace(go.Bar(
+                y=df_comparacao['Ativo'],
+                x=df_comparacao['Peso Otimizado (%)'],
+                name='Carteira Otimizada',
+                orientation='h',
+                marker_color='#4ECDC4',
+                text=[f"{p:.1f}%" for p in df_comparacao['Peso Otimizado (%)']],
+                textposition='inside'
+            ))
+            
+            fig_comparacao.update_layout(
+                title='Comparação de Pesos por Ativo',
+                xaxis_title='Porcentagem (%)',
+                yaxis_title='Ativos',
+                template='plotly_dark',
+                height=400,
+                barmode='group'
+            )
+            
+            # Exibir tabela e gráfico
+            col_tabela, col_grafico = st.columns([1, 1])
+            
+            with col_tabela:
+                st.dataframe(
+                    df_comparacao,
+                    column_config={
+                        "Peso Atual (%)": st.column_config.ProgressColumn(
+                            "Peso Atual (%)", 
+                            format="%.1f%%", 
+                            min_value=0, 
+                            max_value=100
+                        ),
+                        "Peso Otimizado (%)": st.column_config.ProgressColumn(
+                            "Peso Otimizado (%)", 
+                            format="%.1f%%", 
+                            min_value=0, 
+                            max_value=100
+                        )
+                    },
+                    use_container_width=True,
+                    hide_index=True
                 )
-                
-                # Exibir tabela e gráfico
-                col_tabela, col_grafico = st.columns([1, 1])
-                
-                with col_tabela:
-                    st.dataframe(
-                        df_comparacao,
-                        column_config={
-                            "Peso Atual (%)": st.column_config.ProgressColumn(
-                                "Peso Atual (%)", 
-                                format="%.1f%%", 
-                                min_value=0, 
-                                max_value=100
-                            ),
-                            "Peso Otimizado (%)": st.column_config.ProgressColumn(
-                                "Peso Otimizado (%)", 
-                                format="%.1f%%", 
-                                min_value=0, 
-                                max_value=100
-                            )
-                        },
-                        use_container_width=True,
-                        hide_index=True
-                    )
-                
-                with col_grafico:
-                    st.plotly_chart(fig_comparacao, use_container_width=True)
-                
-                st.markdown("---")
+            
+            with col_grafico:
+                st.plotly_chart(fig_comparacao, use_container_width=True)
+            
+            st.markdown("---")
 
-                # EXIBIÇÃO DE MARKOWITZ
-                st.subheader('Resultados da Otimização')
-                st.info("""
-                            #### Entendendo o Gráfico de Markowitz
+            # EXIBIÇÃO DE MARKOWITZ
+            st.subheader('Resultados da Otimização')
+            st.info("""
+                #### Entendendo o Gráfico de Markowitz
 
                             * **O que é?** 
                                 Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
@@ -627,16 +626,16 @@ if st.session_state.get("authentication_status"):
                             * **Como usar?** 
                                 Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
 
-                            """)
-                col_graf_fronteira, col_graf_pesos = st.columns([0.6, 0.4])
-                with col_graf_fronteira:
-                    st.markdown("###### Fronteira Eficiente")
-                    fig, ax = plt.subplots(figsize=(8, 5))
-                    ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
-                               alpha=0.4)
+                """)
+            col_graf_fronteira, col_graf_pesos = st.columns([0.6, 0.4])
+            with col_graf_fronteira:
+                st.markdown("###### Fronteira Eficiente")
+                fig, ax = plt.subplots(figsize=(8, 5))
+                ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
+                           alpha=0.4)
 
-                    cores_ativos = ['#FF4B4B', '#3E6D8E', '#6B4E9A']
-                    for i, ticker in enumerate(st.session_state.ativos_otimizados):
+                cores_ativos = ['#FF4B4B', '#3E6D8E', '#6B4E9A']
+                for i, ticker in enumerate(st.session_state.ativos_otimizados):
                         ax.scatter(res['volatilidades_individuais'][i], res['retornos_individuais'][i], marker='D',
                                    color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
 
