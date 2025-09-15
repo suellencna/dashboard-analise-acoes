@@ -179,7 +179,6 @@ if st.session_state.get("authentication_status"):
             st.stop()
 
         st.sidebar.subheader('Opções de Otimização e Simulação')
-        num_carteiras_simuladas = st.sidebar.slider('Simulações de Markowitz', 1000, 10000, 5000, key='sim_markowitz')
         data_minima = df_portfolio_completo.index.min().date()
         data_maxima = df_portfolio_completo.index.max().date()
 
