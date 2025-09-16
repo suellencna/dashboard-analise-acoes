@@ -523,15 +523,35 @@ if st.session_state.get("authentication_status"):
                         'investimento': valor_investimento, 'simulacoes': num_simulacoes_mc, 'anos': anos_projecao,
                         'mediano': patrimonio_final_mediano, 'pior': patrimonio_final_pior_cenario,
                         'melhor': patrimonio_final_melhor_cenario
+                    },
+                    "parametros": {
+                        'anos_projecao': anos_projecao,
+                        'num_simulacoes_mc': num_simulacoes_mc,
+                        'valor_investimento': valor_investimento
                     }
                 }
 
-        # --- DETECÇÃO DE MUDANÇAS NOS ATIVOS ---
-        # Verificar se os ativos mudaram desde a última otimização
+        # --- DETECÇÃO DE MUDANÇAS NOS ATIVOS E PARÂMETROS ---
+        # Verificar se os ativos ou parâmetros mudaram desde a última otimização
         if st.session_state.resultados_gerados:
             ativos_otimizados_anteriores = st.session_state.resultados_gerados.get("ativos_otimizados", [])
-            if set(ativos_selecionados) != set(ativos_otimizados_anteriores):
-                st.warning("⚠️ **Atenção:** Você alterou a seleção de ativos. Os resultados anteriores não são mais válidos. Clique no botão 'Otimização e Projeções' para recalcular.")
+            parametros_anteriores = st.session_state.resultados_gerados.get("parametros", {})
+            
+            # Verificar mudanças nos ativos
+            ativos_mudaram = set(ativos_selecionados) != set(ativos_otimizados_anteriores)
+            
+            # Verificar mudanças nos parâmetros de Monte Carlo
+            parametros_mudaram = (
+                parametros_anteriores.get('anos_projecao', 10) != anos_projecao or
+                parametros_anteriores.get('num_simulacoes_mc', 250) != num_simulacoes_mc or
+                parametros_anteriores.get('valor_investimento', 50000.0) != valor_investimento
+            )
+            
+            if ativos_mudaram or parametros_mudaram:
+                if ativos_mudaram:
+                    st.warning("⚠️ **Atenção:** Você alterou a seleção de ativos. Os resultados anteriores não são mais válidos. Clique no botão 'Otimização e Projeções' para recalcular.")
+                else:
+                    st.warning("⚠️ **Atenção:** Você alterou os parâmetros de projeção (anos, simulações ou valor de investimento). Os resultados anteriores não são mais válidos. Clique no botão 'Otimização e Projeções' para recalcular.")
                 st.session_state.resultados_gerados = None
                 st.stop()
 
