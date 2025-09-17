@@ -648,8 +648,8 @@ if st.session_state.get("authentication_status"):
                 orientation='h',
                 marker_color='#FF6B6B',
                 text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
-                textposition='inside',
-                textfont=dict(size=28, color='white')
+                textposition='outside',
+                textfont=dict(size=12, color='white')
             ))
                 
             # Adicionar barras para carteira otimizada
@@ -660,8 +660,8 @@ if st.session_state.get("authentication_status"):
                 orientation='h',
                 marker_color='#4ECDC4',
                 text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
-                textposition='inside',
-                textfont=dict(size=28, color='white')
+                textposition='outside',
+                textfont=dict(size=12, color='white')
             ))
             
             fig_comparacao.update_layout(
@@ -670,7 +670,8 @@ if st.session_state.get("authentication_status"):
                 yaxis_title='Ativos',
                 template='plotly_dark',
                 height=400,
-                barmode='group'
+                barmode='group',
+                margin=dict(l=100, r=100, t=50, b=50)  # Aumenta margens para acomodar texto fora das barras
             )
             
             # Exibir apenas o gráfico (sem tabela)
@@ -770,39 +771,56 @@ if st.session_state.get("authentication_status"):
                 st.pyplot(fig)
 
             with col_explicacao:
-                st.info("""
-                    #### Entendendo o Gráfico de Markowitz
+                st.markdown("#### Entendendo o Gráfico de Markowitz")
+                
+                # Container com altura fixa e scroll
+                with st.container():
+                    st.markdown("""
+                    <div style="height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: rgba(255,255,255,0.05);">
+                    """, unsafe_allow_html=True)
+                    
+                    st.markdown("""
+                    **O que é?** 
+                    
+                    Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
 
-                    * **O que é?** 
-                        Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
+                    **O que o gráfico significa?**
+                    
+                    • **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
+                    • **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.
+                    • **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.
+                    • **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
+                    • **"X" Vermelho:** A carteira com o menor risco possível.
 
-                    * **O que o gráfico significa?**
-                        * **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
-                        * **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.
-                        * **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.
-                        * **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
-                        * **"X" Vermelho:** A carteira com o menor risco possível.
-
-                    * **Como usar?** 
-                        Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
-                """)
+                    **Como usar?** 
+                    
+                    Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
+                    """)
+                    
+                    st.markdown("</div>", unsafe_allow_html=True)
 
 
 
                 # EXIBIÇÃO DO GUIA DE INVESTIMENTO
                 st.markdown("---")
                 st.subheader("Guia de Investimento para a Carteira Ótima")
-                st.dataframe(resultados["guia_investimento"],
-                             column_config={
-                                 "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
-                                                                             max_value=100),
-                                 "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
+                
+                # Configuração para ocupar todo o espaço disponível
+                col_guia = st.columns([1])[0]
+                with col_guia:
+                    st.dataframe(resultados["guia_investimento"],
+                                 column_config={
+                                     "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                                 max_value=100),
+                                     "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
+                                                                                            format="R$ %.2f"),
+                                     "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
                                                                                         format="R$ %.2f"),
-                                 "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
-                                                                                    format="R$ %.2f"),
-                                 "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
-                             },
-                             use_container_width=True, hide_index=True)
+                                     "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                                 },
+                                 use_container_width=True, 
+                                 hide_index=True,
+                                 height=400)
 
                 if st.button("Limpar Análise"):
                     st.session_state.resultados_gerados = None
