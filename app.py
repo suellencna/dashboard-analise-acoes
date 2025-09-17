@@ -725,23 +725,30 @@ if st.session_state.get("authentication_status"):
                 )
             
             # Explicação do Monte Carlo com botão de recolher/expandir
-            with st.expander("🤔 Como Ler o Gráfico da Simulação?", expanded=False):
-                st.info(f"""
-                    Nós criamos {res_mc_text['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc_text['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc_text['anos']} anos**. Este gráfico resume tudo isso.
+            with st.expander("Como Ler o Gráfico da Simulação?", expanded=False):
+                # Container com altura fixa e scroll para o texto do Monte Carlo
+                st.markdown("""
+                <div style="height: 300px; overflow-y: auto; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: rgba(255,255,255,0.05);">
+                """, unsafe_allow_html=True)
+                
+                st.markdown(f"""
+                Nós criamos {res_mc_text['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc_text['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc_text['anos']} anos**. Este gráfico resume tudo isso.
 
-                    * **🎯 O Alvo Principal (Linha Laranja):**
-                        Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc_text['mediano']:,.2f}**.
+                **🎯 O Alvo Principal (Linha Laranja):**
+                Esta linha no meio representa o **resultado central** de todas as simulações. É o valor mais provável que seu patrimônio pode atingir, chegando a cerca de **R$ {res_mc_text['mediano']:,.2f}**.
 
-                    * **↔️ A Faixa de Resultados Realista:**
-                        Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
-                        * **Cenário Pessimista:** R$ {res_mc_text['pior']:,.2f}
-                        * **Cenário Otimista:** R$ {res_mc_text['melhor']:,.2f}
+                **↔️ A Faixa de Resultados Realista:**
+                Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
+                • **Cenário Pessimista:** R$ {res_mc_text['pior']:,.2f}
+                • **Cenário Otimista:** R$ {res_mc_text['melhor']:,.2f}
 
-                    **O que fazer com essa informação?**
-                    Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
+                **O que fazer com essa informação?**
+                Use esta projeção para ter uma ideia se o plano de investimentos atual está alinhado com seus sonhos. A faixa de valores te dá uma visão realista do que esperar, ajudando a planejar o futuro com mais segurança e menos surpresas.
 
-                    **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
+                **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
                 """)
+                
+                st.markdown("</div>", unsafe_allow_html=True)
 
             st.markdown("---")
 
@@ -805,22 +812,20 @@ if st.session_state.get("authentication_status"):
                 st.markdown("---")
                 st.subheader("Guia de Investimento para a Carteira Ótima")
                 
-                # Configuração para ocupar todo o espaço disponível
-                col_guia = st.columns([1])[0]
-                with col_guia:
-                    st.dataframe(resultados["guia_investimento"],
-                                 column_config={
-                                     "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
-                                                                                 max_value=100),
-                                     "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
-                                                                                            format="R$ %.2f"),
-                                     "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                # Dataframe ocupando toda a largura disponível
+                st.dataframe(resultados["guia_investimento"],
+                             column_config={
+                                 "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                             max_value=100),
+                                 "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
                                                                                         format="R$ %.2f"),
-                                     "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
-                                 },
-                                 use_container_width=True, 
-                                 hide_index=True,
-                                 height=400)
+                                 "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                                                                                    format="R$ %.2f"),
+                                 "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                             },
+                             use_container_width=True, 
+                             hide_index=True,
+                             height=400)
 
                 if st.button("Limpar Análise"):
                     st.session_state.resultados_gerados = None
