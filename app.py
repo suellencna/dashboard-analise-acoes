@@ -781,55 +781,53 @@ if st.session_state.get("authentication_status"):
                 st.markdown("#### Entendendo o Gráfico de Markowitz")
                 
                 # Container com altura fixa e scroll
-                with st.container():
-                    st.markdown("""
-                    <div style="height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: rgba(255,255,255,0.05);">
-                    """, unsafe_allow_html=True)
+                st.markdown("""
+                <div style="height: 400px; overflow-y: auto; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background-color: rgba(255,255,255,0.05); margin: 10px 0;">
+                    <h4 style="margin-top: 0; color: white;">O que é?</h4>
+                    <p style="color: white; margin-bottom: 15px;">
+                        Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
+                    </p>
                     
-                    st.markdown("""
-                    **O que é?** 
+                    <h4 style="color: white;">O que o gráfico significa?</h4>
+                    <ul style="color: white; margin-bottom: 15px;">
+                        <li><strong>Eixo Vertical (Retorno):</strong> Quanto mais alto, melhor.</li>
+                        <li><strong>Eixo Horizontal (Risco):</strong> Quanto mais para a <strong>esquerda</strong>, melhor.</li>
+                        <li><strong>Nuvem de Pontos:</strong> Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.</li>
+                        <li><strong>Estrela Dourada (★):</strong> A carteira "ótima", com o melhor equilíbrio entre risco e retorno.</li>
+                        <li><strong>"X" Vermelho:</strong> A carteira com o menor risco possível.</li>
+                    </ul>
                     
-                    Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: "não coloque todos os ovos na mesma cesta". A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.
-
-                    **O que o gráfico significa?**
-                    
-                    • **Eixo Vertical (Retorno):** Quanto mais alto, melhor.
-                    • **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.
-                    • **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.
-                    • **Estrela Dourada (★):** A carteira "ótima", com o melhor equilíbrio entre risco e retorno.
-                    • **"X" Vermelho:** A carteira com o menor risco possível.
-
-                    **Como usar?** 
-                    
-                    Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
-                    """)
-                    
-                    st.markdown("</div>", unsafe_allow_html=True)
+                    <h4 style="color: white;">Como usar?</h4>
+                    <p style="color: white; margin-bottom: 0;">
+                        Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
 
 
 
-                # EXIBIÇÃO DO GUIA DE INVESTIMENTO
-                st.markdown("---")
-                st.subheader("Guia de Investimento para a Carteira Ótima")
-                
-                # Dataframe ocupando toda a largura disponível
-                st.dataframe(resultados["guia_investimento"],
-                             column_config={
-                                 "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
-                                                                             max_value=100),
-                                 "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
-                                                                                        format="R$ %.2f"),
-                                 "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+            # EXIBIÇÃO DO GUIA DE INVESTIMENTO
+            st.markdown("---")
+            st.subheader("Guia de Investimento para a Carteira Ótima")
+            
+            # Dataframe ocupando toda a largura disponível
+            st.dataframe(resultados["guia_investimento"],
+                            column_config={
+                                "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                            max_value=100),
+                                "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
                                                                                     format="R$ %.2f"),
-                                 "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
-                             },
-                             use_container_width=True, 
-                             hide_index=True,
-                             height=400)
+                                "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                                                                                format="R$ %.2f"),
+                                "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                            },
+                            use_container_width=True, 
+                            hide_index=True,
+                            height=400)
 
-                if st.button("Limpar Análise"):
-                    st.session_state.resultados_gerados = None
-                    st.rerun()
+            if st.button("Limpar Análise"):
+                st.session_state.resultados_gerados = None
+                st.rerun()
     else:
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
 
