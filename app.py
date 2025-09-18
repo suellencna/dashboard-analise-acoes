@@ -580,7 +580,7 @@ if st.session_state.get("authentication_status"):
             col_pizza_otima, col_metricas = st.columns([1, 1])
             
             with col_pizza_otima:
-                st.subheader('Composição da Carteira Ótima')
+                st.subheader('Composição da Carteira Ótima por Markowitz')
                 # Criar DataFrame com os pesos ótimos
                 df_pesos_otimos = pd.DataFrame(pesos_otimos, index=ativos_otimizados, columns=['Peso'])
                 
@@ -625,18 +625,63 @@ if st.session_state.get("authentication_status"):
             
             with col_metricas:
                 st.subheader('Métricas dos Ativos')
-                print()
-                print()
                 
-                # ... (seu código da tabela de métricas) ...
-                df_metricas = pd.DataFrame({
-                    'Retorno Anual': res['retornos_individuais'],
-                    'Volatilidade': res['volatilidades_individuais']
-                }).reset_index().rename(columns={'index': 'Ativo'})
-                st.dataframe(df_metricas, column_config={
-                    "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
-                    "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
-                }, use_container_width=True, hide_index=True)
+                # Buscar dados de dividendos para calcular retorno total
+                try:
+                    # Criar lista de tickers sem .SA para buscar dividendos
+                    tickers_yf = [ativo.replace('.SA', '') for ativo in ativos_otimizados]
+                    
+                    # Buscar dividendos dos últimos 12 meses
+                    dividendos_anuais = []
+                    for i, ticker in enumerate(tickers_yf):
+                        try:
+                            # Buscar dados do último ano
+                            ticker_data = yf.Ticker(f"{ticker}.SA")
+                            hist = ticker_data.history(period="1y")
+                            
+                            # Calcular dividendos pagos no último ano
+                            dividendos_ano = ticker_data.dividends.sum()
+                            
+                            # Calcular yield de dividendos (dividendos / preço médio)
+                            preco_medio = hist['Close'].mean()
+                            yield_dividendos = (dividendos_ano / preco_medio) * 100 if preco_medio > 0 else 0
+                            
+                            dividendos_anuais.append(yield_dividendos)
+                            
+                        except Exception as e:
+                            # Se não conseguir buscar dividendos, usar 0
+                            dividendos_anuais.append(0.0)
+                    
+                    # Calcular retorno total (retorno de preço + dividendos)
+                    retorno_total = res['retornos_individuais'] + np.array(dividendos_anuais)
+                    
+                    df_metricas = pd.DataFrame({
+                        'Retorno Preço': res['retornos_individuais'],
+                        'Yield Dividendos': dividendos_anuais,
+                        'Retorno Total': retorno_total,
+                        'Volatilidade': res['volatilidades_individuais']
+                    }).reset_index().rename(columns={'index': 'Ativo'})
+                    
+                    st.dataframe(df_metricas, column_config={
+                        "Retorno Preço": st.column_config.ProgressColumn("Retorno Preço", format="%.2f%%", min_value=-50, max_value=100),
+                        "Yield Dividendos": st.column_config.ProgressColumn("Yield Dividendos", format="%.2f%%", min_value=0, max_value=15),
+                        "Retorno Total": st.column_config.ProgressColumn("Retorno Total", format="%.2f%%", min_value=-50, max_value=100),
+                        "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0, max_value=100)
+                    }, use_container_width=True, hide_index=True)
+                    
+                    st.caption("💡 **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses)")
+                    
+                except Exception as e:
+                    # Fallback para versão original se houver erro
+                    df_metricas = pd.DataFrame({
+                        'Retorno Anual': res['retornos_individuais'],
+                        'Volatilidade': res['volatilidades_individuais']
+                    }).reset_index().rename(columns={'index': 'Ativo'})
+                    st.dataframe(df_metricas, column_config={
+                        "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
+                        "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
+                    }, use_container_width=True, hide_index=True)
+                    st.warning("⚠️ Não foi possível carregar dados de dividendos. Mostrando apenas retorno de preços.")
             
             st.markdown("---")
 
@@ -792,10 +837,10 @@ if st.session_state.get("authentication_status"):
             with col_explicacao:
                 st.markdown("#### Entendendo o Gráfico de Markowitz")
                 
-                # Container com altura fixa e scroll usando st.container e CSS
-                with st.container():
+                # Usar st.expander com altura limitada
+                with st.expander("📖 **Clique para ver explicação completa**", expanded=True):
                     st.markdown("""
-                    <div style="height: 400px; overflow-y: auto; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background-color: rgba(255,255,255,0.05); margin: 10px 0;">
+                    <div style="max-height: 350px; overflow-y: auto; padding: 10px;">
                     """, unsafe_allow_html=True)
                     
                     st.markdown("**O que é?**")
@@ -813,8 +858,28 @@ if st.session_state.get("authentication_status"):
                     
                     st.markdown("</div>", unsafe_allow_html=True)
 
+                # EXIBIÇÃO DO GUIA DE INVESTIMENTO
+                st.markdown("---")
+                st.subheader("Guia de Investimento para a Carteira Ótima")
+                
+                # Dataframe ocupando toda a largura disponível
+                st.dataframe(resultados["guia_investimento"],
+                             column_config={
+                                 "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                             max_value=100),
+                                 "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
+                                                                                        format="R$ %.2f"),
+                                 "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                                                                                    format="R$ %.2f"),
+                                 "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                             },
+                             use_container_width=True,
+                             hide_index=True,
+                             height=400)
 
-
+                if st.button("Limpar Análise"):
+                    st.session_state.resultados_gerados = None
+                    st.rerun()
             
     else:
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
