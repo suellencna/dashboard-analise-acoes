@@ -624,7 +624,7 @@ if st.session_state.get("authentication_status"):
                 st.plotly_chart(fig_pie_otima, use_container_width=True)
             
             with col_metricas:
-                st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
+                st.subheader('Carteira Atual vs Carteira Otimizada')
                 
                 # Garantir que todos os arrays tenham o mesmo tamanho
                 # Usar apenas os ativos que estão na carteira otimizada
@@ -676,6 +676,7 @@ if st.session_state.get("authentication_status"):
 
             # --- MÉTRICAS DOS ATIVOS ---
             st.subheader('Métricas dos Ativos')
+            st.caption("💡 **Legendas:** (a.a.) = ao ano | **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses) | **Volatilidade** = Desvio padrão dos retornos anuais")
             
             # Buscar dados de dividendos para calcular retorno total
             try:
@@ -690,12 +691,22 @@ if st.session_state.get("authentication_status"):
                         ticker_data = yf.Ticker(f"{ticker}.SA")
                         hist = ticker_data.history(period="1y")
                         
-                        # Calcular dividendos pagos no último ano
-                        dividendos_ano = ticker_data.dividends.sum()
+                        # Calcular dividendos pagos no último ano (apenas últimos 12 meses)
+                        dividendos_hist = ticker_data.dividends
+                        if len(dividendos_hist) > 0:
+                            # Pegar apenas os dividendos dos últimos 12 meses
+                            data_limite = pd.Timestamp.now() - pd.DateOffset(months=12)
+                            dividendos_recentes = dividendos_hist[dividendos_hist.index >= data_limite]
+                            dividendos_ano = dividendos_recentes.sum()
+                        else:
+                            dividendos_ano = 0
                         
-                        # Calcular yield de dividendos (dividendos / preço médio)
-                        preco_medio = hist['Close'].mean()
-                        yield_dividendos = (dividendos_ano / preco_medio) * 100 if preco_medio > 0 else 0
+                        # Calcular yield de dividendos (dividendos / preço atual)
+                        preco_atual = hist['Close'].iloc[-1] if len(hist) > 0 else 0
+                        yield_dividendos = (dividendos_ano / preco_atual) * 100 if preco_atual > 0 else 0
+                        
+                        # Limitar yield a um valor razoável (máximo 50% ao ano)
+                        yield_dividendos = min(yield_dividendos, 50.0)
                         
                         dividendos_anuais.append(yield_dividendos)
                         
@@ -705,6 +716,17 @@ if st.session_state.get("authentication_status"):
                 
                 # Calcular retorno total (retorno de preço + dividendos)
                 retorno_total = res['retornos_individuais'] + np.array(dividendos_anuais)
+                
+                # Debug: mostrar valores calculados
+                st.write("🔍 **Debug - Valores Calculados:**")
+                debug_df = pd.DataFrame({
+                    'Ativo': ativos_otimizados,
+                    'Retorno_Preco': res['retornos_individuais'],
+                    'Yield_Dividendos': dividendos_anuais,
+                    'Retorno_Total': retorno_total,
+                    'Volatilidade': res['volatilidades_individuais']
+                })
+                st.write(debug_df)
                 
                 df_metricas = pd.DataFrame({
                     'Retorno Preço (a.a.)': res['retornos_individuais'],
@@ -720,8 +742,6 @@ if st.session_state.get("authentication_status"):
                     "Volatilidade (a.a.)": st.column_config.ProgressColumn("Volatilidade (a.a.)", format="%.0f%%", min_value=0, max_value=100)
                 }, use_container_width=True, hide_index=True)
                 
-                st.caption("💡 **Legendas:** (a.a.) = ao ano | **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses) | **Volatilidade** = Desvio padrão dos retornos anuais")
-                
             except Exception as e:
                 # Fallback para versão original se houver erro
                 df_metricas = pd.DataFrame({
@@ -733,7 +753,6 @@ if st.session_state.get("authentication_status"):
                     "Volatilidade (a.a.)": st.column_config.ProgressColumn("Volatilidade (a.a.)", format="%.0f%%", min_value=0)
                 }, use_container_width=True, hide_index=True)
                 st.warning("⚠️ Não foi possível carregar dados de dividendos. Mostrando apenas retorno de preços.")
-                st.caption("💡 **Legendas:** (a.a.) = ao ano | **Volatilidade** = Desvio padrão dos retornos anuais")
             
             st.markdown("---")
 
@@ -812,37 +831,30 @@ if st.session_state.get("authentication_status"):
 
             # EXIBIÇÃO DE MARKOWITZ
             st.subheader('Fronteira Eficiente de Markowitz')
-            col_graf_fronteira, col_explicacao = st.columns([0.6, 0.4])
-            with col_graf_fronteira:
-                st.markdown("###### Fronteira Eficiente")
-                fig, ax = plt.subplots(figsize=(8, 5))
-                ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
-                           alpha=0.4)
+            
+            # Gráfico ocupando toda a largura
+            fig, ax = plt.subplots(figsize=(12, 6))
+            ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
+                       alpha=0.4)
 
-                cores_ativos = ['#FF4B4B', '#3E6D8E', '#6B4E9A']
-                for i, ticker in enumerate(st.session_state.ativos_otimizados):
-                    ax.scatter(res['volatilidades_individuais'][i], res['retornos_individuais'][i], marker='D',
-                               color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
+            cores_ativos = ['#FF4B4B', '#3E6D8E', '#6B4E9A']
+            for i, ticker in enumerate(st.session_state.ativos_otimizados):
+                ax.scatter(res['volatilidades_individuais'][i], res['retornos_individuais'][i], marker='D',
+                           color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
 
-                ax.scatter(res['risco'][indice_min_risco], res['retorno'][indice_min_risco], marker='X',
-                           color='red', s=200, label='Carteira Risco Mínimo', zorder=5)
-                ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
-                           color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
+            ax.scatter(res['risco'][indice_min_risco], res['retorno'][indice_min_risco], marker='X',
+                       color='red', s=200, label='Carteira Risco Mínimo', zorder=5)
+            ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
+                       color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
 
-                ax.set_title('Otimização de Portfólio', fontsize=12)
-                ax.set_xlabel('Risco (Volatilidade)', fontsize=10)
-                ax.set_ylabel('Retorno Esperado', fontsize=10)
-                ax.legend(loc='upper right', fontsize=8)  # <-- LEGENDA DE VOLTA
-                st.pyplot(fig)
-
-            with col_explicacao:
-                st.markdown("#### Entendendo o Gráfico de Markowitz")
-                
-                # Container com altura fixa de 400px
-                st.markdown("""
-                <div style="height: 400px; overflow-y: auto; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background-color: rgba(255,255,255,0.05); margin: 10px 0;">
-                """, unsafe_allow_html=True)
-                
+            ax.set_title('Otimização de Portfólio', fontsize=12)
+            ax.set_xlabel('Risco (Volatilidade)', fontsize=10)
+            ax.set_ylabel('Retorno Esperado', fontsize=10)
+            ax.legend(loc='upper right', fontsize=8)
+            st.pyplot(fig)
+            
+            # Texto recolhível abaixo do gráfico
+            with st.expander("📖 **Clique para entender o Gráfico de Markowitz**", expanded=False):
                 st.markdown("**O que é?**")
                 st.markdown("Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: 'não coloque todos os ovos na mesma cesta'. A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.")
                 
@@ -855,31 +867,29 @@ if st.session_state.get("authentication_status"):
                 
                 st.markdown("**Como usar?**")
                 st.markdown("Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.")
-                
-                st.markdown("</div>", unsafe_allow_html=True)
 
-                # EXIBIÇÃO DO GUIA DE INVESTIMENTO
-                st.markdown("---")
-                st.subheader("Guia de Investimento para a Carteira Ótima")
-                
-                # Dataframe ocupando toda a largura disponível
-                st.dataframe(resultados["guia_investimento"],
-                                column_config={
-                                    "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
-                                                                                max_value=100),
-                                    "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
-                                                                                        format="R$ %.2f"),
-                                    "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+            # EXIBIÇÃO DO GUIA DE INVESTIMENTO (OCUPANDO TODA A LARGURA)
+            st.markdown("---")
+            st.subheader("Guia de Investimento para a Carteira Ótima")
+            
+            # Dataframe ocupando toda a largura disponível
+            st.dataframe(resultados["guia_investimento"],
+                            column_config={
+                                "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                            max_value=100),
+                                "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
                                                                                     format="R$ %.2f"),
-                                    "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
-                                },
-                                use_container_width=True,
-                                hide_index=True,
-                                height=400)
+                                "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                                                                                format="R$ %.2f"),
+                                "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                            },
+                            use_container_width=True,
+                            hide_index=True,
+                            height=400)
 
-                if st.button("Limpar Análise"):
-                    st.session_state.resultados_gerados = None
-                    st.rerun()
+            if st.button("Limpar Análise"):
+                st.session_state.resultados_gerados = None
+                st.rerun()
             
     else:
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
