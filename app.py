@@ -707,32 +707,33 @@ if st.session_state.get("authentication_status"):
                 retorno_total = res['retornos_individuais'] + np.array(dividendos_anuais)
                 
                 df_metricas = pd.DataFrame({
-                    'Retorno Preço': res['retornos_individuais'],
-                    'Yield Dividendos': dividendos_anuais,
-                    'Retorno Total': retorno_total,
-                    'Volatilidade': res['volatilidades_individuais']
+                    'Retorno Preço (a.a.)': res['retornos_individuais'],
+                    'Yield Dividendos (a.a.)': dividendos_anuais,
+                    'Retorno Total (a.a.)': retorno_total,
+                    'Volatilidade (a.a.)': res['volatilidades_individuais']
                 }).reset_index().rename(columns={'index': 'Ativo'})
                 
                 st.dataframe(df_metricas, column_config={
-                    "Retorno Preço": st.column_config.ProgressColumn("Retorno Preço", format="%.2f%%", min_value=-50, max_value=100),
-                    "Yield Dividendos": st.column_config.ProgressColumn("Yield Dividendos", format="%.2f%%", min_value=0, max_value=15),
-                    "Retorno Total": st.column_config.ProgressColumn("Retorno Total", format="%.2f%%", min_value=-50, max_value=100),
-                    "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0, max_value=100)
+                    "Retorno Preço (a.a.)": st.column_config.ProgressColumn("Retorno Preço (a.a.)", format="%.1f%%", min_value=-50, max_value=100),
+                    "Yield Dividendos (a.a.)": st.column_config.ProgressColumn("Yield Dividendos (a.a.)", format="%.1f%%", min_value=0, max_value=15),
+                    "Retorno Total (a.a.)": st.column_config.ProgressColumn("Retorno Total (a.a.)", format="%.1f%%", min_value=-50, max_value=100),
+                    "Volatilidade (a.a.)": st.column_config.ProgressColumn("Volatilidade (a.a.)", format="%.0f%%", min_value=0, max_value=100)
                 }, use_container_width=True, hide_index=True)
                 
-                st.caption("💡 **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses)")
+                st.caption("💡 **Legendas:** (a.a.) = ao ano | **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses) | **Volatilidade** = Desvio padrão dos retornos anuais")
                 
             except Exception as e:
                 # Fallback para versão original se houver erro
                 df_metricas = pd.DataFrame({
-                    'Retorno Anual': res['retornos_individuais'],
-                    'Volatilidade': res['volatilidades_individuais']
+                    'Retorno Preço (a.a.)': res['retornos_individuais'],
+                    'Volatilidade (a.a.)': res['volatilidades_individuais']
                 }).reset_index().rename(columns={'index': 'Ativo'})
                 st.dataframe(df_metricas, column_config={
-                    "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
-                    "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
+                    "Retorno Preço (a.a.)": st.column_config.ProgressColumn("Retorno Preço (a.a.)", format="%.1f%%", min_value=0),
+                    "Volatilidade (a.a.)": st.column_config.ProgressColumn("Volatilidade (a.a.)", format="%.0f%%", min_value=0)
                 }, use_container_width=True, hide_index=True)
                 st.warning("⚠️ Não foi possível carregar dados de dividendos. Mostrando apenas retorno de preços.")
+                st.caption("💡 **Legendas:** (a.a.) = ao ano | **Volatilidade** = Desvio padrão dos retornos anuais")
             
             st.markdown("---")
 
@@ -837,49 +838,48 @@ if st.session_state.get("authentication_status"):
             with col_explicacao:
                 st.markdown("#### Entendendo o Gráfico de Markowitz")
                 
-                # Usar st.expander com altura limitada
-                with st.expander("📖 **Clique para ver explicação completa**", expanded=True):
-                    st.markdown("""
-                    <div style="max-height: 350px; overflow-y: auto; padding: 10px;">
-                    """, unsafe_allow_html=True)
-                    
-                    st.markdown("**O que é?**")
-                    st.markdown("Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: 'não coloque todos os ovos na mesma cesta'. A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.")
-                    
-                    st.markdown("**O que o gráfico significa?**")
-                    st.markdown("• **Eixo Vertical (Retorno):** Quanto mais alto, melhor.")
-                    st.markdown("• **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.")
-                    st.markdown("• **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.")
-                    st.markdown("• **Estrela Dourada (★):** A carteira 'ótima', com o melhor equilíbrio entre risco e retorno.")
-                    st.markdown("• **'X' Vermelho:** A carteira com o menor risco possível.")
-                    
-                    st.markdown("**Como usar?**")
-                    st.markdown("Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.")
-                    
-                    st.markdown("</div>", unsafe_allow_html=True)
+                # Container com altura fixa de 400px
+                st.markdown("""
+                <div style="height: 400px; overflow-y: auto; padding: 15px; border: 1px solid #ccc; border-radius: 5px; background-color: rgba(255,255,255,0.05); margin: 10px 0;">
+                """, unsafe_allow_html=True)
+                
+                st.markdown("**O que é?**")
+                st.markdown("Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: 'não coloque todos os ovos na mesma cesta'. A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.")
+                
+                st.markdown("**O que o gráfico significa?**")
+                st.markdown("• **Eixo Vertical (Retorno):** Quanto mais alto, melhor.")
+                st.markdown("• **Eixo Horizontal (Risco):** Quanto mais para a **esquerda**, melhor.")
+                st.markdown("• **Nuvem de Pontos:** Cada ponto é uma carteira possível com uma combinação de pesos diferente. A cor indica a qualidade (relação risco/retorno), sendo amarelo a melhor.")
+                st.markdown("• **Estrela Dourada (★):** A carteira 'ótima', com o melhor equilíbrio entre risco e retorno.")
+                st.markdown("• **'X' Vermelho:** A carteira com o menor risco possível.")
+                
+                st.markdown("**Como usar?**")
+                st.markdown("Compare a posição dos ativos individuais (losangos) com as estrelas. O gráfico te ajuda a visualizar o poder da diversificação: ao combinar os ativos, é possível criar carteiras (as estrelas) que são melhores do que qualquer um dos ativos sozinhos.")
+                
+                st.markdown("</div>", unsafe_allow_html=True)
 
-        # EXIBIÇÃO DO GUIA DE INVESTIMENTO
-        st.markdown("---")
-        st.subheader("Guia de Investimento para a Carteira Ótima")
-        
-        # Dataframe ocupando toda a largura disponível
-        st.dataframe(resultados["guia_investimento"],
-                        column_config={
-                            "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
-                                                                        max_value=100),
-                            "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
-                                                                                format="R$ %.2f"),
-                            "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
-                                                                            format="R$ %.2f"),
-                            "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
-                        },
-                        use_container_width=True,
-                        hide_index=True,
-                        height=400)
+                # EXIBIÇÃO DO GUIA DE INVESTIMENTO
+                st.markdown("---")
+                st.subheader("Guia de Investimento para a Carteira Ótima")
+                
+                # Dataframe ocupando toda a largura disponível
+                st.dataframe(resultados["guia_investimento"],
+                                column_config={
+                                    "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                                max_value=100),
+                                    "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
+                                                                                        format="R$ %.2f"),
+                                    "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                                                                                    format="R$ %.2f"),
+                                    "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                                },
+                                use_container_width=True,
+                                hide_index=True,
+                                height=400)
 
-        if st.button("Limpar Análise"):
-            st.session_state.resultados_gerados = None
-            st.rerun()
+                if st.button("Limpar Análise"):
+                    st.session_state.resultados_gerados = None
+                    st.rerun()
             
     else:
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
