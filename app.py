@@ -678,17 +678,17 @@ if st.session_state.get("authentication_status"):
             st.subheader('Métricas dos Ativos')
             st.caption("💡 **Legendas:** (a.a.) = ao ano | **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses) | **Volatilidade** = Desvio padrão dos retornos anuais")
             
+            # Opção para ativar debug detalhado
+            debug_dividendos = st.checkbox("🔍 Ativar debug detalhado dos dividendos", value=False)
+            
             # Buscar dados de dividendos para calcular retorno total
             try:
                 # Criar lista de tickers sem .SA para buscar dividendos
                 tickers_yf = [ativo.replace('.SA', '') for ativo in ativos_otimizados]
                 
-            # Opção para ativar debug detalhado
-            debug_dividendos = st.checkbox("🔍 Ativar debug detalhado dos dividendos", value=False)
-            
-            # Buscar dados dos últimos 12 meses para cálculo consistente
-            dividendos_anuais = []
-            retornos_preco_12m = []
+                # Buscar dados dos últimos 12 meses para cálculo consistente
+                dividendos_anuais = []
+                retornos_preco_12m = []
                 
                 for i, ticker in enumerate(tickers_yf):
                     try:
@@ -949,7 +949,8 @@ if st.session_state.get("authentication_status"):
                             },
                             use_container_width=True,
                             hide_index=True,
-                            height=400)
+                            #height=400
+                            )
 
             if st.button("Limpar Análise"):
                 st.session_state.resultados_gerados = None
