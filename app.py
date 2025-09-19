@@ -554,7 +554,7 @@ if st.session_state.get("authentication_status"):
             
             # Verificar mudanças nos parâmetros de Monte Carlo
             parametros_mudaram = (
-                parametros_anteriores.get('anos_projecao', 10) != anos_projecao or
+                parametros_anteriores.get('anos_projecao', 5) != anos_projecao or
                 parametros_anteriores.get('num_simulacoes_mc', 250) != num_simulacoes_mc or
                 parametros_anteriores.get('valor_investimento', 50000.0) != valor_investimento
             )
@@ -624,115 +624,115 @@ if st.session_state.get("authentication_status"):
                 st.plotly_chart(fig_pie_otima, use_container_width=True)
             
             with col_metricas:
-                st.subheader('Métricas dos Ativos')
+                st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
                 
-                # Buscar dados de dividendos para calcular retorno total
-                try:
-                    # Criar lista de tickers sem .SA para buscar dividendos
-                    tickers_yf = [ativo.replace('.SA', '') for ativo in ativos_otimizados]
+                # Garantir que todos os arrays tenham o mesmo tamanho
+                # Usar apenas os ativos que estão na carteira otimizada
+                ativos_comparacao = ativos_otimizados
+                pesos_atuais_comparacao = [pesos[i] if i < len(pesos) else 0 for i in range(len(ativos_comparacao))]
+                pesos_otimos_comparacao = pesos_otimos
+                
+                # Criar gráfico de barras horizontais
+                fig_comparacao = go.Figure()
+                
+                # Adicionar barras para carteira atual
+                fig_comparacao.add_trace(go.Bar(
+                    y=ativos_comparacao,
+                    x=[p * 100 for p in pesos_atuais_comparacao],
+                    name='Carteira Atual',
+                    orientation='h',
+                    marker_color='#FF6B6B',
+                    text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
+                    textposition='outside',
+                    textfont=dict(size=12, color='white')
+                ))
                     
-                    # Buscar dividendos dos últimos 12 meses
-                    dividendos_anuais = []
-                    for i, ticker in enumerate(tickers_yf):
-                        try:
-                            # Buscar dados do último ano
-                            ticker_data = yf.Ticker(f"{ticker}.SA")
-                            hist = ticker_data.history(period="1y")
-                            
-                            # Calcular dividendos pagos no último ano
-                            dividendos_ano = ticker_data.dividends.sum()
-                            
-                            # Calcular yield de dividendos (dividendos / preço médio)
-                            preco_medio = hist['Close'].mean()
-                            yield_dividendos = (dividendos_ano / preco_medio) * 100 if preco_medio > 0 else 0
-                            
-                            dividendos_anuais.append(yield_dividendos)
-                            
-                        except Exception as e:
-                            # Se não conseguir buscar dividendos, usar 0
-                            dividendos_anuais.append(0.0)
-                    
-                    # Calcular retorno total (retorno de preço + dividendos)
-                    retorno_total = res['retornos_individuais'] + np.array(dividendos_anuais)
-                    
-                    df_metricas = pd.DataFrame({
-                        'Retorno Preço': res['retornos_individuais'],
-                        'Yield Dividendos': dividendos_anuais,
-                        'Retorno Total': retorno_total,
-                        'Volatilidade': res['volatilidades_individuais']
-                    }).reset_index().rename(columns={'index': 'Ativo'})
-                    
-                    st.dataframe(df_metricas, column_config={
-                        "Retorno Preço": st.column_config.ProgressColumn("Retorno Preço", format="%.2f%%", min_value=-50, max_value=100),
-                        "Yield Dividendos": st.column_config.ProgressColumn("Yield Dividendos", format="%.2f%%", min_value=0, max_value=15),
-                        "Retorno Total": st.column_config.ProgressColumn("Retorno Total", format="%.2f%%", min_value=-50, max_value=100),
-                        "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0, max_value=100)
-                    }, use_container_width=True, hide_index=True)
-                    
-                    st.caption("💡 **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses)")
-                    
-                except Exception as e:
-                    # Fallback para versão original se houver erro
-                    df_metricas = pd.DataFrame({
-                        'Retorno Anual': res['retornos_individuais'],
-                        'Volatilidade': res['volatilidades_individuais']
-                    }).reset_index().rename(columns={'index': 'Ativo'})
-                    st.dataframe(df_metricas, column_config={
-                        "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
-                        "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
-                    }, use_container_width=True, hide_index=True)
-                    st.warning("⚠️ Não foi possível carregar dados de dividendos. Mostrando apenas retorno de preços.")
+                # Adicionar barras para carteira otimizada
+                fig_comparacao.add_trace(go.Bar(
+                    y=ativos_comparacao,
+                    x=[p * 100 for p in pesos_otimos_comparacao],
+                    name='Carteira Otimizada',
+                    orientation='h',
+                    marker_color='#4ECDC4',
+                    text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
+                    textposition='outside',
+                    textfont=dict(size=12, color='white')
+                ))
+                
+                fig_comparacao.update_layout(
+                    title='Comparação de Pesos por Ativo',
+                    xaxis_title='Porcentagem (%)',
+                    yaxis_title='Ativos',
+                    template='plotly_dark',
+                    height=400,
+                    barmode='group',
+                    margin=dict(l=100, r=100, t=50, b=50)  # Aumenta margens para acomodar texto fora das barras
+                )
+                
+                # Exibir apenas o gráfico (sem tabela)
+                st.plotly_chart(fig_comparacao, use_container_width=True)
             
             st.markdown("---")
 
-            # --- COMPARAÇÃO: CARTEIRA ATUAL vs OTIMIZADA (APENAS GRÁFICO) ---
-            st.subheader('Comparação: Carteira Atual vs Carteira Otimizada')
+            # --- MÉTRICAS DOS ATIVOS ---
+            st.subheader('Métricas dos Ativos')
             
-            # Garantir que todos os arrays tenham o mesmo tamanho
-            # Usar apenas os ativos que estão na carteira otimizada
-            ativos_comparacao = ativos_otimizados
-            pesos_atuais_comparacao = [pesos[i] if i < len(pesos) else 0 for i in range(len(ativos_comparacao))]
-            pesos_otimos_comparacao = pesos_otimos
-            
-            # Criar gráfico de barras horizontais
-            fig_comparacao = go.Figure()
-            
-            # Adicionar barras para carteira atual
-            fig_comparacao.add_trace(go.Bar(
-                y=ativos_comparacao,
-                x=[p * 100 for p in pesos_atuais_comparacao],
-                name='Carteira Atual',
-                orientation='h',
-                marker_color='#FF6B6B',
-                text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
-                textposition='outside',
-                textfont=dict(size=12, color='white')
-            ))
+            # Buscar dados de dividendos para calcular retorno total
+            try:
+                # Criar lista de tickers sem .SA para buscar dividendos
+                tickers_yf = [ativo.replace('.SA', '') for ativo in ativos_otimizados]
                 
-            # Adicionar barras para carteira otimizada
-            fig_comparacao.add_trace(go.Bar(
-                y=ativos_comparacao,
-                x=[p * 100 for p in pesos_otimos_comparacao],
-                name='Carteira Otimizada',
-                orientation='h',
-                marker_color='#4ECDC4',
-                text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
-                textposition='outside',
-                textfont=dict(size=12, color='white')
-            ))
-            
-            fig_comparacao.update_layout(
-                title='Comparação de Pesos por Ativo',
-                xaxis_title='Porcentagem (%)',
-                yaxis_title='Ativos',
-                template='plotly_dark',
-                height=400,
-                barmode='group',
-                margin=dict(l=100, r=100, t=50, b=50)  # Aumenta margens para acomodar texto fora das barras
-            )
-            
-            # Exibir apenas o gráfico (sem tabela)
-            st.plotly_chart(fig_comparacao, use_container_width=True)
+                # Buscar dividendos dos últimos 12 meses
+                dividendos_anuais = []
+                for i, ticker in enumerate(tickers_yf):
+                    try:
+                        # Buscar dados do último ano
+                        ticker_data = yf.Ticker(f"{ticker}.SA")
+                        hist = ticker_data.history(period="1y")
+                        
+                        # Calcular dividendos pagos no último ano
+                        dividendos_ano = ticker_data.dividends.sum()
+                        
+                        # Calcular yield de dividendos (dividendos / preço médio)
+                        preco_medio = hist['Close'].mean()
+                        yield_dividendos = (dividendos_ano / preco_medio) * 100 if preco_medio > 0 else 0
+                        
+                        dividendos_anuais.append(yield_dividendos)
+                        
+                    except Exception as e:
+                        # Se não conseguir buscar dividendos, usar 0
+                        dividendos_anuais.append(0.0)
+                
+                # Calcular retorno total (retorno de preço + dividendos)
+                retorno_total = res['retornos_individuais'] + np.array(dividendos_anuais)
+                
+                df_metricas = pd.DataFrame({
+                    'Retorno Preço': res['retornos_individuais'],
+                    'Yield Dividendos': dividendos_anuais,
+                    'Retorno Total': retorno_total,
+                    'Volatilidade': res['volatilidades_individuais']
+                }).reset_index().rename(columns={'index': 'Ativo'})
+                
+                st.dataframe(df_metricas, column_config={
+                    "Retorno Preço": st.column_config.ProgressColumn("Retorno Preço", format="%.2f%%", min_value=-50, max_value=100),
+                    "Yield Dividendos": st.column_config.ProgressColumn("Yield Dividendos", format="%.2f%%", min_value=0, max_value=15),
+                    "Retorno Total": st.column_config.ProgressColumn("Retorno Total", format="%.2f%%", min_value=-50, max_value=100),
+                    "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0, max_value=100)
+                }, use_container_width=True, hide_index=True)
+                
+                st.caption("💡 **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses)")
+                
+            except Exception as e:
+                # Fallback para versão original se houver erro
+                df_metricas = pd.DataFrame({
+                    'Retorno Anual': res['retornos_individuais'],
+                    'Volatilidade': res['volatilidades_individuais']
+                }).reset_index().rename(columns={'index': 'Ativo'})
+                st.dataframe(df_metricas, column_config={
+                    "Retorno Anual": st.column_config.ProgressColumn("Retorno Anual", format="%.2f%%", min_value=0),
+                    "Volatilidade": st.column_config.ProgressColumn("Volatilidade", format="%.2f%%", min_value=0)
+                }, use_container_width=True, hide_index=True)
+                st.warning("⚠️ Não foi possível carregar dados de dividendos. Mostrando apenas retorno de preços.")
             
             st.markdown("---")
 
@@ -858,28 +858,28 @@ if st.session_state.get("authentication_status"):
                     
                     st.markdown("</div>", unsafe_allow_html=True)
 
-                # EXIBIÇÃO DO GUIA DE INVESTIMENTO
-                st.markdown("---")
-                st.subheader("Guia de Investimento para a Carteira Ótima")
-                
-                # Dataframe ocupando toda a largura disponível
-                st.dataframe(resultados["guia_investimento"],
-                             column_config={
-                                 "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
-                                                                             max_value=100),
-                                 "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
-                                                                                        format="R$ %.2f"),
-                                 "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
-                                                                                    format="R$ %.2f"),
-                                 "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
-                             },
-                             use_container_width=True,
-                             hide_index=True,
-                             height=400)
+        # EXIBIÇÃO DO GUIA DE INVESTIMENTO
+        st.markdown("---")
+        st.subheader("Guia de Investimento para a Carteira Ótima")
+        
+        # Dataframe ocupando toda a largura disponível
+        st.dataframe(resultados["guia_investimento"],
+                        column_config={
+                            "Peso (%)": st.column_config.ProgressColumn("Peso (%)", format="%.1f%%", min_value=0,
+                                                                        max_value=100),
+                            "Valor a Investir (R$)": st.column_config.NumberColumn("Valor a Investir (R$)",
+                                                                                format="R$ %.2f"),
+                            "Último Preço (R$)": st.column_config.NumberColumn("Último Preço (R$)",
+                                                                            format="R$ %.2f"),
+                            "Quantidade de Ações": st.column_config.NumberColumn("Qtde. Ações (aprox.)")
+                        },
+                        use_container_width=True,
+                        hide_index=True,
+                        height=400)
 
-                if st.button("Limpar Análise"):
-                    st.session_state.resultados_gerados = None
-                    st.rerun()
+        if st.button("Limpar Análise"):
+            st.session_state.resultados_gerados = None
+            st.rerun()
             
     else:
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
