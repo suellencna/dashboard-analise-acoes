@@ -140,8 +140,7 @@ if st.session_state.get("authentication_status"):
         default_selection = [ativo for ativo in ['PETR4.SA', 'WEGE3.SA', 'ITUB4.SA'] if ativo in disponiveis]
 
     st.sidebar.markdown("**Digite ou selecione os tickers dos ativos:**")
-    ativos_selecionados = st.sidebar.multiselect(
-        'Selecione os Ativos', 
+    ativos_selecionados = st.sidebar.multiselect( 
         disponiveis, 
         default=default_selection,
         help="💡 **Dica:** Você pode digitar o nome do ticker para filtrar rapidamente (ex: 'PETR' para encontrar PETR4.SA)",
@@ -615,10 +614,10 @@ if st.session_state.get("authentication_status"):
                     showlegend=True,
                     legend=dict(
                         orientation="v",
-                        yanchor="bottom",
-                        y=0.5,
+                        yanchor="top",
+                        y=1.02,
                         xanchor="left",
-                        x=0.0
+                        x=0.02
                     )
                 )
                 st.plotly_chart(fig_pie_otima, use_container_width=True)
@@ -666,7 +665,7 @@ if st.session_state.get("authentication_status"):
                     template='plotly_dark',
                     height=400,
                     barmode='group',
-                    margin=dict(l=100, r=100, t=50, b=50)  # Aumenta margens para acomodar texto fora das barras
+                    margin=dict(l=100, r=150, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
                 )
                 
                 # Exibir apenas o gráfico (sem tabela)
@@ -718,23 +717,37 @@ if st.session_state.get("authentication_status"):
                             st.write(f"Primeiro dividendo: {dividendos_hist.iloc[0] if len(dividendos_hist) > 0 else 'N/A'}")
                             st.write(f"Último dividendo: {dividendos_hist.iloc[-1] if len(dividendos_hist) > 0 else 'N/A'}")
                             
+                            # Debug das datas
+                            data_atual = pd.Timestamp.now()
+                            st.write(f"Data atual: {data_atual}")
+                            st.write(f"Primeira data dos dividendos: {dividendos_hist.index[0]}")
+                            st.write(f"Última data dos dividendos: {dividendos_hist.index[-1]}")
+                            
                             # Teste 1: Buscar últimos 12 meses
                             data_limite_12m = pd.Timestamp.now() - pd.DateOffset(months=12)
                             dividendos_12m = dividendos_hist[dividendos_hist.index >= data_limite_12m]
-                            st.write(f"Dividendos últimos 12 meses (desde {data_limite_12m.date()}): {len(dividendos_12m)}")
+                            st.write(f"Data limite 12 meses: {data_limite_12m}")
+                            st.write(f"Dividendos últimos 12 meses: {len(dividendos_12m)}")
+                            if len(dividendos_12m) > 0:
+                                st.write("Dividendos encontrados em 12 meses:")
+                                st.write(dividendos_12m)
                             
                             # Teste 2: Buscar últimos 13 meses
                             data_limite_13m = pd.Timestamp.now() - pd.DateOffset(months=13)
                             dividendos_13m = dividendos_hist[dividendos_hist.index >= data_limite_13m]
-                            st.write(f"Dividendos últimos 13 meses (desde {data_limite_13m.date()}): {len(dividendos_13m)}")
+                            st.write(f"Data limite 13 meses: {data_limite_13m}")
+                            st.write(f"Dividendos últimos 13 meses: {len(dividendos_13m)}")
+                            if len(dividendos_13m) > 0:
+                                st.write("Dividendos encontrados em 13 meses:")
+                                st.write(dividendos_13m)
                             
                             # Teste 3: Buscar últimos 24 meses
                             data_limite_24m = pd.Timestamp.now() - pd.DateOffset(months=24)
                             dividendos_24m = dividendos_hist[dividendos_hist.index >= data_limite_24m]
-                            st.write(f"Dividendos últimos 24 meses (desde {data_limite_24m.date()}): {len(dividendos_24m)}")
-                            
+                            st.write(f"Data limite 24 meses: {data_limite_24m}")
+                            st.write(f"Dividendos últimos 24 meses: {len(dividendos_24m)}")
                             if len(dividendos_24m) > 0:
-                                st.write("Dividendos encontrados nos últimos 24 meses:")
+                                st.write("Dividendos encontrados em 24 meses:")
                                 st.write(dividendos_24m)
                             
                             # Usar a abordagem que encontrar mais dividendos
@@ -800,7 +813,7 @@ if st.session_state.get("authentication_status"):
                     'Retorno Preço (a.a.)': retornos_preco_12m,
                     'Yield Dividendos (a.a.)': dividendos_anuais,
                     'Retorno Total (a.a.)': retorno_total,
-                    'Volatilidade (a.a.)': res['volatilidades_individuais']
+                    'Volatilidade (a.a.)': res['volatilidades_individuais'] * 100  # Converter para percentual
                 })
                 
                 st.dataframe(df_metricas, column_config={
@@ -827,7 +840,7 @@ if st.session_state.get("authentication_status"):
                 df_metricas = pd.DataFrame({
                     'Ativo': ativos_otimizados,
                     'Retorno Preço (a.a.)': retornos_preco_12m_fallback,
-                    'Volatilidade (a.a.)': res['volatilidades_individuais']
+                    'Volatilidade (a.a.)': res['volatilidades_individuais'] * 100  # Converter para percentual
                 })
                 st.dataframe(df_metricas, column_config={
                     "Retorno Preço (a.a.)": st.column_config.ProgressColumn("Retorno Preço (a.a.)", format="%.1f%%", min_value=0),
@@ -914,7 +927,7 @@ if st.session_state.get("authentication_status"):
             st.subheader('Fronteira Eficiente de Markowitz')
             
             # Gráfico ocupando toda a largura
-            fig, ax = plt.subplots(figsize=(12, 6), height=400)
+            fig, ax = plt.subplots(figsize=(12, 6))
             ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
                        alpha=0.4)
 
