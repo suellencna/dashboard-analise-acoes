@@ -520,7 +520,7 @@ if st.session_state.get("authentication_status"):
                                line=dict(color='lightgreen', width=2), name='Melhor Cenário (95%)'))
                 fig_mc.update_layout(title_text=f'Projeção de Patrimônio em {anos_projecao} Anos',
                                      xaxis_title='Data', yaxis_title='Patrimônio (R$)', template='plotly_dark',
-                                     showlegend=True)
+                                     showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
                 patrimonio_final_mediano = df_simulacao.iloc[-1].median()
                 patrimonio_final_pior_cenario = df_simulacao.iloc[-1].quantile(0.05)
                 patrimonio_final_melhor_cenario = df_simulacao.iloc[-1].quantile(0.95)
@@ -678,8 +678,8 @@ if st.session_state.get("authentication_status"):
             st.subheader('Métricas dos Ativos')
             st.caption("💡 **Legendas:** (a.a.) = ao ano | **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses) | **Volatilidade** = Desvio padrão dos retornos anuais")
             
-            # Opção para ativar debug detalhado
-            debug_dividendos = st.checkbox("🔍 Ativar debug detalhado dos dividendos", value=False)
+            # Debug ativo para investigar problema dos dividendos zerados
+            st.info("🔍 **Debug ativo** - Investigando por que os dividendos estão zerados")
             
             # Buscar dados de dividendos para calcular retorno total
             try:
@@ -704,56 +704,73 @@ if st.session_state.get("authentication_status"):
                         else:
                             retorno_preco_12m = 0.0
                         
-                        # 2. Calcular dividendos pagos no último ano (janela robusta de 13 meses)
+                        # 2. Calcular dividendos pagos no último ano (teste com diferentes abordagens)
                         dividendos_hist = ticker_data.dividends
                         
-                        if debug_dividendos:
-                            # Debug: mostrar dados brutos da API
-                            st.write(f"🔍 **Debug {ticker}.SA:**")
-                            st.write(f"Histórico completo de dividendos: {len(dividendos_hist)} registros")
-                            if len(dividendos_hist) > 0:
-                                st.write(f"Últimos 5 dividendos:")
-                                st.write(dividendos_hist.tail())
+                        # Debug básico SEMPRE ativo para identificar o problema
+                        st.write(f"🔍 **Debug {ticker}.SA:**")
+                        st.write(f"Tipo de dados de dividendos: {type(dividendos_hist)}")
+                        st.write(f"Tamanho do histórico: {len(dividendos_hist)}")
                         
                         if len(dividendos_hist) > 0:
-                            # Usar janela de 13 meses para ser mais robusta (evitar cortar pagamentos por poucos dias)
-                            data_limite = pd.Timestamp.now() - pd.DateOffset(months=13)
-                            dividendos_recentes = dividendos_hist[dividendos_hist.index >= data_limite]
+                            st.write("Histórico completo de dividendos:")
+                            st.write(dividendos_hist)
+                            st.write(f"Primeiro dividendo: {dividendos_hist.iloc[0] if len(dividendos_hist) > 0 else 'N/A'}")
+                            st.write(f"Último dividendo: {dividendos_hist.iloc[-1] if len(dividendos_hist) > 0 else 'N/A'}")
                             
-                            if debug_dividendos:
-                                st.write(f"Data limite (13 meses): {data_limite}")
-                                st.write(f"Dividendos na janela: {len(dividendos_recentes)} registros")
-                                if len(dividendos_recentes) > 0:
-                                    st.write(f"Dividendos encontrados:")
-                                    st.write(dividendos_recentes)
+                            # Teste 1: Buscar últimos 12 meses
+                            data_limite_12m = pd.Timestamp.now() - pd.DateOffset(months=12)
+                            dividendos_12m = dividendos_hist[dividendos_hist.index >= data_limite_12m]
+                            st.write(f"Dividendos últimos 12 meses (desde {data_limite_12m.date()}): {len(dividendos_12m)}")
                             
-                            dividendos_ano = dividendos_recentes.sum()
+                            # Teste 2: Buscar últimos 13 meses
+                            data_limite_13m = pd.Timestamp.now() - pd.DateOffset(months=13)
+                            dividendos_13m = dividendos_hist[dividendos_hist.index >= data_limite_13m]
+                            st.write(f"Dividendos últimos 13 meses (desde {data_limite_13m.date()}): {len(dividendos_13m)}")
                             
-                            if debug_dividendos:
-                                st.write(f"Soma total de dividendos: R$ {dividendos_ano:.4f}")
+                            # Teste 3: Buscar últimos 24 meses
+                            data_limite_24m = pd.Timestamp.now() - pd.DateOffset(months=24)
+                            dividendos_24m = dividendos_hist[dividendos_hist.index >= data_limite_24m]
+                            st.write(f"Dividendos últimos 24 meses (desde {data_limite_24m.date()}): {len(dividendos_24m)}")
+                            
+                            if len(dividendos_24m) > 0:
+                                st.write("Dividendos encontrados nos últimos 24 meses:")
+                                st.write(dividendos_24m)
+                            
+                            # Usar a abordagem que encontrar mais dividendos
+                            if len(dividendos_13m) > 0:
+                                dividendos_ano = dividendos_13m.sum()
+                                st.write(f"Usando janela de 13 meses. Soma: R$ {dividendos_ano:.4f}")
+                            elif len(dividendos_12m) > 0:
+                                dividendos_ano = dividendos_12m.sum()
+                                st.write(f"Usando janela de 12 meses. Soma: R$ {dividendos_ano:.4f}")
+                            elif len(dividendos_24m) > 0:
+                                # Se só encontrar em 24 meses, usar apenas a metade (simular 12 meses)
+                                dividendos_ano = dividendos_24m.sum() / 2
+                                st.write(f"Usando metade dos dividendos de 24 meses. Soma: R$ {dividendos_ano:.4f}")
+                            else:
+                                dividendos_ano = 0
+                                st.write("⚠️ Nenhum dividendo encontrado em nenhuma janela")
                         else:
                             dividendos_ano = 0
-                            if debug_dividendos:
-                                st.write("⚠️ Nenhum dividendo encontrado na API")
+                            st.write("⚠️ Nenhum dividendo retornado pela API")
                         
                         # 3. Calcular yield de dividendos (dividendos / preço atual)
                         preco_atual = hist['Close'].iloc[-1] if len(hist) > 0 else 0
                         
                         yield_dividendos = (dividendos_ano / preco_atual) * 100 if preco_atual > 0 else 0
                         
-                        if debug_dividendos:
-                            st.write(f"Preço atual: R$ {preco_atual:.2f}")
-                            st.write(f"Yield calculado: {yield_dividendos:.2f}%")
+                        st.write(f"Preço atual: R$ {preco_atual:.2f}")
+                        st.write(f"Yield calculado: {yield_dividendos:.2f}%")
                         
                         # Limitar yield a um valor razoável (máximo 50% ao ano)
                         yield_dividendos_original = yield_dividendos
                         yield_dividendos = min(yield_dividendos, 50.0)
                         
-                        if debug_dividendos:
-                            if yield_dividendos_original > 50.0:
-                                st.write(f"⚠️ Yield limitado de {yield_dividendos_original:.2f}% para 50.0%")
-                            st.write(f"Yield final: {yield_dividendos:.2f}%")
-                            st.write("---")
+                        if yield_dividendos_original > 50.0:
+                            st.write(f"⚠️ Yield limitado de {yield_dividendos_original:.2f}% para 50.0%")
+                        st.write(f"Yield final: {yield_dividendos:.2f}%")
+                        st.write("---")
                         
                         dividendos_anuais.append(yield_dividendos)
                         retornos_preco_12m.append(retorno_preco_12m)
@@ -897,7 +914,7 @@ if st.session_state.get("authentication_status"):
             st.subheader('Fronteira Eficiente de Markowitz')
             
             # Gráfico ocupando toda a largura
-            fig, ax = plt.subplots(figsize=(12, 6))
+            fig, ax = plt.subplots(figsize=(12, 6), height=400)
             ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
                        alpha=0.4)
 
