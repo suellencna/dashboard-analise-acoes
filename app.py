@@ -616,7 +616,7 @@ if st.session_state.get("authentication_status"):
                     legend=dict(
                         orientation="v",
                         yanchor="top",
-                        y=1.1,
+                        y=1.3,
                         xanchor="left",
                         x=0.02
                     )
@@ -666,7 +666,7 @@ if st.session_state.get("authentication_status"):
                     template='plotly_dark',
                     height=400,
                     barmode='group',
-                    margin=dict(l=100, r=200, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
+                    margin=dict(l=100, r=100, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
                 )
                 
                 # Exibir apenas o gráfico (sem tabela)
