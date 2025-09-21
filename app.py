@@ -141,7 +141,8 @@ if st.session_state.get("authentication_status"):
 
     st.sidebar.markdown("**Digite ou selecione os tickers dos ativos:**")
     ativos_selecionados = st.sidebar.multiselect( 
-        disponiveis, 
+        label=None,
+        options=disponiveis, 
         default=default_selection,
         help="💡 **Dica:** Você pode digitar o nome do ticker para filtrar rapidamente (ex: 'PETR' para encontrar PETR4.SA)",
         placeholder="Digite para buscar ou clique para selecionar..."
