@@ -125,7 +125,11 @@ if st.session_state.get("authentication_status"):
         st.error(f"Pasta de dados '{DATA_PATH}' não encontrada.")
         st.stop()
 
-    st.title('Dashboard de Análise de Carteiras 💼')
+    # Título centralizado
+    st.markdown(
+        "<h1 style='text-align: center; margin-bottom: 0.5rem;'>Dashboard de Análise de Carteiras 💼</h1>",
+        unsafe_allow_html=True
+    )
 
     st.sidebar.header('Definição da Carteira')
 
@@ -163,10 +167,6 @@ if st.session_state.get("authentication_status"):
             st.sidebar.error(f"Erro ao salvar a carteira: {e}")
 
     #---- FIM DA DEFINIÇÃO DE CARTEIRA
-    
-    # --- BOTÃO DE OTIMIZAÇÃO (SEMPRE VISÍVEL) ---
-    st.markdown("---")
-    st.subheader("Otimização de Carteira")
     
     if len(ativos_selecionados) < 2:
         st.warning("⚠️ Selecione pelo menos 2 ativos para realizar a otimização.")
@@ -283,9 +283,9 @@ if st.session_state.get("authentication_status"):
         # st.write(pesos)
         df_portfolio['Carteira'] = (df_portfolio[ativos_selecionados] * pesos).sum(axis=1)
 
-        # Centralizado
+        # Data à esquerda com fonte menor
         st.markdown(
-            f"<h3 style='text-align: center;'>Análise da Carteira de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}</h3>",
+            f"<p style='text-align: left; font-size: 14px; color: #666; margin-bottom: 1rem;'>Análise da Carteira de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}</p>",
             unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         # Bloco NOVO e CORRIGIDO (com lógica de busca inteligente)
@@ -884,22 +884,7 @@ if st.session_state.get("authentication_status"):
                 **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
                 """)
 
-            st.markdown("---")
-
-            # Disclaimer para a Simulação de Monte Carlo
-            st.warning("⚠️ **Disclaimer Importante sobre a Simulação:**")
-            st.markdown("""
-            As **simulação de Monte Carlo e Markowitz**, são modelos matemáticos que utilizam dados históricos para projetar cenários futuros possíveis.
-            """)
-            st.markdown("""
-            **Por favor, esteja ciente de que:**
-            - **Não é uma garantia:** Os resultados apresentados são apenas projeções e **não constituem uma promessa ou garantia** de retornos futuros.
-            - **Baseado em dados passados:** A simulação utiliza dados de desempenho passado, e o **desempenho passado não é um indicador confiável de resultados futuros.**
-            - **Múltiplos cenários:** A simulação considera uma vasta gama de cenários possíveis, mas a **realidade pode divergir** significativamente das projeções.
-            - **Propósito:** Esta ferramenta serve como um auxílio para **visualizar e entender a gama de possibilidades e riscos** associados ao investimento, ajudando na tomada de decisão informada.
-
-            """)
-            st.markdown("---")
+            
 
             # EXIBIÇÃO DE MARKOWITZ
             st.subheader('Fronteira Eficiente de Markowitz')
@@ -963,6 +948,23 @@ if st.session_state.get("authentication_status"):
             if st.button("Limpar Análise"):
                 st.session_state.resultados_gerados = None
                 st.rerun()
+                
+            st.markdown("---")
+
+            # Disclaimer para a Simulação de Monte Carlo
+            st.warning("⚠️ **Disclaimer Importante sobre a Simulação:**")
+            st.markdown("""
+            As **simulação de Monte Carlo e Markowitz**, são modelos matemáticos que utilizam dados históricos para projetar cenários futuros possíveis.
+            """)
+            st.markdown("""
+            **Por favor, esteja ciente de que:**
+            - **Não é uma garantia:** Os resultados apresentados são apenas projeções e **não constituem uma promessa ou garantia** de retornos futuros.
+            - **Baseado em dados passados:** A simulação utiliza dados de desempenho passado, e o **desempenho passado não é um indicador confiável de resultados futuros.**
+            - **Múltiplos cenários:** A simulação considera uma vasta gama de cenários possíveis, mas a **realidade pode divergir** significativamente das projeções.
+            - **Propósito:** Esta ferramenta serve como um auxílio para **visualizar e entender a gama de possibilidades e riscos** associados ao investimento, ajudando na tomada de decisão informada.
+
+            """)
+            st.markdown("---")    
             
     else:
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
