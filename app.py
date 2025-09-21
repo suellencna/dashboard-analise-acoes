@@ -616,7 +616,7 @@ if st.session_state.get("authentication_status"):
                     legend=dict(
                         orientation="v",
                         yanchor="top",
-                        y=1.02,
+                        y=1.1,
                         xanchor="left",
                         x=0.02
                     )
@@ -666,7 +666,7 @@ if st.session_state.get("authentication_status"):
                     template='plotly_dark',
                     height=400,
                     barmode='group',
-                    margin=dict(l=100, r=150, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
+                    margin=dict(l=100, r=200, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
                 )
                 
                 # Exibir apenas o gráfico (sem tabela)
@@ -676,145 +676,96 @@ if st.session_state.get("authentication_status"):
 
             # --- MÉTRICAS DOS ATIVOS ---
             st.subheader('Métricas dos Ativos')
-            st.caption("💡 **Legendas:** (a.a.) = ao ano | **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses) | **Volatilidade** = Desvio padrão dos retornos anuais")
-            
-            # Debug ativo para investigar problema dos dividendos zerados
-            st.info("🔍 **Debug ativo** - Investigando por que os dividendos estão zerados")
-            
+
+            # Remover st.info de debug após a correção
+            # st.info("🔍 **Debug ativo** - Investigando por que os dividendos estão zerados") 
+
             # Buscar dados de dividendos para calcular retorno total
             try:
                 # Criar lista de tickers sem .SA para buscar dividendos
-                tickers_yf = [ativo.replace('.SA', '') for ativo in ativos_otimizados]
+                tickers_yf_pure = [ativo.replace('.SA', '') for ativo in ativos_otimizados]
                 
-                # Buscar dados dos últimos 12 meses para cálculo consistente
-                dividendos_anuais = []
-                retornos_preco_12m = []
+                # Listas para armazenar os resultados por ativo
+                dividend_yield_anualizado = []
+                retornos_preco_12m_list = [] # Renomeada para evitar conflito de nome no loop
                 
-                for i, ticker in enumerate(tickers_yf):
+                for i, ticker_pure in enumerate(tickers_yf_pure):
+                    ticker_full = f"{ticker_pure}.SA"
+                    
+                    # Iniciar valores para o caso de erro ou dados insuficientes
+                    retorno_preco_ativo = 0.0
+                    yield_dividendo_ativo = 0.0
+
                     try:
-                        # Buscar dados do último ano
-                        ticker_data = yf.Ticker(f"{ticker}.SA")
-                        hist = ticker_data.history(period="1y")
+                        # 1. Buscar histórico de preços do último ano (aproximadamente 252 pregões)
+                        # Usar period="1y" para alinhar com o cálculo do retorno de preço
+                        ticker_data = yf.Ticker(ticker_full)
+                        hist = ticker_data.history(period="1y", interval="1d") # interval="1d" para garantir diário
                         
-                        # 1. Calcular retorno de preço dos últimos 12 meses
-                        if len(hist) > 1:
-                            # Fórmula: (Preço Final / Preço Inicial) - 1
-                            retorno_preco = (hist['Close'].iloc[-1] / hist['Close'].iloc[0]) - 1
-                            retorno_preco_12m = retorno_preco * 100  # Convertendo para percentual
-                        else:
-                            retorno_preco_12m = 0.0
+                        if hist.empty or len(hist) < 2:
+                            # Dados insuficientes, adicionar 0 e pular para o próximo ativo
+                            retornos_preco_12m_list.append(retorno_preco_ativo)
+                            dividend_yield_anualizado.append(yield_dividendo_ativo)
+                            continue # Pula para o próximo ativo no loop
+
+                        # Data de referência: o último dia de pregão no histórico
+                        data_fim_periodo = hist.index[-1]
+                        data_inicio_periodo = hist.index[0] # Preço inicial para cálculo do yield
+
+                        # Calcular retorno de preço dos últimos 12 meses
+                        retorno_preco_ativo = ((hist['Close'].iloc[-1] / hist['Close'].iloc[0]) - 1) * 100 # Em percentual
                         
-                        # 2. Calcular dividendos pagos no último ano (teste com diferentes abordagens)
+                        # 2. Calcular dividendos pagos no período de 12 meses (alinhado com o histórico)
                         dividendos_hist = ticker_data.dividends
                         
-                        # Debug básico SEMPRE ativo para identificar o problema
-                        st.write(f"🔍 **Debug {ticker}.SA:**")
-                        st.write(f"Tipo de dados de dividendos: {type(dividendos_hist)}")
-                        st.write(f"Tamanho do histórico: {len(dividendos_hist)}")
-                        
-                        if len(dividendos_hist) > 0:
-                            st.write("Histórico completo de dividendos:")
-                            st.write(dividendos_hist)
-                            st.write(f"Primeiro dividendo: {dividendos_hist.iloc[0] if len(dividendos_hist) > 0 else 'N/A'}")
-                            st.write(f"Último dividendo: {dividendos_hist.iloc[-1] if len(dividendos_hist) > 0 else 'N/A'}")
+                        if not dividendos_hist.empty:
+                            # Filtrar dividendos que caíram DENTRO do período de 12 meses de `hist`
+                            # Margem de 7 dias antes para capturar o começo do ano fiscal ou último dividendo
+                            data_limite_dividendos = data_fim_periodo - pd.DateOffset(months=12, days=-7) 
                             
-                            # Debug das datas
-                            data_atual = pd.Timestamp.now()
-                            st.write(f"Data atual: {data_atual}")
-                            st.write(f"Primeira data dos dividendos: {dividendos_hist.index[0]}")
-                            st.write(f"Última data dos dividendos: {dividendos_hist.index[-1]}")
+                            # Se o histórico de dividendos é curto, ajusta a data limite para não perder nenhum
+                            if not dividendos_hist.empty and dividendos_hist.index.min() > data_limite_dividendos:
+                                data_limite_dividendos = dividendos_hist.index.min()
+
+                            dividendos_no_periodo = dividendos_hist[
+                                (dividendos_hist.index >= data_limite_dividendos) &
+                                (dividendos_hist.index <= data_fim_periodo)
+                            ]
                             
-                            # Teste 1: Buscar últimos 12 meses
-                            data_limite_12m = pd.Timestamp.now() - pd.DateOffset(months=12)
-                            dividendos_12m = dividendos_hist[dividendos_hist.index >= data_limite_12m]
-                            st.write(f"Data limite 12 meses: {data_limite_12m}")
-                            st.write(f"Dividendos últimos 12 meses: {len(dividendos_12m)}")
-                            if len(dividendos_12m) > 0:
-                                st.write("Dividendos encontrados em 12 meses:")
-                                st.write(dividendos_12m)
-                            
-                            # Teste 2: Buscar últimos 13 meses
-                            data_limite_13m = pd.Timestamp.now() - pd.DateOffset(months=13)
-                            dividendos_13m = dividendos_hist[dividendos_hist.index >= data_limite_13m]
-                            st.write(f"Data limite 13 meses: {data_limite_13m}")
-                            st.write(f"Dividendos últimos 13 meses: {len(dividendos_13m)}")
-                            if len(dividendos_13m) > 0:
-                                st.write("Dividendos encontrados em 13 meses:")
-                                st.write(dividendos_13m)
-                            
-                            # Teste 3: Buscar últimos 24 meses
-                            data_limite_24m = pd.Timestamp.now() - pd.DateOffset(months=24)
-                            dividendos_24m = dividendos_hist[dividendos_hist.index >= data_limite_24m]
-                            st.write(f"Data limite 24 meses: {data_limite_24m}")
-                            st.write(f"Dividendos últimos 24 meses: {len(dividendos_24m)}")
-                            if len(dividendos_24m) > 0:
-                                st.write("Dividendos encontrados em 24 meses:")
-                                st.write(dividendos_24m)
-                            
-                            # Usar a abordagem que encontrar mais dividendos
-                            if len(dividendos_13m) > 0:
-                                dividendos_ano = dividendos_13m.sum()
-                                st.write(f"Usando janela de 13 meses. Soma: R$ {dividendos_ano:.4f}")
-                            elif len(dividendos_12m) > 0:
-                                dividendos_ano = dividendos_12m.sum()
-                                st.write(f"Usando janela de 12 meses. Soma: R$ {dividendos_ano:.4f}")
-                            elif len(dividendos_24m) > 0:
-                                # Se só encontrar em 24 meses, usar apenas a metade (simular 12 meses)
-                                dividendos_ano = dividendos_24m.sum() / 2
-                                st.write(f"Usando metade dos dividendos de 24 meses. Soma: R$ {dividendos_ano:.4f}")
+                            soma_dividendos_brutos = dividendos_no_periodo.sum()
+
+                            # 3. Calcular yield de dividendos (dividendos / preço inicial do período)
+                            # O preço inicial do período é mais consistente para o retorno total
+                            preco_referencia_yield = hist['Close'].iloc[0] # Preço no início dos 12 meses
+
+                            if preco_referencia_yield > 0:
+                                yield_dividendo_ativo = (soma_dividendos_brutos / preco_referencia_yield) * 100
                             else:
-                                dividendos_ano = 0
-                                st.write("⚠️ Nenhum dividendo encontrado em nenhuma janela")
-                        else:
-                            dividendos_ano = 0
-                            st.write("⚠️ Nenhum dividendo retornado pela API")
-                        
-                        # 3. Calcular yield de dividendos (dividendos / preço atual)
-                        preco_atual = hist['Close'].iloc[-1] if len(hist) > 0 else 0
-                        
-                        yield_dividendos = (dividendos_ano / preco_atual) * 100 if preco_atual > 0 else 0
-                        
-                        st.write(f"Preço atual: R$ {preco_atual:.2f}")
-                        st.write(f"Yield calculado: {yield_dividendos:.2f}%")
-                        
-                        # Limitar yield a um valor razoável (máximo 50% ao ano)
-                        yield_dividendos_original = yield_dividendos
-                        yield_dividendos = min(yield_dividendos, 50.0)
-                        
-                        if yield_dividendos_original > 50.0:
-                            st.write(f"⚠️ Yield limitado de {yield_dividendos_original:.2f}% para 50.0%")
-                        st.write(f"Yield final: {yield_dividendos:.2f}%")
-                        st.write("---")
-                        
-                        dividendos_anuais.append(yield_dividendos)
-                        retornos_preco_12m.append(retorno_preco_12m)
+                                yield_dividendo_ativo = 0.0
+                            
+                            # Limitar yield a um valor razoável (máximo 50% ao ano)
+                            yield_dividendo_ativo = min(yield_dividendo_ativo, 50.0)
+                            
+                        # Adiciona os resultados (mesmo que sejam 0.0)
+                        retornos_preco_12m_list.append(retorno_preco_ativo)
+                        dividend_yield_anualizado.append(yield_dividendo_ativo)
                         
                     except Exception as e:
-                        # Se não conseguir buscar dados, usar 0
-                        dividendos_anuais.append(0.0)
-                        retornos_preco_12m.append(0.0)
+                        # Em caso de erro para um ativo específico, adicionar 0 e seguir
+                        st.warning(f"⚠️ Erro ao buscar dados para {ticker_full}: {e}. Usando 0 para retornos/dividendos.")
+                        retornos_preco_12m_list.append(0.0)
+                        dividend_yield_anualizado.append(0.0)
                 
-                # Calcular retorno total de forma consistente (ambos dos últimos 12 meses)
-                retorno_total = np.array(retornos_preco_12m) + np.array(dividendos_anuais)
-                
-                # Debug: mostrar valores calculados
-                st.write("🔍 **Debug - Valores Calculados (Últimos 12 meses):**")
-                debug_df = pd.DataFrame({
-                    'Ativo': ativos_otimizados,
-                    'Retorno_Preco_12m': retornos_preco_12m,
-                    'Yield_Dividendos_12m': dividendos_anuais,
-                    'Retorno_Total_12m': retorno_total,
-                    'Volatilidade_Markowitz': res['volatilidades_individuais']
-                })
-                st.write(debug_df)
+                # Calcular retorno total de forma consistente (soma dos retornos de preço e dividendos do mesmo período)
+                retorno_total_12m = np.array(retornos_preco_12m_list) + np.array(dividend_yield_anualizado)
                 
                 # Criar DataFrame com dados consistentes (todos dos últimos 12 meses)
                 df_metricas = pd.DataFrame({
                     'Ativo': ativos_otimizados,
-                    'Retorno Preço (a.a.)': retornos_preco_12m,
-                    'Yield Dividendos (a.a.)': dividendos_anuais,
-                    'Retorno Total (a.a.)': retorno_total,
-                    'Volatilidade (a.a.)': res['volatilidades_individuais'] * 100  # Converter para percentual
+                    'Retorno Preço (a.a.)': retornos_preco_12m_list,
+                    'Yield Dividendos (a.a.)': dividend_yield_anualizado,
+                    'Retorno Total (a.a.)': retorno_total_12m,
+                    'Volatilidade (a.a.)': np.array(res['volatilidades_individuais']) * 100 # Volatilidade já vem anualizada, converter para %
                 })
                 
                 st.dataframe(df_metricas, column_config={
@@ -825,29 +776,34 @@ if st.session_state.get("authentication_status"):
                 }, use_container_width=True, hide_index=True)
                 
             except Exception as e:
+                st.error(f"Erro geral no cálculo de métricas: {e}")
                 # Fallback: calcular retorno de preço dos últimos 12 meses mesmo sem dividendos
                 retornos_preco_12m_fallback = []
-                for ticker in [ativo.replace('.SA', '') for ativo in ativos_otimizados]:
+                for ticker_pure in [ativo.replace('.SA', '') for ativo in ativos_otimizados]:
                     try:
-                        hist = yf.Ticker(f"{ticker}.SA").history(period="1y")
+                        hist = yf.Ticker(f"{ticker_pure}.SA").history(period="1y")
                         if len(hist) > 1:
                             retorno_preco = (hist['Close'].iloc[-1] / hist['Close'].iloc[0]) - 1
-                            retorno_preco_12m_fallback.append(retorno_preco * 100)
+                            retornos_preco_12m_fallback.append(retorno_preco * 100)
                         else:
-                            retorno_preco_12m_fallback.append(0.0)
+                            retornos_preco_12m_fallback.append(0.0)
                     except:
-                        retorno_preco_12m_fallback.append(0.0)
+                        retornos_preco_12m_fallback.append(0.0)
                 
-                df_metricas = pd.DataFrame({
+                df_metricas_fallback = pd.DataFrame({
                     'Ativo': ativos_otimizados,
                     'Retorno Preço (a.a.)': retornos_preco_12m_fallback,
-                    'Volatilidade (a.a.)': res['volatilidades_individuais'] * 100  # Converter para percentual
+                    'Volatilidade (a.a.)': np.array(res['volatilidades_individuais']) * 100 # Volatilidade também em %
                 })
-                st.dataframe(df_metricas, column_config={
-                    "Retorno Preço (a.a.)": st.column_config.ProgressColumn("Retorno Preço (a.a.)", format="%.1f%%", min_value=0),
-                    "Volatilidade (a.a.)": st.column_config.ProgressColumn("Volatilidade (a.a.)", format="%.0f%%", min_value=0)
+                st.dataframe(df_metricas_fallback, column_config={
+                    "Retorno Preço (a.a.)": st.column_config.ProgressColumn("Retorno Preço (a.a.)", format="%.1f%%", min_value=-50, max_value=100),
+                    "Volatilidade (a.a.)": st.column_config.ProgressColumn("Volatilidade (a.a.)", format="%.0f%%", min_value=0, max_value=100)
                 }, use_container_width=True, hide_index=True)
-                st.warning("⚠️ Não foi possível carregar dados de dividendos. Mostrando apenas retorno de preços dos últimos 12 meses.")
+                st.warning("⚠️ Não foi possível carregar dados completos para as métricas. Mostrando apenas retorno de preços dos últimos 12 meses e volatilidade.")
+
+            # Legendas abaixo da tabela
+            st.markdown("---") # Separador para o conteúdo abaixo
+            st.caption("💡 **Legendas:** (a.a.) = ao ano | **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses) | **Volatilidade** = Desvio padrão dos retornos anuais")
             
             st.markdown("---")
 
