@@ -666,7 +666,7 @@ if st.session_state.get("authentication_status"):
                     template='plotly_dark',
                     height=400,
                     barmode='group',
-                    margin=dict(l=100, r=100, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
+                    margin=dict(l=100, r=250, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
                 )
                 
                 # Exibir apenas o gráfico (sem tabela)
@@ -801,11 +801,14 @@ if st.session_state.get("authentication_status"):
                 }, use_container_width=True, hide_index=True)
                 st.warning("⚠️ Não foi possível carregar dados completos para as métricas. Mostrando apenas retorno de preços dos últimos 12 meses e volatilidade.")
 
-            # Legendas abaixo da tabela
+            # Legendas abaixo da tabela com linguagem mais acessível
             st.markdown("---") # Separador para o conteúdo abaixo
-            st.caption("💡 **Legendas:** (a.a.) = ao ano | **Retorno Total** = Retorno de Preço + Yield de Dividendos (últimos 12 meses) | **Volatilidade** = Desvio padrão dos retornos anuais")
-            
-            st.markdown("---")
+            st.caption("💡 **Entenda as métricas da tabela:**")
+            st.caption("- **Retorno Preço (a.a.):** É o quanto o preço do ativo subiu ou desceu nos últimos 12 meses, expresso em porcentagem anual. *Exemplo: 10% significa que o preço do ativo valorizou 10% em um ano.*")
+            st.caption("- **Yield Dividendos (a.a.):** É a porcentagem dos rendimentos que o ativo pagou em dividendos (ou proventos) nos últimos 12 meses, em relação ao seu preço inicial. É o quanto você recebeu de volta em dinheiro. *Exemplo: 5% significa que você recebeu 5% do valor inicial do ativo em dividendos.*")
+            st.caption("- **Retorno Total (a.a.):** É a soma de todo o ganho que o ativo gerou nos últimos 12 meses, considerando tanto a valorização do preço quanto os dividendos pagos. É o ganho completo do seu investimento. *Exemplo: Se o Retorno de Preço foi 7% e o Yield de Dividendos foi 3%, o Retorno Total é 10%.*")
+            st.caption("- **Volatilidade (a.a.):** Indica o 'balanço' ou a 'instabilidade' do preço do ativo ao longo do ano. Quanto maior a volatilidade, maior a variação (para cima ou para baixo) e, geralmente, maior o risco. *Exemplo: 20% de volatilidade significa que o preço pode oscilar bastante para cima ou para baixo em torno da média.*")
+            st.markdown("---") # Separador final
 
             # EXIBIÇÃO DE MONTE CARLO
             st.subheader("Projeção de Patrimônio Futuro (Monte Carlo)")
@@ -854,11 +857,6 @@ if st.session_state.get("authentication_status"):
             
             # Explicação do Monte Carlo com botão de recolher/expandir
             with st.expander("Como Ler o Gráfico da Simulação?", expanded=False):
-                # Container com altura fixa e scroll para o texto do Monte Carlo
-                st.markdown("""
-                <div style="height: 300px; overflow-y: auto; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: rgba(255,255,255,0.05);">
-                """, unsafe_allow_html=True)
-                
                 st.markdown(f"""
                 Nós criamos {res_mc_text['simulacoes']} simulações de como sua carteira de investimentos **(R$ {res_mc_text['investimento']:,.2f})** poderia se comportar nos próximos **{res_mc_text['anos']} anos**. Este gráfico resume tudo isso.
 
@@ -875,8 +873,6 @@ if st.session_state.get("authentication_status"):
 
                 **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
                 """)
-                
-                st.markdown("</div>", unsafe_allow_html=True)
 
             st.markdown("---")
 
@@ -974,3 +970,20 @@ else:
                 st.sidebar.error("Sua assinatura não está ativa.")
             else:
                 st.sidebar.error("Email ou senha incorreta.")
+
+# Disclaimer para a Simulação de Monte Carlo
+st.markdown("---") # Opcional: separador visual
+st.warning("⚠️ **Disclaimer Importante sobre a Simulação:**")
+st.markdown("""
+Esta é uma **simulação de Monte Carlo**, um modelo matemático que utiliza dados históricos para projetar cenários futuros possíveis.
+""")
+st.markdown("""
+**Por favor, esteja ciente de que:**
+- **Não é uma garantia:** Os resultados apresentados são apenas projeções e **não constituem uma promessa ou garantia** de retornos futuros.
+- **Baseado em dados passados:** A simulação utiliza dados de desempenho passado, e o **desempenho passado não é um indicador confiável de resultados futuros.**
+- **Múltiplos cenários:** A simulação considera uma vasta gama de cenários possíveis, mas a **realidade pode divergir** significativamente das projeções.
+- **Propósito:** Esta ferramenta serve como um auxílio para **visualizar e entender a gama de possibilidades e riscos** associados ao investimento, ajudando na tomada de decisão informada.
+
+**Sempre consulte um profissional financeiro para decisões de investimento.**
+""")
+st.markdown("---") # Opcional: separador visual
