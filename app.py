@@ -666,7 +666,7 @@ if st.session_state.get("authentication_status"):
                     template='plotly_dark',
                     height=400,
                     barmode='group',
-                    margin=dict(l=100, r=250, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
+                    margin=dict(l=100, r=100, t=50, b=50)  # Aumenta margem direita para acomodar texto fora das barras
                 )
                 
                 # Exibir apenas o gráfico (sem tabela)
@@ -803,11 +803,19 @@ if st.session_state.get("authentication_status"):
 
             # Legendas abaixo da tabela com linguagem mais acessível
             st.markdown("---") # Separador para o conteúdo abaixo
-            st.caption("💡 **Entenda as métricas da tabela:**")
-            st.caption("- **Retorno Preço (a.a.):** É o quanto o preço do ativo subiu ou desceu nos últimos 12 meses, expresso em porcentagem anual. *Exemplo: 10% significa que o preço do ativo valorizou 10% em um ano.*")
-            st.caption("- **Yield Dividendos (a.a.):** É a porcentagem dos rendimentos que o ativo pagou em dividendos (ou proventos) nos últimos 12 meses, em relação ao seu preço inicial. É o quanto você recebeu de volta em dinheiro. *Exemplo: 5% significa que você recebeu 5% do valor inicial do ativo em dividendos.*")
-            st.caption("- **Retorno Total (a.a.):** É a soma de todo o ganho que o ativo gerou nos últimos 12 meses, considerando tanto a valorização do preço quanto os dividendos pagos. É o ganho completo do seu investimento. *Exemplo: Se o Retorno de Preço foi 7% e o Yield de Dividendos foi 3%, o Retorno Total é 10%.*")
-            st.caption("- **Volatilidade (a.a.):** Indica o 'balanço' ou a 'instabilidade' do preço do ativo ao longo do ano. Quanto maior a volatilidade, maior a variação (para cima ou para baixo) e, geralmente, maior o risco. *Exemplo: 20% de volatilidade significa que o preço pode oscilar bastante para cima ou para baixo em torno da média.*")
+            
+            # Explicação das métricas em expander
+            with st.expander("💡 **Entenda as métricas da tabela**", expanded=False):
+                st.markdown("""
+                **Retorno Preço (a.a.):** É o quanto o preço do ativo subiu ou desceu nos últimos 12 meses, expresso em porcentagem anual. *Exemplo: 10% significa que o preço do ativo valorizou 10% em um ano.*
+                
+                **Yield Dividendos (a.a.):** É a porcentagem dos rendimentos que o ativo pagou em dividendos (ou proventos) nos últimos 12 meses, em relação ao seu preço inicial. É o quanto você recebeu de volta em dinheiro. *Exemplo: 5% significa que você recebeu 5% do valor inicial do ativo em dividendos.*
+                
+                **Retorno Total (a.a.):** É a soma de todo o ganho que o ativo gerou nos últimos 12 meses, considerando tanto a valorização do preço quanto os dividendos pagos. É o ganho completo do seu investimento. *Exemplo: Se o Retorno de Preço foi 7% e o Yield de Dividendos foi 3%, o Retorno Total é 10%.*
+                
+                **Volatilidade (a.a.):** Indica o 'balanço' ou a 'instabilidade' do preço do ativo ao longo do ano. Quanto maior a volatilidade, maior a variação (para cima ou para baixo) e, geralmente, maior o risco. *Exemplo: 20% de volatilidade significa que o preço pode oscilar bastante para cima ou para baixo em torno da média.*
+                """)
+            
             st.markdown("---") # Separador final
 
             # EXIBIÇÃO DE MONTE CARLO
@@ -865,7 +873,9 @@ if st.session_state.get("authentication_status"):
 
                 **↔️ A Faixa de Resultados Realista:**
                 Nossa análise mostra uma probabilidade de 90% de que o patrimônio final fique na seguinte faixa:
+                
                 • **Cenário Pessimista:** R$ {res_mc_text['pior']:,.2f}
+                
                 • **Cenário Otimista:** R$ {res_mc_text['melhor']:,.2f}
 
                 **O que fazer com essa informação?**
@@ -874,6 +884,21 @@ if st.session_state.get("authentication_status"):
                 **Obs.:** Lembrando que, caso deseje alterar, o valor inicial da carteira está na aba lateral!
                 """)
 
+            st.markdown("---")
+
+            # Disclaimer para a Simulação de Monte Carlo
+            st.warning("⚠️ **Disclaimer Importante sobre a Simulação:**")
+            st.markdown("""
+            As **simulação de Monte Carlo e Markowitz**, são modelos matemáticos que utilizam dados históricos para projetar cenários futuros possíveis.
+            """)
+            st.markdown("""
+            **Por favor, esteja ciente de que:**
+            - **Não é uma garantia:** Os resultados apresentados são apenas projeções e **não constituem uma promessa ou garantia** de retornos futuros.
+            - **Baseado em dados passados:** A simulação utiliza dados de desempenho passado, e o **desempenho passado não é um indicador confiável de resultados futuros.**
+            - **Múltiplos cenários:** A simulação considera uma vasta gama de cenários possíveis, mas a **realidade pode divergir** significativamente das projeções.
+            - **Propósito:** Esta ferramenta serve como um auxílio para **visualizar e entender a gama de possibilidades e riscos** associados ao investimento, ajudando na tomada de decisão informada.
+
+            """)
             st.markdown("---")
 
             # EXIBIÇÃO DE MARKOWITZ
@@ -970,20 +995,3 @@ else:
                 st.sidebar.error("Sua assinatura não está ativa.")
             else:
                 st.sidebar.error("Email ou senha incorreta.")
-
-# Disclaimer para a Simulação de Monte Carlo
-st.markdown("---") # Opcional: separador visual
-st.warning("⚠️ **Disclaimer Importante sobre a Simulação:**")
-st.markdown("""
-Esta é uma **simulação de Monte Carlo**, um modelo matemático que utiliza dados históricos para projetar cenários futuros possíveis.
-""")
-st.markdown("""
-**Por favor, esteja ciente de que:**
-- **Não é uma garantia:** Os resultados apresentados são apenas projeções e **não constituem uma promessa ou garantia** de retornos futuros.
-- **Baseado em dados passados:** A simulação utiliza dados de desempenho passado, e o **desempenho passado não é um indicador confiável de resultados futuros.**
-- **Múltiplos cenários:** A simulação considera uma vasta gama de cenários possíveis, mas a **realidade pode divergir** significativamente das projeções.
-- **Propósito:** Esta ferramenta serve como um auxílio para **visualizar e entender a gama de possibilidades e riscos** associados ao investimento, ajudando na tomada de decisão informada.
-
-**Sempre consulte um profissional financeiro para decisões de investimento.**
-""")
-st.markdown("---") # Opcional: separador visual
