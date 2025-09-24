@@ -981,15 +981,10 @@ else:
         st.markdown("</div>", unsafe_allow_html=True)
         
         # Tagline melhorada
-        st.markdown(
-            "<h2 style='text-align: center; color: #ffffff; margin-top: 1rem; margin-bottom: 0.5rem;'>PONTO ÓTIMO INVEST</h2>",
-            unsafe_allow_html=True
-        )
+        print()
+        print()
+        print()
         
-        st.markdown(
-            "<p style='text-align: center; color: #cccccc; font-size: 18px; margin-bottom: 2rem;'>A carteira ideal ao seu alcance</p>",
-            unsafe_allow_html=True
-        )
         
         # Card de informações com estilo moderno
         st.markdown("""
@@ -1001,14 +996,14 @@ else:
             border: 1px solid #3a5a8a;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         '>
-            <h4 style='color: #ffffff; margin-top: 0; text-align: center;'>
-                🚀 Plataforma Profissional de Análise de Carteiras
+            <h4 style='color: #545454; margin-top: 0; text-align: center;'>
+                Plataforma de Análise de Carteiras
             </h4>
             <ul style='color: #e0e0e0; margin-bottom: 0;'>
-                <li>📊 Análise Markowitz e Monte Carlo</li>
-                <li>📈 Métricas em tempo real</li>
-                <li>🎯 Otimização de portfólio</li>
-                <li>📱 Interface intuitiva</li>
+                <li>Análise Markowitz e Monte Carlo</li>
+                <li>Métricas em tempo real</li>
+                <li>Otimização de portfólio</li>
+                <li>Interface intuitiva</li>
             </ul>
         </div>
         """, unsafe_allow_html=True)
