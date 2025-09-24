@@ -14,7 +14,7 @@ import re
 import yfinance as yf
 
 # --- Configurações da Página e Estilo ---
-st.set_page_config(page_title="Análise de Carteira", page_icon="💼", layout="wide")
+st.set_page_config(page_title="Análise de Carteira", layout="wide")
 
 
 # --- 2. CONFIGURAÇÃO DO BANCO DE DADOS E SENHA ---
@@ -971,29 +971,92 @@ if st.session_state.get("authentication_status"):
 
 else:
     # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
+    
+    # Área principal com branding melhorado
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.image("prints/slogan_preto.png", width=500)
-        st.warning('Por favor, insira seu usuário e senha para acessar')
+        # Logo centralizado e maior
+        st.markdown("<div style='text-align: center; margin-top: 2rem;'>", unsafe_allow_html=True)
+        st.image("prints/slogan_preto.png", width=600)
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        # Tagline melhorada
+        st.markdown(
+            "<h2 style='text-align: center; color: #ffffff; margin-top: 1rem; margin-bottom: 0.5rem;'>PONTO ÓTIMO INVEST</h2>",
+            unsafe_allow_html=True
+        )
+        
+        st.markdown(
+            "<p style='text-align: center; color: #cccccc; font-size: 18px; margin-bottom: 2rem;'>A carteira ideal ao seu alcance</p>",
+            unsafe_allow_html=True
+        )
+        
+        # Card de informações com estilo moderno
+        st.markdown("""
+        <div style='
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+            border: 1px solid #3a5a8a;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        '>
+            <h4 style='color: #ffffff; margin-top: 0; text-align: center;'>
+                🚀 Plataforma Profissional de Análise de Carteiras
+            </h4>
+            <ul style='color: #e0e0e0; margin-bottom: 0;'>
+                <li>📊 Análise Markowitz e Monte Carlo</li>
+                <li>📈 Métricas em tempo real</li>
+                <li>🎯 Otimização de portfólio</li>
+                <li>📱 Interface intuitiva</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Aviso sobre Hotmart
+        st.info("""
+        🔐 **Acesso via Hotmart:** 
+        Use o mesmo email e senha que você utiliza para acessar sua conta na Hotmart. 
+        Se você ainda não tem acesso, entre em contato com o suporte.
+        """)
 
-    st.sidebar.title("Login")
-    email = st.sidebar.text_input("Email")
-    password = st.sidebar.text_input("Senha", type="password")
+    # Sidebar com login melhorado
+    st.sidebar.markdown("""
+    <div style='text-align: center; margin-bottom: 2rem;'>
+        <h1 style='color: #ffffff; margin-bottom: 0;'>🔑 Login</h1>
+        <p style='color: #cccccc; font-size: 14px; margin-top: 0.5rem;'>Acesse sua conta</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    email = st.sidebar.text_input(
+        "📧 Email", 
+        placeholder="seu@email.com",
+        help="Digite o email cadastrado na Hotmart"
+    )
+    password = st.sidebar.text_input(
+        "🔒 Senha", 
+        type="password",
+        placeholder="Sua senha",
+        help="Digite a senha da sua conta Hotmart"
+    )
 
-    if st.sidebar.button("Entrar"):
-        is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim = check_login(email, password)
-        if is_logged_in:
-            st.session_state["authentication_status"] = True
-            st.session_state["name"] = user_name
-            st.session_state["email"] = email
-            st.session_state["ultima_carteira"] = ultima_carteira
-            st.session_state["ultimos_pesos"] = ultimos_pesos
-            st.session_state["data_inicio_salva"] = data_inicio
-            st.session_state["data_fim_salva"] = data_fim
-            st.rerun()
-        else:
-            st.session_state["authentication_status"] = False
-            if user_name == "INACTIVE_SUBSCRIPTION":
-                st.sidebar.error("Sua assinatura não está ativa.")
+    # Botão de login estilizado
+    col_btn1, col_btn2, col_btn3 = st.sidebar.columns([1, 2, 1])
+    with col_btn2:
+        if st.button("🚀 Entrar", type="primary", use_container_width=True):
+            is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim = check_login(email, password)
+            if is_logged_in:
+                st.session_state["authentication_status"] = True
+                st.session_state["name"] = user_name
+                st.session_state["email"] = email
+                st.session_state["ultima_carteira"] = ultima_carteira
+                st.session_state["ultimos_pesos"] = ultimos_pesos
+                st.session_state["data_inicio_salva"] = data_inicio
+                st.session_state["data_fim_salva"] = data_fim
+                st.rerun()
             else:
-                st.sidebar.error("Email ou senha incorreta.")
+                st.session_state["authentication_status"] = False
+                if user_name == "INACTIVE_SUBSCRIPTION":
+                    st.sidebar.error("Sua assinatura não está ativa.")
+                else:
+                    st.sidebar.error("Email ou senha incorreta.")
