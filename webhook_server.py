@@ -3,7 +3,8 @@
 from flask import Flask, request, jsonify
 import os
 import sqlalchemy
-from passlib.context import CryptContext
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 import secrets
 import time
 import logging
@@ -13,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ph = PasswordHasher()
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 HOTMART_HOTTOK = os.environ.get('HOTMART_HOTTOK')
@@ -129,7 +130,7 @@ def processar_compra_aprovada(email, nome):
         else:
             # Usuário não existe - criar novo
             temp_password = secrets.token_urlsafe(8)
-            hashed_password = pwd_context.hash(temp_password)
+            hashed_password = ph.hash(temp_password)
             
             query_insert = sqlalchemy.text(
                 "INSERT INTO usuarios (nome, email, senha_hash, status_assinatura) VALUES (:nome, :email, :senha_hash, 'ativo')")
