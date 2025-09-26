@@ -67,8 +67,13 @@ def check_login(email, password):
         try:
             ph.verify(senha_hash_salva, password)
             if status_assinatura == 'ativo':
-                # Login bem-sucedido
-                return True, nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim
+                # Verificar se é senha padrão (primeiro acesso)
+                if password == "123456":
+                    # Primeiro acesso - forçar troca de senha
+                    return True, nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim, "FIRST_ACCESS"
+                else:
+                    # Login bem-sucedido normal
+                    return True, nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim
             else:
                 # Senha correta, mas assinatura inativa
                 return False, "INACTIVE_SUBSCRIPTION", None, None, None, None
@@ -114,12 +119,69 @@ if 'ativos_otimizados' not in st.session_state:
     st.session_state.ativos_otimizados = []
 if 'gerar_analise_ia' not in st.session_state:
     st.session_state.gerar_analise_ia = False
+if 'force_password_change' not in st.session_state:
+    st.session_state.force_password_change = False
 
 # --- 5. LÓGICA DA INTERFACE ---
 if st.session_state.get("authentication_status"):
     # SE ESTIVER LOGADO, MOSTRA O DASHBOARD COMPLETO
     st.sidebar.image("prints/slogan_preto.png", width=150)
     st.sidebar.title(f'Bem-vindo(a), {st.session_state["name"]}!')
+    
+    # Verificar se é primeiro acesso e forçar troca de senha
+    if st.session_state.get("force_password_change", False):
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("""
+        <div style='
+            background: #fff3cd;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 1rem 0;
+        '>
+            <h4 style='color: #856404; margin-top: 0;'>🔐 Primeiro Acesso</h4>
+            <p style='color: #856404; margin-bottom: 0;'>
+                Por segurança, você deve alterar sua senha padrão antes de continuar.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Interface de troca de senha obrigatória
+        st.sidebar.subheader("🔑 Alterar Senha (Obrigatório)")
+        
+        new_password = st.sidebar.text_input(
+            "Nova Senha", 
+            type="password",
+            placeholder="Digite sua nova senha",
+            key="new_password_first_access"
+        )
+        confirm_password = st.sidebar.text_input(
+            "Confirmar Nova Senha", 
+            type="password",
+            placeholder="Confirme sua nova senha",
+            key="confirm_password_first_access"
+        )
+        
+        if st.sidebar.button("✅ Alterar Senha", use_container_width=True, type="primary"):
+            if new_password and confirm_password:
+                if new_password == confirm_password:
+                    if len(new_password) >= 6:
+                        success, message = update_password(st.session_state["email"], new_password)
+                        if success:
+                            st.sidebar.success("Senha alterada com sucesso!")
+                            st.session_state["force_password_change"] = False
+                            st.rerun()
+                        else:
+                            st.sidebar.error(f"Erro: {message}")
+                    else:
+                        st.sidebar.error("A senha deve ter pelo menos 6 caracteres.")
+                else:
+                    st.sidebar.error("As senhas não coincidem.")
+            else:
+                st.sidebar.error("Preencha todos os campos.")
+        
+        # Não mostrar o dashboard até trocar a senha
+        st.stop()
 
     # LÓGICA DO LOGOUT E TROCA DE SENHA
     if 'confirming_logout' not in st.session_state:
@@ -1085,16 +1147,6 @@ else:
         st.image("prints/slogan_preto.png", width=600)
         st.markdown("</div>", unsafe_allow_html=True)
         
-        # Tagline melhorada
-        st.markdown(
-            "<h2 style='text-align: center; color: #ffffff; margin-top: 1rem; margin-bottom: 0.5rem;'>PONTO ÓTIMO INVEST</h2>",
-            unsafe_allow_html=True
-        )
-        
-        st.markdown(
-            "<p style='text-align: center; color: #cccccc; font-size: 18px; margin-bottom: 2rem;'>A carteira ideal ao seu alcance</p>",
-            unsafe_allow_html=True
-        )
         
         # Card de informações com estilo moderno
         st.markdown("""
@@ -1109,43 +1161,39 @@ else:
             <h4 style='color: #ffffff; margin-top: 0; text-align: center;'>
                 Plataforma Profissional de Análise de Carteiras
             </h4>
-            
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Lista de funcionalidades
-        st.markdown("""
-        <div style='
-            background: #2f2f2f;
-            padding: 1.5rem;
-            border-radius: 15px;
-            margin: 1rem 0;
-            border: 1px solid #404040;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        '>
-            <ul style='color: #ffffff; margin: 0; padding-left: 1.5rem;'>
+                        <ul style='color: #ffffff; margin: 0; padding-left: 1.5rem;'>
                 <li style='margin-bottom: 0.5rem;'>Análise Markowitz e Monte Carlo</li>
                 <li style='margin-bottom: 0.5rem;'>Métricas em tempo real</li>
                 <li style='margin-bottom: 0.5rem;'>Otimização de portfólio</li>
                 <li style='margin-bottom: 0.5rem;'>Interface intuitiva</li>
             </ul>
+            
         </div>
         """, unsafe_allow_html=True)
         
-        # Aviso sobre Hotmart com estilo personalizado
+        
+        
+        # Aviso sobre Hotmart
+        st.info("""
+        🔐 **Acesso via Hotmart:** 
+        Use o mesmo email que você utilizou na compra e a senha padrão: **123456**
+        Após o primeiro acesso, recomendamos alterar sua senha por segurança.
+        """)
+        
+        # Aviso especial para novos usuários
         st.markdown("""
         <div style='
-            background: #2f2f2f;
-            padding: 1.5rem;
-            border-radius: 15px;
+            background: #d4edda;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
             margin: 1rem 0;
-            border: 1px solid #404040;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         '>
-            <p style='color: #ffffff; margin: 0; text-align: center;'>
-                🔐 <strong>Acesso via Hotmart:</strong><br>
-                Use o mesmo email e senha que você utiliza para acessar sua conta na Hotmart.<br>
-                Se você ainda não tem acesso, entre em contato com o suporte.
+            <h4 style='color: #155724; margin-top: 0;'>🎉 Primeiro Acesso?</h4>
+            <p style='color: #155724; margin-bottom: 0;'>
+                <strong>Email:</strong> O mesmo usado na compra<br>
+                <strong>Senha:</strong> 123456<br>
+                <em>Você poderá alterar sua senha após o login.</em>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1174,8 +1222,11 @@ else:
     col_btn1, col_btn2, col_btn3 = st.sidebar.columns([1, 2, 1])
     with col_btn2:
         if st.button("🚀 Entrar", type="primary", use_container_width=True):
-            is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim = check_login(email, password)
-            if is_logged_in:
+            login_result = check_login(email, password)
+            
+            # Verificar se é primeiro acesso
+            if len(login_result) == 7 and login_result[6] == "FIRST_ACCESS":
+                is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim, _ = login_result
                 st.session_state["authentication_status"] = True
                 st.session_state["name"] = user_name
                 st.session_state["email"] = email
@@ -1183,16 +1234,28 @@ else:
                 st.session_state["ultimos_pesos"] = ultimos_pesos
                 st.session_state["data_inicio_salva"] = data_inicio
                 st.session_state["data_fim_salva"] = data_fim
+                st.session_state["force_password_change"] = True
                 st.rerun()
-            else:
-                st.session_state["authentication_status"] = False
-                if user_name == "INACTIVE_SUBSCRIPTION":
-                    st.sidebar.error("Sua assinatura não está ativa.")
-                elif user_name == "INVALID_HASH":
-                    st.sidebar.error("⚠️ Sua senha precisa ser redefinida. Use o link abaixo.")
-                    st.session_state["show_password_reset"] = True
+            elif len(login_result) == 6:
+                is_logged_in, user_name, ultima_carteira, ultimos_pesos, data_inicio, data_fim = login_result
+                if is_logged_in:
+                    st.session_state["authentication_status"] = True
+                    st.session_state["name"] = user_name
+                    st.session_state["email"] = email
+                    st.session_state["ultima_carteira"] = ultima_carteira
+                    st.session_state["ultimos_pesos"] = ultimos_pesos
+                    st.session_state["data_inicio_salva"] = data_inicio
+                    st.session_state["data_fim_salva"] = data_fim
+                    st.rerun()
                 else:
-                    st.sidebar.error("Email ou senha incorreta.")
+                    st.session_state["authentication_status"] = False
+                    if user_name == "INACTIVE_SUBSCRIPTION":
+                        st.sidebar.error("Sua assinatura não está ativa.")
+                    elif user_name == "INVALID_HASH":
+                        st.sidebar.error("⚠️ Sua senha precisa ser redefinida. Use o link abaixo.")
+                        st.session_state["show_password_reset"] = True
+                    else:
+                        st.sidebar.error("Email ou senha incorreta.")
 
     # Seção de redefinição de senha
     if st.session_state.get("show_password_reset", False):

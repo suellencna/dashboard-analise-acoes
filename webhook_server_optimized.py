@@ -157,9 +157,10 @@ def processar_compra_aprovada_optimized(email, nome):
                 conn.commit()
                 return "User already exists, subscription reactivated"
             else:
-                # Usuário não existe - criar novo
-                temp_password = secrets.token_urlsafe(8)
-                hashed_password = ph.hash(temp_password)
+                # Usuário não existe - criar novo com senha padrão
+                # Senha padrão: "123456" (fácil de lembrar para primeiro acesso)
+                default_password = "123456"
+                hashed_password = ph.hash(default_password)
                 
                 query_insert = sqlalchemy.text(
                     "INSERT INTO usuarios (nome, email, senha_hash, status_assinatura) VALUES (:nome, :email, :senha_hash, 'ativo')")
@@ -169,7 +170,15 @@ def processar_compra_aprovada_optimized(email, nome):
                     "senha_hash": hashed_password
                 })
                 conn.commit()
-                return "User created successfully"
+                
+                # Log do usuário criado
+                logger.info(f"--- NOVO USUÁRIO CRIADO ---")
+                logger.info(f"Email: {email}")
+                logger.info(f"Nome: {nome}")
+                logger.info(f"Senha padrão: {default_password}")
+                logger.info(f"--- FIM LOG USUÁRIO ---")
+                
+                return f"User created successfully with default password"
     except Exception as e:
         logger.error(f"Erro ao processar compra: {e}")
         raise
