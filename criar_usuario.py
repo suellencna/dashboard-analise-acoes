@@ -1,16 +1,26 @@
-# criar_usuario.py (Versão 2 - com input simples)
+# criar_usuario.py (Versão 3 - com argon2)
 import os
 import sqlalchemy
-from passlib.context import CryptContext
+from argon2 import PasswordHasher
 
-# Configuração para hashear a senha
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configuração para hashear a senha com argon2
+ph = PasswordHasher()
+
+# --- CARREGAR VARIÁVEIS DE AMBIENTE ---
+# Tentar carregar do arquivo .env se existir
+if os.path.exists('.env'):
+    with open('.env', 'r') as f:
+        for line in f:
+            if line.strip() and not line.startswith('#'):
+                key, value = line.strip().split('=', 1)
+                os.environ[key] = value
 
 # --- PEGAR A URL DO BANCO DE DADOS ---
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if not DATABASE_URL:
     print("Variável de ambiente DATABASE_URL não encontrada.")
-    DATABASE_URL = input("Por favor, cole aqui a sua URL de conexão completa da Neon:\n")
+    print("Execute primeiro: python configurar_bd.py")
+    DATABASE_URL = input("Ou cole aqui a sua URL de conexão completa da Neon:\n")
 
 if not DATABASE_URL:
     print("URL do banco de dados não fornecida. Saindo.")
@@ -37,8 +47,8 @@ if senha != senha_confirm:
     print("\nAs senhas não conferem. Operação cancelada.")
     exit()
 
-# Hashear a senha
-senha_hash = pwd_context.hash(senha)
+# Hashear a senha com argon2
+senha_hash = ph.hash(senha)
 
 # --- Inserir no banco de dados ---
 try:

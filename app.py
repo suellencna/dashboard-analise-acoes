@@ -3,7 +3,7 @@ import streamlit as st
 import sqlalchemy
 import os
 from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
+from argon2.exceptions import VerifyMismatchError, InvalidHashError
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -19,6 +19,14 @@ st.set_page_config(page_title="Análise de Carteira", layout="wide")
 
 
 # --- 2. CONFIGURAÇÃO DO BANCO DE DADOS E SENHA ---
+# Carregar variáveis de ambiente do arquivo .env
+if os.path.exists('.env'):
+    with open('.env', 'r') as f:
+        for line in f:
+            if line.strip() and not line.startswith('#'):
+                key, value = line.strip().split('=', 1)
+                os.environ[key] = value
+
 DATABASE_URL = os.environ.get('DATABASE_URL')
 engine = None
 ph = None
@@ -67,9 +75,32 @@ def check_login(email, password):
         except VerifyMismatchError:
             # Senha incorreta
             pass
+        except InvalidHashError:
+            # Hash inválido - usuário precisa redefinir senha
+            return False, "INVALID_HASH", None, None, None, None
 
     # Email não encontrado ou senha incorreta
     return False, "INVALID_CREDENTIALS", None, None, None, None
+
+
+def update_password(email, new_password):
+    """Atualiza a senha de um usuário"""
+    try:
+        with engine.connect() as conn:
+            # Gerar novo hash da senha
+            new_hash = ph.hash(new_password)
+            
+            # Atualizar no banco
+            query = sqlalchemy.text("UPDATE usuarios SET senha_hash = :new_hash WHERE email = :email")
+            result = conn.execute(query, {"new_hash": new_hash, "email": email})
+            conn.commit()
+            
+            if result.rowcount > 0:
+                return True, "Senha atualizada com sucesso"
+            else:
+                return False, "Usuário não encontrado"
+    except Exception as e:
+        return False, f"Erro ao atualizar senha: {e}"
 
 
 # --- 4. INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
@@ -90,12 +121,26 @@ if st.session_state.get("authentication_status"):
     st.sidebar.image("prints/slogan_preto.png", width=150)
     st.sidebar.title(f'Bem-vindo(a), {st.session_state["name"]}!')
 
-    # LÓGICA DO LOGOUT
+    # LÓGICA DO LOGOUT E TROCA DE SENHA
     if 'confirming_logout' not in st.session_state:
         st.session_state.confirming_logout = False
-    if st.sidebar.button("Logout", key="logout_initial"):
-        st.session_state.confirming_logout = True
-        st.rerun()
+    if 'show_change_password' not in st.session_state:
+        st.session_state.show_change_password = False
+    
+    # Botões de ação do usuário
+    col_logout, col_password = st.sidebar.columns(2)
+    
+    with col_logout:
+        if st.button("🚪 Logout", key="logout_initial", use_container_width=True):
+            st.session_state.confirming_logout = True
+            st.rerun()
+    
+    with col_password:
+        if st.button("🔑 Trocar Senha", key="change_password_initial", use_container_width=True):
+            st.session_state.show_change_password = True
+            st.rerun()
+    
+    # Confirmação de logout
     if st.session_state.confirming_logout:
         st.sidebar.warning("Você tem certeza que deseja sair?")
         col1_logout, col2_logout = st.sidebar.columns(2)
@@ -106,6 +151,61 @@ if st.session_state.get("authentication_status"):
         if col2_logout.button("Não", use_container_width=True):
             st.session_state.confirming_logout = False
             st.rerun()
+    
+    # Interface de troca de senha
+    if st.session_state.show_change_password:
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("🔑 Trocar Senha")
+        
+        current_password = st.sidebar.text_input(
+            "Senha Atual", 
+            type="password",
+            placeholder="Digite sua senha atual",
+            key="current_password_change"
+        )
+        new_password = st.sidebar.text_input(
+            "Nova Senha", 
+            type="password",
+            placeholder="Digite sua nova senha",
+            key="new_password_change"
+        )
+        confirm_password = st.sidebar.text_input(
+            "Confirmar Nova Senha", 
+            type="password",
+            placeholder="Confirme sua nova senha",
+            key="confirm_password_change"
+        )
+        
+        col_save, col_cancel = st.sidebar.columns(2)
+        
+        with col_save:
+            if st.button("✅ Salvar", use_container_width=True, key="save_password_change"):
+                if current_password and new_password and confirm_password:
+                    # Verificar senha atual
+                    is_logged_in, _, _, _, _, _ = check_login(st.session_state["email"], current_password)
+                    if is_logged_in:
+                        if new_password == confirm_password:
+                            if len(new_password) >= 6:
+                                success, message = update_password(st.session_state["email"], new_password)
+                                if success:
+                                    st.sidebar.success("Senha alterada com sucesso!")
+                                    st.session_state.show_change_password = False
+                                    st.rerun()
+                                else:
+                                    st.sidebar.error(f"Erro: {message}")
+                            else:
+                                st.sidebar.error("A senha deve ter pelo menos 6 caracteres.")
+                        else:
+                            st.sidebar.error("As senhas não coincidem.")
+                    else:
+                        st.sidebar.error("Senha atual incorreta.")
+                else:
+                    st.sidebar.error("Preencha todos os campos.")
+        
+        with col_cancel:
+            if st.button("❌ Cancelar", use_container_width=True, key="cancel_password_change"):
+                st.session_state.show_change_password = False
+                st.rerun()
 
     # --- INÍCIO DO CÓDIGO DO DASHBOARD ---
 
@@ -999,11 +1099,11 @@ else:
         # Card de informações com estilo moderno
         st.markdown("""
         <div style='
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: #2f2f2f;
             padding: 1.5rem;
             border-radius: 15px;
             margin: 1rem 0;
-            border: 1px solid #3a5a8a;
+            border: 1px solid #404040;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         '>
             <h4 style='color: #ffffff; margin-top: 0; text-align: center;'>
@@ -1013,12 +1113,42 @@ else:
         </div>
         """, unsafe_allow_html=True)
         
-        # Aviso sobre Hotmart
-        st.info("""
-        🔐 **Acesso via Hotmart:** 
-        Use o mesmo email e senha que você utiliza para acessar sua conta na Hotmart. 
-        Se você ainda não tem acesso, entre em contato com o suporte.
-        """)
+        # Lista de funcionalidades
+        st.markdown("""
+        <div style='
+            background: #2f2f2f;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+            border: 1px solid #404040;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        '>
+            <ul style='color: #ffffff; margin: 0; padding-left: 1.5rem;'>
+                <li style='margin-bottom: 0.5rem;'>Análise Markowitz e Monte Carlo</li>
+                <li style='margin-bottom: 0.5rem;'>Métricas em tempo real</li>
+                <li style='margin-bottom: 0.5rem;'>Otimização de portfólio</li>
+                <li style='margin-bottom: 0.5rem;'>Interface intuitiva</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Aviso sobre Hotmart com estilo personalizado
+        st.markdown("""
+        <div style='
+            background: #2f2f2f;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+            border: 1px solid #404040;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        '>
+            <p style='color: #ffffff; margin: 0; text-align: center;'>
+                🔐 <strong>Acesso via Hotmart:</strong><br>
+                Use o mesmo email e senha que você utiliza para acessar sua conta na Hotmart.<br>
+                Se você ainda não tem acesso, entre em contato com o suporte.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Sidebar com login melhorado
     st.sidebar.markdown("""
@@ -1058,5 +1188,57 @@ else:
                 st.session_state["authentication_status"] = False
                 if user_name == "INACTIVE_SUBSCRIPTION":
                     st.sidebar.error("Sua assinatura não está ativa.")
+                elif user_name == "INVALID_HASH":
+                    st.sidebar.error("⚠️ Sua senha precisa ser redefinida. Use o link abaixo.")
+                    st.session_state["show_password_reset"] = True
                 else:
                     st.sidebar.error("Email ou senha incorreta.")
+
+    # Seção de redefinição de senha
+    if st.session_state.get("show_password_reset", False):
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("🔑 Redefinir Senha")
+        
+        if email:  # Se o usuário já digitou o email
+            st.sidebar.info(f"Redefinindo senha para: {email}")
+            
+            new_password = st.sidebar.text_input(
+                "Nova Senha", 
+                type="password",
+                placeholder="Digite sua nova senha",
+                key="new_password"
+            )
+            confirm_password = st.sidebar.text_input(
+                "Confirmar Nova Senha", 
+                type="password",
+                placeholder="Confirme sua nova senha",
+                key="confirm_password"
+            )
+            
+            col_reset1, col_reset2 = st.sidebar.columns(2)
+            
+            with col_reset1:
+                if st.button("✅ Salvar", use_container_width=True):
+                    if new_password and confirm_password:
+                        if new_password == confirm_password:
+                            if len(new_password) >= 6:
+                                success, message = update_password(email, new_password)
+                                if success:
+                                    st.sidebar.success("Senha redefinida com sucesso! Faça login novamente.")
+                                    st.session_state["show_password_reset"] = False
+                                    st.rerun()
+                                else:
+                                    st.sidebar.error(f"Erro: {message}")
+                            else:
+                                st.sidebar.error("A senha deve ter pelo menos 6 caracteres.")
+                        else:
+                            st.sidebar.error("As senhas não coincidem.")
+                    else:
+                        st.sidebar.error("Preencha todos os campos.")
+            
+            with col_reset2:
+                if st.button("❌ Cancelar", use_container_width=True):
+                    st.session_state["show_password_reset"] = False
+                    st.rerun()
+        else:
+            st.sidebar.warning("Digite seu email primeiro para redefinir a senha.")
