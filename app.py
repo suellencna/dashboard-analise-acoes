@@ -47,11 +47,16 @@ except Exception as e:
 def verificar_usuario_existe(email):
     """Verifica se um usuário existe no banco de dados"""
     try:
+        if not engine:
+            raise Exception("Engine não configurado")
+        
         with engine.connect() as conn:
             query = sqlalchemy.text("SELECT nome FROM usuarios WHERE email = :email")
             result = conn.execute(query, {"email": email}).first()
             return result is not None, result[0] if result else None
     except Exception as e:
+        # Log do erro para debug (remover em produção se necessário)
+        print(f"Erro em verificar_usuario_existe: {e}")
         return False, None
 
 def check_login(email, password):
@@ -253,7 +258,7 @@ if st.session_state.get("authentication_status"):
 
     st.sidebar.markdown("**Digite ou selecione os tickers dos ativos:**")
     ativos_selecionados = st.sidebar.multiselect( 
-        label="",
+        label="Selecione os ativos",
         options=disponiveis, 
         default=default_selection,
         help="💡 **Dica:** Você pode digitar o nome do ticker para filtrar rapidamente (ex: 'PETR' para encontrar PETR4.SA)",
@@ -544,72 +549,76 @@ if st.session_state.get("authentication_status"):
         if 'resultados_gerados' not in st.session_state:
             st.session_state.resultados_gerados = None
 
+        # Função Risk Parity Híbrido (definida fora do botão para melhor performance)
+        def risk_parity_hibrido(pesos_markowitz, matriz_covariancia, threshold=None, max_iter=15):
+            """
+            Implementa Risk Parity Híbrido para balancear carteiras concentradas
+            
+            Args:
+                pesos_markowitz: Pesos do Markowitz tradicional
+                matriz_covariancia: Matriz de covariância dos ativos
+                threshold: Limite máximo de contribuição de risco (calculado automaticamente se None)
+                max_iter: Número máximo de iterações
+            
+            Returns:
+                pesos_hibridos: Pesos balanceados com Risk Parity
+            """
+            # Calcular threshold dinâmico baseado no número de ativos
+            if threshold is None:
+                n_ativos = len(pesos_markowitz)
+                if n_ativos == 2:
+                    # Para 2 ativos: máximo 50% cada (risk parity ideal)
+                    threshold = 0.5
+                elif n_ativos == 3:
+                    # Para 3 ativos: máximo 35% cada (mais restritivo)
+                    threshold = 0.35
+                elif n_ativos == 4:
+                    # Para 4 ativos: máximo 30% cada
+                    threshold = 0.30
+                else:
+                    # Para 5+ ativos: máximo 25% cada (mais conservador)
+                    threshold = 0.25
+            
+            pesos = pesos_markowitz.copy()
+            
+            for iteracao in range(max_iter):
+                # Calcular contribuição de risco de cada ativo
+                risco_portfolio = np.sqrt(np.dot(pesos.T, np.dot(matriz_covariancia, pesos)))
+                contribuicao_risco = (pesos * np.dot(matriz_covariancia, pesos)) / risco_portfolio
+                
+                # Verificar se há concentração excessiva
+                max_contribuicao = np.max(contribuicao_risco)
+                
+                if max_contribuicao <= threshold:
+                    break  # Carteira já está balanceada
+                
+                # Identificar ativo com maior contribuição
+                ativo_problematico = np.argmax(contribuicao_risco)
+                
+                # Reduzir peso do ativo problemático mais agressivamente
+                reducao = (contribuicao_risco[ativo_problematico] - threshold) * 0.8
+                peso_original = pesos[ativo_problematico]
+                pesos[ativo_problematico] = peso_original * (1 - reducao)
+                
+                # Redistribuir o peso reduzido igualmente entre outros ativos
+                outros_ativos = [i for i in range(len(pesos)) if i != ativo_problematico]
+                if outros_ativos:
+                    peso_redistribuido = peso_original * reducao
+                    incremento_por_ativo = peso_redistribuido / len(outros_ativos)
+                    for i in outros_ativos:
+                        pesos[i] += incremento_por_ativo
+                
+                # Normalizar para garantir que soma = 1
+                pesos = pesos / np.sum(pesos)
+                
+                # Garantir que todos os pesos sejam positivos (mínimo 2%)
+                pesos = np.maximum(pesos, 0.02)
+                pesos = pesos / np.sum(pesos)
+            
+            return pesos
+
         if st.button('Clique aqui para Otimização e Projeções', type='primary', use_container_width=True):
             with st.spinner('Realizando todos os cálculos... Isso pode levar um momento.'):
-                
-                def risk_parity_hibrido(pesos_markowitz, matriz_covariancia, threshold=None, max_iter=10):
-                    """
-                    Implementa Risk Parity Híbrido para balancear carteiras concentradas
-                    
-                    Args:
-                        pesos_markowitz: Pesos do Markowitz tradicional
-                        matriz_covariancia: Matriz de covariância dos ativos
-                        threshold: Limite máximo de contribuição de risco (calculado automaticamente se None)
-                        max_iter: Número máximo de iterações
-                    
-                    Returns:
-                        pesos_hibridos: Pesos balanceados com Risk Parity
-                    """
-                    # Calcular threshold dinâmico baseado no número de ativos
-                    if threshold is None:
-                        n_ativos = len(pesos_markowitz)
-                        if n_ativos == 2:
-                            # Para 2 ativos: máximo 50% cada (risk parity ideal)
-                            threshold = 0.5
-                        elif n_ativos == 3:
-                            # Para 3 ativos: máximo 40% cada (permite diversificação)
-                            threshold = 0.4
-                        elif n_ativos == 4:
-                            # Para 4 ativos: máximo 35% cada
-                            threshold = 0.35
-                        else:
-                            # Para 5+ ativos: máximo 30% cada (mais conservador)
-                            threshold = 0.3
-                    pesos = pesos_markowitz.copy()
-                    
-                    for iteracao in range(max_iter):
-                        # Calcular contribuição de risco de cada ativo
-                        risco_portfolio = np.sqrt(np.dot(pesos.T, np.dot(matriz_covariancia, pesos)))
-                        contribuicao_risco = (pesos * np.dot(matriz_covariancia, pesos)) / risco_portfolio
-                        
-                        # Verificar se há concentração excessiva
-                        max_contribuicao = np.max(contribuicao_risco)
-                        
-                        if max_contribuicao <= threshold:
-                            break  # Carteira já está balanceada
-                        
-                        # Identificar ativo com maior contribuição
-                        ativo_problematico = np.argmax(contribuicao_risco)
-                        
-                        # Reduzir peso do ativo problemático e redistribuir
-                        reducao = (contribuicao_risco[ativo_problematico] - threshold) * 0.5
-                        pesos[ativo_problematico] -= reducao * pesos[ativo_problematico]
-                        
-                        # Redistribuir o peso reduzido proporcionalmente entre outros ativos
-                        outros_ativos = [i for i in range(len(pesos)) if i != ativo_problematico]
-                        if outros_ativos:
-                            pesos_outros = pesos[outros_ativos]
-                            pesos_outros = pesos_outros / np.sum(pesos_outros)
-                            pesos[outros_ativos] = pesos_outros * (1 - np.sum(pesos))
-                        
-                        # Normalizar para garantir que soma = 1
-                        pesos = pesos / np.sum(pesos)
-                        
-                        # Garantir que todos os pesos sejam positivos
-                        pesos = np.maximum(pesos, 0.01)  # Mínimo de 1%
-                        pesos = pesos / np.sum(pesos)
-                    
-                    return pesos
                 
                 # 1. CÁLCULO DE MARKOWITZ + RISK PARITY HÍBRIDO
                 retornos_diarios = df_portfolio[ativos_selecionados].pct_change().dropna()
@@ -1083,12 +1092,12 @@ if st.session_state.get("authentication_status"):
 
             cores_ativos = ['#FF4B4B', '#3E6D8E', '#6B4E9A']
             for i, ticker in enumerate(st.session_state.ativos_otimizados):
-                ax.scatter(res['volatilidades_individuais'][i], res['retornos_individuais'][i], marker='D',
+                ax.scatter(res['volatilidades_individuais'].iloc[i], res['retornos_individuais'].iloc[i], marker='D',
                            color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
 
-            ax.scatter(res['risco'][indice_min_risco], res['retorno'][indice_min_risco], marker='X',
+            ax.scatter(res['risco'].iloc[indice_min_risco], res['retorno'].iloc[indice_min_risco], marker='X',
                        color='red', s=200, label='Carteira Risco Mínimo', zorder=5)
-            ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
+            ax.scatter(res['risco'].iloc[indice_max_sharpe], res['retorno'].iloc[indice_max_sharpe], marker='*',
                        color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
 
             ax.set_title('Otimização de Portfólio', fontsize=12)
@@ -1300,12 +1309,16 @@ else:
         
         if st.sidebar.button("🔍 Verificar Email", use_container_width=True):
             if email_verificacao:
-                existe, nome = verificar_usuario_existe(email_verificacao)
-                if existe:
-                    st.sidebar.success(f"✅ Email encontrado! Olá, {nome}")
-                    st.session_state["email_verificado"] = email_verificacao
-                else:
-                    st.sidebar.error("❌ Email não encontrado. Verifique se digitou corretamente.")
+                try:
+                    existe, nome = verificar_usuario_existe(email_verificacao)
+                    if existe:
+                        st.sidebar.success(f"✅ Email encontrado! Olá, {nome}")
+                        st.session_state["email_verificado"] = email_verificacao
+                    else:
+                        st.sidebar.error("❌ Email não encontrado. Verifique se digitou corretamente.")
+                        st.session_state["email_verificado"] = None
+                except Exception as e:
+                    st.sidebar.error(f"❌ Erro ao verificar email: {str(e)}")
                     st.session_state["email_verificado"] = None
         
         # Mostrar informações se email foi verificado
@@ -1396,6 +1409,9 @@ else:
         st.session_state.confirming_logout = False
     if 'show_change_password' not in st.session_state:
         st.session_state.show_change_password = False
+    
+    # Debug: Verificar se estamos no contexto correto
+    st.sidebar.markdown("**🔧 Debug:** Botões de logout e trocar senha")
     
     # Botões um acima do outro para melhor alinhamento
     if st.button("🚪 Logout", key="logout_initial", use_container_width=True):
