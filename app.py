@@ -44,6 +44,16 @@ except Exception as e:
 
 # --- 3. FUNÇÃO DE LOGIN ---
 
+def verificar_usuario_existe(email):
+    """Verifica se um usuário existe no banco de dados"""
+    try:
+        with engine.connect() as conn:
+            query = sqlalchemy.text("SELECT nome FROM usuarios WHERE email = :email")
+            result = conn.execute(query, {"email": email}).first()
+            return result is not None, result[0] if result else None
+    except Exception as e:
+        return False, None
+
 def check_login(email, password):
     user_data = None
     try:
@@ -199,81 +209,6 @@ if st.session_state.get("authentication_status"):
     </style>
     """, unsafe_allow_html=True)
     
-    # Botões um acima do outro para melhor alinhamento
-    if st.button("🚪 Logout", key="logout_initial", use_container_width=True):
-        st.session_state.confirming_logout = True
-        st.rerun()
-    
-    if st.button("🔑 Trocar Senha", key="change_password_initial", use_container_width=True):
-        st.session_state.show_change_password = True
-        st.rerun()
-    
-    # Confirmação de logout
-    if st.session_state.confirming_logout:
-        st.sidebar.warning("Você tem certeza que deseja sair?")
-        col1_logout, col2_logout = st.sidebar.columns(2)
-        if col1_logout.button("Sim", use_container_width=True, type="primary"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
-        if col2_logout.button("Não", use_container_width=True):
-            st.session_state.confirming_logout = False
-            st.rerun()
-    
-    # Interface de troca de senha
-    if st.session_state.show_change_password:
-        st.sidebar.markdown("---")
-        st.sidebar.subheader("🔑 Trocar Senha")
-        
-        current_password = st.sidebar.text_input(
-            "Senha Atual", 
-            type="password",
-            placeholder="Digite sua senha atual",
-            key="current_password_change"
-        )
-        new_password = st.sidebar.text_input(
-            "Nova Senha", 
-            type="password",
-            placeholder="Digite sua nova senha",
-            key="new_password_change"
-        )
-        confirm_password = st.sidebar.text_input(
-            "Confirmar Nova Senha", 
-            type="password",
-            placeholder="Confirme sua nova senha",
-            key="confirm_password_change"
-        )
-        
-        col_save, col_cancel = st.sidebar.columns(2)
-        
-        with col_save:
-            if st.button("✅ Salvar", use_container_width=True, key="save_password_change"):
-                if current_password and new_password and confirm_password:
-                    # Verificar senha atual
-                    is_logged_in, _, _, _, _, _ = check_login(st.session_state["email"], current_password)
-                    if is_logged_in:
-                        if new_password == confirm_password:
-                            if len(new_password) >= 6:
-                                success, message = update_password(st.session_state["email"], new_password)
-                                if success:
-                                    st.sidebar.success("Senha alterada com sucesso!")
-                                    st.session_state.show_change_password = False
-                                    st.rerun()
-                                else:
-                                    st.sidebar.error(f"Erro: {message}")
-                            else:
-                                st.sidebar.error("A senha deve ter pelo menos 6 caracteres.")
-                        else:
-                            st.sidebar.error("As senhas não coincidem.")
-                    else:
-                        st.sidebar.error("Senha atual incorreta.")
-                else:
-                    st.sidebar.error("Preencha todos os campos.")
-        
-        with col_cancel:
-            if st.button("❌ Cancelar", use_container_width=True, key="cancel_password_change"):
-                st.session_state.show_change_password = False
-                st.rerun()
 
     # --- INÍCIO DO CÓDIGO DO DASHBOARD ---
 
@@ -440,10 +375,10 @@ if st.session_state.get("authentication_status"):
             except Exception as e:
                 st.sidebar.error(f"Erro ao salvar: {e}")
 
-        # Verificar se a soma dos pesos é exatamente 100%
+        # Verificar se a soma dos pesos está dentro da tolerância aceitável
         soma_pesos = sum(pesos)
-        if abs(soma_pesos - 100.0) > 0.01:  # Tolerância de 0.01% para arredondamentos
-            st.error(f"⚠️ **Erro nos pesos da carteira!** A soma total dos pesos deve ser exatamente 100%, mas está em {soma_pesos:.2f}%. Por favor, ajuste os pesos para que a soma seja 100% antes de continuar.")
+        if abs(soma_pesos - 100.0) > 0.5:  # Tolerância de 0.5% para arredondamentos
+            st.error(f"⚠️ **Erro nos pesos da carteira!** A soma total dos pesos deve estar próxima de 100% (tolerância de 0.5%), mas está em {soma_pesos:.2f}%. Por favor, ajuste os pesos para que a soma esteja entre 99.5% e 100.5% antes de continuar.")
             st.stop()
         
         if soma_pesos <= 0:
@@ -612,19 +547,34 @@ if st.session_state.get("authentication_status"):
         if st.button('Clique aqui para Otimização e Projeções', type='primary', use_container_width=True):
             with st.spinner('Realizando todos os cálculos... Isso pode levar um momento.'):
                 
-                def risk_parity_hibrido(pesos_markowitz, matriz_covariancia, threshold=0.25, max_iter=10):
+                def risk_parity_hibrido(pesos_markowitz, matriz_covariancia, threshold=None, max_iter=10):
                     """
                     Implementa Risk Parity Híbrido para balancear carteiras concentradas
                     
                     Args:
                         pesos_markowitz: Pesos do Markowitz tradicional
                         matriz_covariancia: Matriz de covariância dos ativos
-                        threshold: Limite máximo de contribuição de risco (25% por padrão)
+                        threshold: Limite máximo de contribuição de risco (calculado automaticamente se None)
                         max_iter: Número máximo de iterações
                     
                     Returns:
                         pesos_hibridos: Pesos balanceados com Risk Parity
                     """
+                    # Calcular threshold dinâmico baseado no número de ativos
+                    if threshold is None:
+                        n_ativos = len(pesos_markowitz)
+                        if n_ativos == 2:
+                            # Para 2 ativos: máximo 50% cada (risk parity ideal)
+                            threshold = 0.5
+                        elif n_ativos == 3:
+                            # Para 3 ativos: máximo 40% cada (permite diversificação)
+                            threshold = 0.4
+                        elif n_ativos == 4:
+                            # Para 4 ativos: máximo 35% cada
+                            threshold = 0.35
+                        else:
+                            # Para 5+ ativos: máximo 30% cada (mais conservador)
+                            threshold = 0.3
                     pesos = pesos_markowitz.copy()
                     
                     for iteracao in range(max_iter):
@@ -1217,8 +1167,13 @@ else:
     with col2:
         # Logo centralizado e maior
         st.markdown("<div style='text-align: center; margin-top: 2rem;'>", unsafe_allow_html=True)
-        st.image("prints/slogan_preto.png", width=600)
+        st.image("prints/slogan_preto.png", width=800)
         st.markdown("</div>", unsafe_allow_html=True)
+        
+        print()
+        print()
+        print()
+        print()
         
         
         # Card de informações com estilo moderno
@@ -1231,7 +1186,7 @@ else:
             border: 1px solid #404040;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         '>
-            <h4 style='color: #ffffff; margin-top: 0; text-align: center;'>
+            <h4 style='color: #ffffff; margin-top: 0; text-align: center; font-size: 1.5rem;'>
                 Plataforma Profissional de Análise de Carteiras
             </h4>
                         <ul style='color: #ffffff; margin: 0; padding-left: 1.5rem;'>
@@ -1325,6 +1280,65 @@ else:
                     else:
                         st.sidebar.error("Email ou senha incorreta.")
 
+    # Botão "Esqueci minha senha"
+    st.sidebar.markdown("---")
+    if st.sidebar.button("🔑 Esqueci minha senha", use_container_width=True):
+        st.session_state["show_forgot_password"] = True
+        st.rerun()
+
+    # Seção de "Esqueci minha senha"
+    if st.session_state.get("show_forgot_password", False):
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("🔑 Esqueci minha senha")
+        
+        # Campo para verificar email
+        email_verificacao = st.sidebar.text_input(
+            "📧 Digite seu email para verificar",
+            placeholder="seu@email.com",
+            key="email_verificacao"
+        )
+        
+        if st.sidebar.button("🔍 Verificar Email", use_container_width=True):
+            if email_verificacao:
+                existe, nome = verificar_usuario_existe(email_verificacao)
+                if existe:
+                    st.sidebar.success(f"✅ Email encontrado! Olá, {nome}")
+                    st.session_state["email_verificado"] = email_verificacao
+                else:
+                    st.sidebar.error("❌ Email não encontrado. Verifique se digitou corretamente.")
+                    st.session_state["email_verificado"] = None
+        
+        # Mostrar informações se email foi verificado
+        if st.session_state.get("email_verificado"):
+            st.sidebar.markdown("""
+            <div style='background: #d4edda; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745; margin-bottom: 15px;'>
+                <h4 style='color: #155724; margin-top: 0;'>✅ Email Verificado</h4>
+                <p style='color: #155724; margin-bottom: 0; font-size: 14px;'>
+                    <strong>Senha padrão:</strong> <code style='background: #f8f9fa; padding: 2px 6px; border-radius: 4px;'>123456</code>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.sidebar.markdown("**Passos para fazer login:**")
+            st.sidebar.markdown("1. Use o email verificado acima")
+            st.sidebar.markdown("2. Use a senha: `123456`")
+            st.sidebar.markdown("3. Após o login, você poderá alterar sua senha")
+        else:
+            st.sidebar.markdown("""
+            <div style='background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 15px;'>
+                <h4 style='color: #856404; margin-top: 0;'>📧 Informações Gerais</h4>
+                <p style='color: #856404; margin-bottom: 0; font-size: 14px;'>
+                    <strong>Email:</strong> O mesmo usado na compra<br>
+                    <strong>Senha padrão:</strong> <code style='background: #f8f9fa; padding: 2px 6px; border-radius: 4px;'>123456</code>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        if st.sidebar.button("❌ Fechar", use_container_width=True):
+            st.session_state["show_forgot_password"] = False
+            st.session_state["email_verificado"] = None
+            st.rerun()
+
     # Seção de redefinição de senha
     if st.session_state.get("show_password_reset", False):
         st.sidebar.markdown("---")
@@ -1373,3 +1387,88 @@ else:
                     st.rerun()
         else:
             st.sidebar.warning("Digite seu email primeiro para redefinir a senha.")
+
+    # --- BOTÕES DE LOGOUT E TROCAR SENHA NO FINAL DA SIDEBAR ---
+    st.sidebar.markdown("---")
+    
+    # Inicializar estados da sessão
+    if 'confirming_logout' not in st.session_state:
+        st.session_state.confirming_logout = False
+    if 'show_change_password' not in st.session_state:
+        st.session_state.show_change_password = False
+    
+    # Botões um acima do outro para melhor alinhamento
+    if st.button("🚪 Logout", key="logout_initial", use_container_width=True):
+        st.session_state.confirming_logout = True
+        st.rerun()
+    
+    if st.button("🔑 Trocar Senha", key="change_password_initial", use_container_width=True):
+        st.session_state.show_change_password = True
+        st.rerun()
+    
+    # Confirmação de logout
+    if st.session_state.confirming_logout:
+        st.sidebar.warning("Você tem certeza que deseja sair?")
+        col1_logout, col2_logout = st.sidebar.columns(2)
+        if col1_logout.button("Sim", use_container_width=True, type="primary"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+        if col2_logout.button("Não", use_container_width=True):
+            st.session_state.confirming_logout = False
+            st.rerun()
+    
+    # Interface de troca de senha
+    if st.session_state.show_change_password:
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("🔑 Trocar Senha")
+        
+        current_password = st.sidebar.text_input(
+            "Senha Atual", 
+            type="password",
+            placeholder="Digite sua senha atual",
+            key="current_password_change"
+        )
+        new_password = st.sidebar.text_input(
+            "Nova Senha", 
+            type="password",
+            placeholder="Digite sua nova senha",
+            key="new_password_change"
+        )
+        confirm_password = st.sidebar.text_input(
+            "Confirmar Nova Senha", 
+            type="password",
+            placeholder="Confirme sua nova senha",
+            key="confirm_password_change"
+        )
+        
+        col_save, col_cancel = st.sidebar.columns(2)
+        
+        with col_save:
+            if st.button("✅ Salvar", use_container_width=True, key="save_password_change"):
+                if current_password and new_password and confirm_password:
+                    # Verificar senha atual
+                    is_logged_in, _, _, _, _, _ = check_login(st.session_state["email"], current_password)
+                    if is_logged_in:
+                        if new_password == confirm_password:
+                            if len(new_password) >= 6:
+                                success, message = update_password(st.session_state["email"], new_password)
+                                if success:
+                                    st.sidebar.success("Senha alterada com sucesso!")
+                                    st.session_state.show_change_password = False
+                                    st.rerun()
+                                else:
+                                    st.sidebar.error(f"Erro: {message}")
+                            else:
+                                st.sidebar.error("A senha deve ter pelo menos 6 caracteres.")
+                        else:
+                            st.sidebar.error("As senhas não coincidem.")
+                    else:
+                        st.sidebar.error("Senha atual incorreta.")
+                else:
+                    st.sidebar.error("Preencha todos os campos.")
+        
+        with col_cancel:
+            if st.button("❌ Cancelar", use_container_width=True, key="cancel_password_change"):
+                st.session_state.show_change_password = False
+                st.rerun()
