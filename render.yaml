@@ -3,7 +3,7 @@ services:
     name: analise-acoes-api-webhook
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn webhook_server_optimized:app --bind 0.0.0.0:$PORT --timeout 30 --workers 2
+      startCommand: gunicorn webhook_hotmart_simples:app --bind 0.0.0.0:$PORT --timeout 30 --workers 2
     envVars:
       - key: DATABASE_URL
         sync: false

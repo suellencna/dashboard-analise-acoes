@@ -189,18 +189,24 @@ if st.session_state.get("authentication_status"):
     if 'show_change_password' not in st.session_state:
         st.session_state.show_change_password = False
     
-    # Botões de ação do usuário
-    col_logout, col_password = st.sidebar.columns(2)
+    # Botões de ação do usuário - alinhados verticalmente
+    st.markdown("""
+    <style>
+    .stButton > button[kind="secondary"] {
+        height: 45px !important;
+        min-height: 45px !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
-    with col_logout:
-        if st.button("🚪 Logout", key="logout_initial", use_container_width=True):
-            st.session_state.confirming_logout = True
-            st.rerun()
+    # Botões um acima do outro para melhor alinhamento
+    if st.button("🚪 Logout", key="logout_initial", use_container_width=True):
+        st.session_state.confirming_logout = True
+        st.rerun()
     
-    with col_password:
-        if st.button("🔑 Trocar Senha", key="change_password_initial", use_container_width=True):
-            st.session_state.show_change_password = True
-            st.rerun()
+    if st.button("🔑 Trocar Senha", key="change_password_initial", use_container_width=True):
+        st.session_state.show_change_password = True
+        st.rerun()
     
     # Confirmação de logout
     if st.session_state.confirming_logout:
@@ -605,7 +611,57 @@ if st.session_state.get("authentication_status"):
 
         if st.button('Clique aqui para Otimização e Projeções', type='primary', use_container_width=True):
             with st.spinner('Realizando todos os cálculos... Isso pode levar um momento.'):
-                # 1. CÁLCULO DE MARKOWITZ
+                
+                def risk_parity_hibrido(pesos_markowitz, matriz_covariancia, threshold=0.25, max_iter=10):
+                    """
+                    Implementa Risk Parity Híbrido para balancear carteiras concentradas
+                    
+                    Args:
+                        pesos_markowitz: Pesos do Markowitz tradicional
+                        matriz_covariancia: Matriz de covariância dos ativos
+                        threshold: Limite máximo de contribuição de risco (25% por padrão)
+                        max_iter: Número máximo de iterações
+                    
+                    Returns:
+                        pesos_hibridos: Pesos balanceados com Risk Parity
+                    """
+                    pesos = pesos_markowitz.copy()
+                    
+                    for iteracao in range(max_iter):
+                        # Calcular contribuição de risco de cada ativo
+                        risco_portfolio = np.sqrt(np.dot(pesos.T, np.dot(matriz_covariancia, pesos)))
+                        contribuicao_risco = (pesos * np.dot(matriz_covariancia, pesos)) / risco_portfolio
+                        
+                        # Verificar se há concentração excessiva
+                        max_contribuicao = np.max(contribuicao_risco)
+                        
+                        if max_contribuicao <= threshold:
+                            break  # Carteira já está balanceada
+                        
+                        # Identificar ativo com maior contribuição
+                        ativo_problematico = np.argmax(contribuicao_risco)
+                        
+                        # Reduzir peso do ativo problemático e redistribuir
+                        reducao = (contribuicao_risco[ativo_problematico] - threshold) * 0.5
+                        pesos[ativo_problematico] -= reducao * pesos[ativo_problematico]
+                        
+                        # Redistribuir o peso reduzido proporcionalmente entre outros ativos
+                        outros_ativos = [i for i in range(len(pesos)) if i != ativo_problematico]
+                        if outros_ativos:
+                            pesos_outros = pesos[outros_ativos]
+                            pesos_outros = pesos_outros / np.sum(pesos_outros)
+                            pesos[outros_ativos] = pesos_outros * (1 - np.sum(pesos))
+                        
+                        # Normalizar para garantir que soma = 1
+                        pesos = pesos / np.sum(pesos)
+                        
+                        # Garantir que todos os pesos sejam positivos
+                        pesos = np.maximum(pesos, 0.01)  # Mínimo de 1%
+                        pesos = pesos / np.sum(pesos)
+                    
+                    return pesos
+                
+                # 1. CÁLCULO DE MARKOWITZ + RISK PARITY HÍBRIDO
                 retornos_diarios = df_portfolio[ativos_selecionados].pct_change().dropna()
                 matriz_covariancia = retornos_diarios.cov() * PREGOES_NO_ANO
 
@@ -637,7 +693,21 @@ if st.session_state.get("authentication_status"):
                     'volatilidades_individuais': retornos_diarios.std() * np.sqrt(PREGOES_NO_ANO)
                 }
                 indice_max_sharpe = np.argmax(resultados_sharpe)
-                pesos_otimos = matriz_pesos[indice_max_sharpe]
+                pesos_markowitz_puro = matriz_pesos[indice_max_sharpe]
+                
+                # APLICAR RISK PARITY HÍBRIDO
+                pesos_otimos = risk_parity_hibrido(pesos_markowitz_puro, matriz_covariancia)
+                
+                # Recalcular métricas com pesos híbridos
+                retorno_hibrido = np.sum(retornos_diarios.mean() * pesos_otimos) * PREGOES_NO_ANO
+                risco_hibrido = np.sqrt(np.dot(pesos_otimos.T, np.dot(matriz_covariancia, pesos_otimos)))
+                sharpe_hibrido = (retorno_hibrido - TAXA_LIVRE_DE_RISCO) / risco_hibrido
+                
+                # Salvar pesos híbridos na matriz de resultados
+                matriz_pesos[indice_max_sharpe] = pesos_otimos
+                resultados_retorno[indice_max_sharpe] = retorno_hibrido
+                resultados_risco[indice_max_sharpe] = risco_hibrido
+                resultados_sharpe[indice_max_sharpe] = sharpe_hibrido
 
                 # 2. BUSCA DE PREÇOS E GUIA DE INVESTIMENTO (CÓDIGO MOVIDO)
                 res = st.session_state.resultados_otimizacao
@@ -747,7 +817,7 @@ if st.session_state.get("authentication_status"):
             col_pizza_otima, col_metricas = st.columns([1, 1])
             
             with col_pizza_otima:
-                st.subheader('Composição da Carteira Ótima por Markowitz')
+                st.subheader('Composição da Carteira Ótima por Markowitz (Versão Híbrida de risco)')
                 # Criar DataFrame com os pesos ótimos
                 df_pesos_otimos = pd.DataFrame(pesos_otimos, index=ativos_otimizados, columns=['Peso'])
                 
@@ -1054,7 +1124,7 @@ if st.session_state.get("authentication_status"):
             
 
             # EXIBIÇÃO DE MARKOWITZ
-            st.subheader('Fronteira Eficiente de Markowitz')
+            st.subheader('Fronteira Eficiente Markowitz (Versão Híbrida de risco)')
             
             # Gráfico ocupando toda a largura
             fig, ax = plt.subplots(figsize=(12, 6))
@@ -1078,9 +1148,12 @@ if st.session_state.get("authentication_status"):
             st.pyplot(fig)
             
             # Texto recolhível abaixo do gráfico
-            with st.expander("📖 **Clique para entender o Gráfico de Markowitz**", expanded=False):
+            with st.expander("📖 **Clique para entender o Gráfico de Markowitz (Versão Híbrida de risco)**", expanded=False):
                 st.markdown("**O que é?**")
                 st.markdown("Uma teoria vencedora do Prêmio Nobel que provou matematicamente o velho ditado: 'não coloque todos os ovos na mesma cesta'. A ideia é que, ao combinar ativos diferentes, você pode reduzir o risco geral da sua carteira sem sacrificar muito do seu retorno.")
+                
+                st.markdown("**🔄 Versão Híbrida de risco:**")
+                st.markdown("Nossa implementação combina o Markowitz tradicional com técnicas de Risk Parity, garantindo carteiras mais diversificadas e praticáveis, evitando concentração excessiva em poucos ativos.")
                 
                 st.markdown("**O que o gráfico significa?**")
                 st.markdown("• **Eixo Vertical (Retorno):** Quanto mais alto, melhor.")
@@ -1121,7 +1194,7 @@ if st.session_state.get("authentication_status"):
             # Disclaimer para a Simulação de Monte Carlo
             st.warning("⚠️ **Disclaimer Importante sobre a Simulação:**")
             st.markdown("""
-            As **simulação de Monte Carlo e Markowitz**, são modelos matemáticos que utilizam dados históricos para projetar cenários futuros possíveis.
+            As **simulações de Monte Carlo e Markowitz (Versão Híbrida de risco)**, são modelos matemáticos que utilizam dados históricos para projetar cenários futuros possíveis.
             """)
             st.markdown("""
             **Por favor, esteja ciente de que:**
@@ -1162,7 +1235,7 @@ else:
                 Plataforma Profissional de Análise de Carteiras
             </h4>
                         <ul style='color: #ffffff; margin: 0; padding-left: 1.5rem;'>
-                <li style='margin-bottom: 0.5rem;'>Análise Markowitz e Monte Carlo</li>
+                <li style='margin-bottom: 0.5rem;'>Análise Markowitz Híbrida e Monte Carlo</li>
                 <li style='margin-bottom: 0.5rem;'>Métricas em tempo real</li>
                 <li style='margin-bottom: 0.5rem;'>Otimização de portfólio</li>
                 <li style='margin-bottom: 0.5rem;'>Interface intuitiva</li>
@@ -1173,12 +1246,7 @@ else:
         
         
         
-        # Aviso sobre Hotmart
-        st.info("""
-        🔐 **Acesso via Hotmart:** 
-        Use o mesmo email que você utilizou na compra e a senha padrão: **123456**
-        Após o primeiro acesso, recomendamos alterar sua senha por segurança.
-        """)
+        
         
         # Aviso especial para novos usuários
         st.markdown("""
