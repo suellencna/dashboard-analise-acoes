@@ -545,12 +545,30 @@ if st.session_state.get("authentication_status"):
         num_simulacoes_mc = st.sidebar.select_slider("Simulações de Monte Carlo", options=[100, 250, 500],
                                                      value=250, key='sim_mc')
 
+        # --- BOTÕES DE LOGOUT E TROCAR SENHA APÓS CONTROLES ---
+        st.sidebar.markdown("---")
+        
+        # Inicializar estados da sessão
+        if 'confirming_logout' not in st.session_state:
+            st.session_state.confirming_logout = False
+        if 'show_change_password' not in st.session_state:
+            st.session_state.show_change_password = False
+        
+        # Botões um acima do outro para melhor alinhamento
+        if st.sidebar.button("🚪 Logout", key="logout_initial", use_container_width=True):
+            st.session_state.confirming_logout = True
+            st.rerun()
+        
+        if st.sidebar.button("🔑 Trocar Senha", key="change_password_initial", use_container_width=True):
+            st.session_state.show_change_password = True
+            st.rerun()
+
         # Inicializa o estado da sessão para guardar todos os resultados
         if 'resultados_gerados' not in st.session_state:
             st.session_state.resultados_gerados = None
 
         # Função Risk Parity Híbrido (definida fora do botão para melhor performance)
-        def risk_parity_hibrido(pesos_markowitz, matriz_covariancia, threshold=None, max_iter=15):
+        def risk_parity_hibrido(pesos_markowitz, matriz_covariancia, threshold=None, max_iter=20):
             """
             Implementa Risk Parity Híbrido para balancear carteiras concentradas
             
@@ -570,14 +588,14 @@ if st.session_state.get("authentication_status"):
                     # Para 2 ativos: máximo 50% cada (risk parity ideal)
                     threshold = 0.5
                 elif n_ativos == 3:
-                    # Para 3 ativos: máximo 35% cada (mais restritivo)
-                    threshold = 0.35
+                    # Para 3 ativos: máximo 40% cada (mais restritivo)
+                    threshold = 0.40
                 elif n_ativos == 4:
-                    # Para 4 ativos: máximo 30% cada
-                    threshold = 0.30
+                    # Para 4 ativos: máximo 35% cada
+                    threshold = 0.35
                 else:
-                    # Para 5+ ativos: máximo 25% cada (mais conservador)
-                    threshold = 0.25
+                    # Para 5+ ativos: máximo 30% cada (mais conservador)
+                    threshold = 0.30
             
             pesos = pesos_markowitz.copy()
             
@@ -596,7 +614,7 @@ if st.session_state.get("authentication_status"):
                 ativo_problematico = np.argmax(contribuicao_risco)
                 
                 # Reduzir peso do ativo problemático mais agressivamente
-                reducao = (contribuicao_risco[ativo_problematico] - threshold) * 0.8
+                reducao = (contribuicao_risco[ativo_problematico] - threshold) * 0.9
                 peso_original = pesos[ativo_problematico]
                 pesos[ativo_problematico] = peso_original * (1 - reducao)
                 
@@ -611,8 +629,8 @@ if st.session_state.get("authentication_status"):
                 # Normalizar para garantir que soma = 1
                 pesos = pesos / np.sum(pesos)
                 
-                # Garantir que todos os pesos sejam positivos (mínimo 2%)
-                pesos = np.maximum(pesos, 0.02)
+                # Garantir que todos os pesos sejam positivos (mínimo 5%)
+                pesos = np.maximum(pesos, 0.05)
                 pesos = pesos / np.sum(pesos)
             
             return pesos
@@ -1095,9 +1113,9 @@ if st.session_state.get("authentication_status"):
                 ax.scatter(res['volatilidades_individuais'].iloc[i], res['retornos_individuais'].iloc[i], marker='D',
                            color=cores_ativos[i % len(cores_ativos)], s=150, label=ticker, zorder=5)
 
-            ax.scatter(res['risco'].iloc[indice_min_risco], res['retorno'].iloc[indice_min_risco], marker='X',
+            ax.scatter(res['risco'][indice_min_risco], res['retorno'][indice_min_risco], marker='X',
                        color='red', s=200, label='Carteira Risco Mínimo', zorder=5)
-            ax.scatter(res['risco'].iloc[indice_max_sharpe], res['retorno'].iloc[indice_max_sharpe], marker='*',
+            ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
                        color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
 
             ax.set_title('Otimização de Portfólio', fontsize=12)
@@ -1401,90 +1419,3 @@ else:
         else:
             st.sidebar.warning("Digite seu email primeiro para redefinir a senha.")
 
-    # --- BOTÕES DE LOGOUT E TROCAR SENHA NO FINAL DA SIDEBAR ---
-    st.sidebar.markdown("---")
-    
-    # Inicializar estados da sessão
-    if 'confirming_logout' not in st.session_state:
-        st.session_state.confirming_logout = False
-    if 'show_change_password' not in st.session_state:
-        st.session_state.show_change_password = False
-    
-    # Debug: Verificar se estamos no contexto correto
-    st.sidebar.markdown("**🔧 Debug:** Botões de logout e trocar senha")
-    
-    # Botões um acima do outro para melhor alinhamento
-    if st.button("🚪 Logout", key="logout_initial", use_container_width=True):
-        st.session_state.confirming_logout = True
-        st.rerun()
-    
-    if st.button("🔑 Trocar Senha", key="change_password_initial", use_container_width=True):
-        st.session_state.show_change_password = True
-        st.rerun()
-    
-    # Confirmação de logout
-    if st.session_state.confirming_logout:
-        st.sidebar.warning("Você tem certeza que deseja sair?")
-        col1_logout, col2_logout = st.sidebar.columns(2)
-        if col1_logout.button("Sim", use_container_width=True, type="primary"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
-            st.rerun()
-        if col2_logout.button("Não", use_container_width=True):
-            st.session_state.confirming_logout = False
-            st.rerun()
-    
-    # Interface de troca de senha
-    if st.session_state.show_change_password:
-        st.sidebar.markdown("---")
-        st.sidebar.subheader("🔑 Trocar Senha")
-        
-        current_password = st.sidebar.text_input(
-            "Senha Atual", 
-            type="password",
-            placeholder="Digite sua senha atual",
-            key="current_password_change"
-        )
-        new_password = st.sidebar.text_input(
-            "Nova Senha", 
-            type="password",
-            placeholder="Digite sua nova senha",
-            key="new_password_change"
-        )
-        confirm_password = st.sidebar.text_input(
-            "Confirmar Nova Senha", 
-            type="password",
-            placeholder="Confirme sua nova senha",
-            key="confirm_password_change"
-        )
-        
-        col_save, col_cancel = st.sidebar.columns(2)
-        
-        with col_save:
-            if st.button("✅ Salvar", use_container_width=True, key="save_password_change"):
-                if current_password and new_password and confirm_password:
-                    # Verificar senha atual
-                    is_logged_in, _, _, _, _, _ = check_login(st.session_state["email"], current_password)
-                    if is_logged_in:
-                        if new_password == confirm_password:
-                            if len(new_password) >= 6:
-                                success, message = update_password(st.session_state["email"], new_password)
-                                if success:
-                                    st.sidebar.success("Senha alterada com sucesso!")
-                                    st.session_state.show_change_password = False
-                                    st.rerun()
-                                else:
-                                    st.sidebar.error(f"Erro: {message}")
-                            else:
-                                st.sidebar.error("A senha deve ter pelo menos 6 caracteres.")
-                        else:
-                            st.sidebar.error("As senhas não coincidem.")
-                    else:
-                        st.sidebar.error("Senha atual incorreta.")
-                else:
-                    st.sidebar.error("Preencha todos os campos.")
-        
-        with col_cancel:
-            if st.button("❌ Cancelar", use_container_width=True, key="cancel_password_change"):
-                st.session_state.show_change_password = False
-                st.rerun()
