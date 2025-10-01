@@ -710,19 +710,18 @@ if st.session_state.get("authentication_status"):
                 indice_max_sharpe = np.argmax(resultados_sharpe)
                 pesos_markowitz_puro = matriz_pesos[indice_max_sharpe]
                 
-                # APLICAR RISK PARITY HÍBRIDO
-                pesos_otimos = risk_parity_hibrido(pesos_markowitz_puro, matriz_covariancia)
-                
-                # CALCULAR COMPARAÇÕES PARA ANÁLISE
+                # CALCULAR PESOS PARA OS DIFERENTES ALGORITMOS
                 pesos_risk_parity_puro = risk_parity_puro(matriz_covariancia)
-                pesos_hibrido_v2 = markowitz_hibrido_v2(pesos_markowitz_puro, pesos_risk_parity_puro, 0.5)
                 
-                # Salvar comparações no session state
+                # USAR HÍBRIDO V2 (50/50) COMO ALGORITMO PRINCIPAL
+                pesos_otimos = markowitz_hibrido_v2(pesos_markowitz_puro, pesos_risk_parity_puro, 0.5)
+                
+                # Salvar comparações no session state (para referência futura)
                 st.session_state.comparacao_algoritmos = {
                     "markowitz_puro": pesos_markowitz_puro,
-                    "hibrido_atual": pesos_otimos,
+                    "hibrido_atual": risk_parity_hibrido(pesos_markowitz_puro, matriz_covariancia),
                     "risk_parity_puro": pesos_risk_parity_puro,
-                    "hibrido_v2": pesos_hibrido_v2,
+                    "hibrido_v2": pesos_otimos,
                     "ativos": ativos_selecionados
                 }
                 
@@ -845,7 +844,7 @@ if st.session_state.get("authentication_status"):
             col_pizza_otima, col_metricas = st.columns([1, 1])
             
             with col_pizza_otima:
-                st.subheader('Composição da Carteira Ótima por Markowitz (Versão Híbrida de risco)')
+                st.subheader('Composição da Carteira Ótima (Markowitz + Risk Parity 50/50)')
                 # Criar DataFrame com os pesos ótimos
                 df_pesos_otimos = pd.DataFrame(pesos_otimos, index=ativos_otimizados, columns=['Peso'])
                 
@@ -937,62 +936,6 @@ if st.session_state.get("authentication_status"):
                 # Exibir apenas o gráfico (sem tabela)
                 st.plotly_chart(fig_comparacao, use_container_width=True)
             
-            st.markdown("---")
-
-            # --- COMPARAÇÃO DE ALGORITMOS ---
-            if hasattr(st.session_state, 'comparacao_algoritmos'):
-                st.subheader('🔬 Comparação de Algoritmos de Otimização')
-                st.markdown("*Análise detalhada dos diferentes métodos de balanceamento*")
-                
-                comparacao = st.session_state.comparacao_algoritmos
-                ativos = comparacao["ativos"]
-                
-                # Criar DataFrame de comparação
-                df_comparacao = pd.DataFrame({
-                    'Ativo': ativos,
-                    'Markowitz Puro': comparacao["markowitz_puro"] * 100,
-                    'Híbrido Atual': comparacao["hibrido_atual"] * 100,
-                    'Risk Parity Puro': comparacao["risk_parity_puro"] * 100,
-                    'Híbrido V2 (50/50)': comparacao["hibrido_v2"] * 100
-                })
-                
-                # Formatar para 2 casas decimais
-                for col in df_comparacao.columns[1:]:
-                    df_comparacao[col] = df_comparacao[col].round(2)
-                
-                st.dataframe(df_comparacao, use_container_width=True)
-                
-                # Análise estatística
-                col1_analise, col2_analise = st.columns(2)
-                
-                with col1_analise:
-                    st.markdown("**📊 Concentração Máxima por Ativo:**")
-                    st.write(f"• Markowitz Puro: {np.max(comparacao['markowitz_puro']) * 100:.1f}%")
-                    st.write(f"• Híbrido Atual: {np.max(comparacao['hibrido_atual']) * 100:.1f}%")
-                    st.write(f"• Risk Parity Puro: {np.max(comparacao['risk_parity_puro']) * 100:.1f}%")
-                    st.write(f"• Híbrido V2: {np.max(comparacao['hibrido_v2']) * 100:.1f}%")
-                
-                with col2_analise:
-                    st.markdown("**⚖️ Desvio Padrão dos Pesos:**")
-                    st.write(f"• Markowitz Puro: {np.std(comparacao['markowitz_puro']) * 100:.1f}%")
-                    st.write(f"• Híbrido Atual: {np.std(comparacao['hibrido_atual']) * 100:.1f}%")
-                    st.write(f"• Risk Parity Puro: {np.std(comparacao['risk_parity_puro']) * 100:.1f}%")
-                    st.write(f"• Híbrido V2: {np.std(comparacao['hibrido_v2']) * 100:.1f}%")
-                
-                # Explicação dos algoritmos
-                with st.expander("💡 **Explicação dos Algoritmos**", expanded=False):
-                    st.markdown("""
-                    **🔹 Markowitz Puro:** Otimização clássica que maximiza o retorno ajustado ao risco (Sharpe), mas tende a concentrar em poucos ativos.
-                    
-                    **🔹 Híbrido Atual:** Aplica limitações de contribuição de risco (threshold) para reduzir concentração, mas mantém a essência do Markowitz.
-                    
-                    **🔹 Risk Parity Puro:** Busca contribuição igual de risco de cada ativo, resultando em carteira mais balanceada.
-                    
-                    **🔹 Híbrido V2 (50/50):** Mistura 50% Markowitz + 50% Risk Parity, buscando equilíbrio entre retorno e diversificação.
-                    
-                    **🎯 Objetivo:** Quanto menor a concentração máxima e o desvio padrão, mais balanceada está a carteira.
-                    """)
-
             st.markdown("---")
 
             # --- MÉTRICAS DOS ATIVOS ---
