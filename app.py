@@ -122,6 +122,26 @@ def update_password(email, new_password):
     except Exception as e:
         return False, f"Erro ao atualizar senha: {e}"
 
+def reset_password_to_default(email):
+    """Reseta a senha de um usuário para a senha padrão 123456"""
+    try:
+        with engine.connect() as conn:
+            # Gerar hash da senha padrão 123456
+            default_password = "123456"
+            new_hash = ph.hash(default_password)
+            
+            # Atualizar no banco
+            query = sqlalchemy.text("UPDATE usuarios SET senha_hash = :new_hash WHERE email = :email")
+            result = conn.execute(query, {"new_hash": new_hash, "email": email})
+            conn.commit()
+            
+            if result.rowcount > 0:
+                return True, "Senha resetada para padrão (123456) com sucesso!"
+            else:
+                return False, "Usuário não encontrado."
+    except Exception as e:
+        return False, f"Erro ao resetar senha: {str(e)}"
+
 
 # --- 4. INICIALIZAÇÃO DO ESTADO DA SESSÃO ---
 if "authentication_status" not in st.session_state:
@@ -545,23 +565,6 @@ if st.session_state.get("authentication_status"):
         num_simulacoes_mc = st.sidebar.select_slider("Simulações de Monte Carlo", options=[100, 250, 500],
                                                      value=250, key='sim_mc')
 
-        # --- BOTÕES DE LOGOUT E TROCAR SENHA APÓS CONTROLES ---
-        st.sidebar.markdown("---")
-        
-        # Inicializar estados da sessão
-        if 'confirming_logout' not in st.session_state:
-            st.session_state.confirming_logout = False
-        if 'show_change_password' not in st.session_state:
-            st.session_state.show_change_password = False
-        
-        # Botões um acima do outro para melhor alinhamento
-        if st.sidebar.button("🚪 Logout", key="logout_initial", use_container_width=True):
-            st.session_state.confirming_logout = True
-            st.rerun()
-        
-        if st.sidebar.button("🔑 Trocar Senha", key="change_password_initial", use_container_width=True):
-            st.session_state.show_change_password = True
-            st.rerun()
 
         # Inicializa o estado da sessão para guardar todos os resultados
         if 'resultados_gerados' not in st.session_state:
@@ -1186,6 +1189,95 @@ if st.session_state.get("authentication_status"):
     else:
         st.warning('Por favor, selecione pelo menos um ativo para a análise.')
 
+    # =============================================================================
+    # --- BOTÕES DE LOGOUT E TROCAR SENHA (APENAS QUANDO LOGADO) ---
+    # =============================================================================
+    # Inicializar estados da sessão
+    if 'confirming_logout' not in st.session_state:
+        st.session_state.confirming_logout = False
+    if 'show_change_password' not in st.session_state:
+        st.session_state.show_change_password = False
+    
+    # --- BOTÕES NO FINAL DA SIDEBAR ---
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### ⚙️ Configurações")
+    
+    # Botões um acima do outro para melhor alinhamento
+    if st.sidebar.button("🚪 Logout", key="logout_logged_in", use_container_width=True):
+        st.session_state.confirming_logout = True
+        st.rerun()
+    
+    if st.sidebar.button("🔑 Trocar Senha", key="change_password_logged_in", use_container_width=True):
+        st.session_state.show_change_password = True
+        st.rerun()
+
+    # Confirmação de logout
+    if st.session_state.confirming_logout:
+        st.sidebar.warning("Você tem certeza que deseja sair?")
+        col1_logout, col2_logout = st.sidebar.columns(2)
+        if col1_logout.button("Sim", use_container_width=True, type="primary"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+        if col2_logout.button("Não", use_container_width=True):
+            st.session_state.confirming_logout = False
+            st.rerun()
+
+    # Interface de troca de senha
+    if st.session_state.show_change_password:
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("🔑 Trocar Senha")
+        
+        current_password = st.sidebar.text_input(
+            "Senha Atual",
+            type="password",
+            placeholder="Digite sua senha atual",
+            key="current_password"
+        )
+        new_password = st.sidebar.text_input(
+            "Nova Senha",
+            type="password",
+            placeholder="Digite sua nova senha",
+            key="new_password"
+        )
+        confirm_password = st.sidebar.text_input(
+            "Confirmar Nova Senha",
+            type="password",
+            placeholder="Confirme sua nova senha",
+            key="confirm_password"
+        )
+        
+        col_change1, col_change2 = st.sidebar.columns(2)
+        
+        with col_change1:
+            if st.sidebar.button("✅ Salvar", use_container_width=True):
+                if current_password and new_password and confirm_password:
+                    # Verificar senha atual
+                    is_logged_in, _, _, _, _, _ = check_login(st.session_state["email"], current_password)
+                    if is_logged_in:
+                        if new_password == confirm_password:
+                            if len(new_password) >= 6:
+                                success, message = update_password(st.session_state["email"], new_password)
+                                if success:
+                                    st.sidebar.success("Senha alterada com sucesso!")
+                                    st.session_state.show_change_password = False
+                                    st.rerun()
+                                else:
+                                    st.sidebar.error(f"Erro: {message}")
+                            else:
+                                st.sidebar.error("A senha deve ter pelo menos 6 caracteres.")
+                        else:
+                            st.sidebar.error("As senhas não coincidem.")
+                    else:
+                        st.sidebar.error("Senha atual incorreta.")
+                else:
+                    st.sidebar.error("Preencha todos os campos.")
+        
+        with col_change2:
+            if st.sidebar.button("❌ Cancelar", use_container_width=True):
+                st.session_state.show_change_password = False
+                st.rerun()
+
 else:
     # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
     
@@ -1354,6 +1446,20 @@ else:
             st.sidebar.markdown("1. Use o email verificado acima")
             st.sidebar.markdown("2. Use a senha: `123456`")
             st.sidebar.markdown("3. Após o login, você poderá alterar sua senha")
+            
+            # Botão para resetar senha se não funcionar
+            st.sidebar.markdown("---")
+            if st.sidebar.button("🔄 Resetar Senha para Padrão", use_container_width=True, type="secondary"):
+                email_verificado = st.session_state.get("email_verificado")
+                if email_verificado:
+                    success, message = reset_password_to_default(email_verificado)
+                    if success:
+                        st.sidebar.success("✅ Senha resetada! Agora você pode usar `123456` para fazer login.")
+                        st.rerun()
+                    else:
+                        st.sidebar.error(f"❌ Erro: {message}")
+                else:
+                    st.sidebar.error("❌ Email não encontrado na sessão.")
         else:
             st.sidebar.markdown("""
             <div style='background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 15px;'>
@@ -1418,4 +1524,3 @@ else:
                     st.rerun()
         else:
             st.sidebar.warning("Digite seu email primeiro para redefinir a senha.")
-
