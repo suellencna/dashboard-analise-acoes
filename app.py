@@ -570,6 +570,41 @@ if st.session_state.get("authentication_status"):
         if 'resultados_gerados' not in st.session_state:
             st.session_state.resultados_gerados = None
 
+        # Funções de comparação de algoritmos
+        def risk_parity_puro(matriz_covariancia):
+            """
+            Implementa Risk Parity puro (contribuição igual de risco)
+            """
+            n_ativos = len(matriz_covariancia)
+            # Inicializar com pesos iguais
+            pesos = np.ones(n_ativos) / n_ativos
+            
+            # Iterar até convergir para contribuições iguais de risco
+            for _ in range(50):
+                # Calcular contribuição de risco atual
+                risco_portfolio = np.sqrt(np.dot(pesos.T, np.dot(matriz_covariancia, pesos)))
+                contribuicao_risco = (pesos * np.dot(matriz_covariancia, pesos)) / risco_portfolio
+                
+                # Ajustar pesos para equalizar contribuições
+                contribuicao_media = np.mean(contribuicao_risco)
+                for i in range(n_ativos):
+                    if contribuicao_risco[i] > contribuicao_media:
+                        pesos[i] *= 0.95
+                    else:
+                        pesos[i] *= 1.05
+                
+                # Normalizar para soma = 1
+                pesos = pesos / np.sum(pesos)
+            
+            return pesos
+        
+        def markowitz_hibrido_v2(pesos_markowitz, pesos_risk_parity, proporcao=0.5):
+            """
+            Versão 2: Mistura 50% Markowitz + 50% Risk Parity
+            """
+            pesos_hibridos = proporcao * pesos_markowitz + (1 - proporcao) * pesos_risk_parity
+            return pesos_hibridos / np.sum(pesos_hibridos)  # Normalizar
+
         # Função Risk Parity Híbrido (definida fora do botão para melhor performance)
         def risk_parity_hibrido(pesos_markowitz, matriz_covariancia, threshold=None, max_iter=20):
             """
@@ -677,6 +712,19 @@ if st.session_state.get("authentication_status"):
                 
                 # APLICAR RISK PARITY HÍBRIDO
                 pesos_otimos = risk_parity_hibrido(pesos_markowitz_puro, matriz_covariancia)
+                
+                # CALCULAR COMPARAÇÕES PARA ANÁLISE
+                pesos_risk_parity_puro = risk_parity_puro(matriz_covariancia)
+                pesos_hibrido_v2 = markowitz_hibrido_v2(pesos_markowitz_puro, pesos_risk_parity_puro, 0.5)
+                
+                # Salvar comparações no session state
+                st.session_state.comparacao_algoritmos = {
+                    "markowitz_puro": pesos_markowitz_puro,
+                    "hibrido_atual": pesos_otimos,
+                    "risk_parity_puro": pesos_risk_parity_puro,
+                    "hibrido_v2": pesos_hibrido_v2,
+                    "ativos": ativos_selecionados
+                }
                 
                 # Recalcular métricas com pesos híbridos
                 retorno_hibrido = np.sum(retornos_diarios.mean() * pesos_otimos) * PREGOES_NO_ANO
@@ -889,6 +937,62 @@ if st.session_state.get("authentication_status"):
                 # Exibir apenas o gráfico (sem tabela)
                 st.plotly_chart(fig_comparacao, use_container_width=True)
             
+            st.markdown("---")
+
+            # --- COMPARAÇÃO DE ALGORITMOS ---
+            if hasattr(st.session_state, 'comparacao_algoritmos'):
+                st.subheader('🔬 Comparação de Algoritmos de Otimização')
+                st.markdown("*Análise detalhada dos diferentes métodos de balanceamento*")
+                
+                comparacao = st.session_state.comparacao_algoritmos
+                ativos = comparacao["ativos"]
+                
+                # Criar DataFrame de comparação
+                df_comparacao = pd.DataFrame({
+                    'Ativo': ativos,
+                    'Markowitz Puro': comparacao["markowitz_puro"] * 100,
+                    'Híbrido Atual': comparacao["hibrido_atual"] * 100,
+                    'Risk Parity Puro': comparacao["risk_parity_puro"] * 100,
+                    'Híbrido V2 (50/50)': comparacao["hibrido_v2"] * 100
+                })
+                
+                # Formatar para 2 casas decimais
+                for col in df_comparacao.columns[1:]:
+                    df_comparacao[col] = df_comparacao[col].round(2)
+                
+                st.dataframe(df_comparacao, use_container_width=True)
+                
+                # Análise estatística
+                col1_analise, col2_analise = st.columns(2)
+                
+                with col1_analise:
+                    st.markdown("**📊 Concentração Máxima por Ativo:**")
+                    st.write(f"• Markowitz Puro: {np.max(comparacao['markowitz_puro']) * 100:.1f}%")
+                    st.write(f"• Híbrido Atual: {np.max(comparacao['hibrido_atual']) * 100:.1f}%")
+                    st.write(f"• Risk Parity Puro: {np.max(comparacao['risk_parity_puro']) * 100:.1f}%")
+                    st.write(f"• Híbrido V2: {np.max(comparacao['hibrido_v2']) * 100:.1f}%")
+                
+                with col2_analise:
+                    st.markdown("**⚖️ Desvio Padrão dos Pesos:**")
+                    st.write(f"• Markowitz Puro: {np.std(comparacao['markowitz_puro']) * 100:.1f}%")
+                    st.write(f"• Híbrido Atual: {np.std(comparacao['hibrido_atual']) * 100:.1f}%")
+                    st.write(f"• Risk Parity Puro: {np.std(comparacao['risk_parity_puro']) * 100:.1f}%")
+                    st.write(f"• Híbrido V2: {np.std(comparacao['hibrido_v2']) * 100:.1f}%")
+                
+                # Explicação dos algoritmos
+                with st.expander("💡 **Explicação dos Algoritmos**", expanded=False):
+                    st.markdown("""
+                    **🔹 Markowitz Puro:** Otimização clássica que maximiza o retorno ajustado ao risco (Sharpe), mas tende a concentrar em poucos ativos.
+                    
+                    **🔹 Híbrido Atual:** Aplica limitações de contribuição de risco (threshold) para reduzir concentração, mas mantém a essência do Markowitz.
+                    
+                    **🔹 Risk Parity Puro:** Busca contribuição igual de risco de cada ativo, resultando em carteira mais balanceada.
+                    
+                    **🔹 Híbrido V2 (50/50):** Mistura 50% Markowitz + 50% Risk Parity, buscando equilíbrio entre retorno e diversificação.
+                    
+                    **🎯 Objetivo:** Quanto menor a concentração máxima e o desvio padrão, mais balanceada está a carteira.
+                    """)
+
             st.markdown("---")
 
             # --- MÉTRICAS DOS ATIVOS ---
@@ -1238,13 +1342,13 @@ if st.session_state.get("authentication_status"):
             "Nova Senha",
             type="password",
             placeholder="Digite sua nova senha",
-            key="new_password"
+            key="new_password_change"
         )
         confirm_password = st.sidebar.text_input(
             "Confirmar Nova Senha",
             type="password",
             placeholder="Confirme sua nova senha",
-            key="confirm_password"
+            key="confirm_password_change"
         )
         
         col_change1, col_change2 = st.sidebar.columns(2)
@@ -1253,7 +1357,8 @@ if st.session_state.get("authentication_status"):
             if st.sidebar.button("✅ Salvar", use_container_width=True, key="save_new_password"):
                 if current_password and new_password and confirm_password:
                     # Verificar senha atual
-                    is_logged_in, _, _, _, _, _ = check_login(st.session_state["email"], current_password)
+                    login_result = check_login(st.session_state["email"], current_password)
+                    is_logged_in = login_result[0] if login_result else False
                     if is_logged_in:
                         if new_password == confirm_password:
                             if len(new_password) >= 6:
