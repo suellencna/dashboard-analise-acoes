@@ -1215,11 +1215,11 @@ if st.session_state.get("authentication_status"):
     if st.session_state.confirming_logout:
         st.sidebar.warning("Você tem certeza que deseja sair?")
         col1_logout, col2_logout = st.sidebar.columns(2)
-        if col1_logout.button("Sim", use_container_width=True, type="primary"):
+        if col1_logout.button("Sim", use_container_width=True, type="primary", key="confirm_logout_yes"):
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             st.rerun()
-        if col2_logout.button("Não", use_container_width=True):
+        if col2_logout.button("Não", use_container_width=True, key="confirm_logout_no"):
             st.session_state.confirming_logout = False
             st.rerun()
 
@@ -1250,7 +1250,7 @@ if st.session_state.get("authentication_status"):
         col_change1, col_change2 = st.sidebar.columns(2)
         
         with col_change1:
-            if st.sidebar.button("✅ Salvar", use_container_width=True):
+            if st.sidebar.button("✅ Salvar", use_container_width=True, key="save_new_password"):
                 if current_password and new_password and confirm_password:
                     # Verificar senha atual
                     is_logged_in, _, _, _, _, _ = check_login(st.session_state["email"], current_password)
@@ -1274,7 +1274,7 @@ if st.session_state.get("authentication_status"):
                     st.sidebar.error("Preencha todos os campos.")
         
         with col_change2:
-            if st.sidebar.button("❌ Cancelar", use_container_width=True):
+            if st.sidebar.button("❌ Cancelar", use_container_width=True, key="cancel_password_change"):
                 st.session_state.show_change_password = False
                 st.rerun()
 
@@ -1334,7 +1334,7 @@ else:
             <h4 style='color: #155724; margin-top: 0;'>🎉 Primeiro Acesso?</h4>
             <p style='color: #155724; margin-bottom: 0;'>
                 <strong>Email:</strong> O mesmo usado na compra<br>
-                <strong>Senha:</strong> 123456<br>
+                <strong>Senha:</strong> A senha enviada no seu email de boas-vindas<br>
                 <em>Você poderá alterar sua senha após o login.</em>
             </p>
         </div>
@@ -1410,71 +1410,103 @@ else:
         st.sidebar.markdown("---")
         st.sidebar.subheader("🔑 Esqueci minha senha")
         
-        # Campo para verificar email
-        email_verificacao = st.sidebar.text_input(
-            "📧 Digite seu email para verificar",
-            placeholder="seu@email.com",
-            key="email_verificacao"
-        )
-        
-        if st.sidebar.button("🔍 Verificar Email", use_container_width=True):
-            if email_verificacao:
-                try:
-                    existe, nome = verificar_usuario_existe(email_verificacao)
-                    if existe:
-                        st.sidebar.success(f"✅ Email encontrado! Olá, {nome}")
-                        st.session_state["email_verificado"] = email_verificacao
+        # Etapa 1: Verificação de email
+        if not st.session_state.get("email_verificado"):
+            email_verificacao = st.sidebar.text_input(
+                "📧 Digite seu email para verificar",
+                placeholder="seu@email.com",
+                key="email_verificacao"
+            )
+            
+            col_verify, col_close = st.sidebar.columns(2)
+            
+            with col_verify:
+                if st.button("🔍 Verificar Email", use_container_width=True, key="verify_email_button"):
+                    if email_verificacao:
+                        try:
+                            existe, nome = verificar_usuario_existe(email_verificacao)
+                            if existe:
+                                st.session_state["email_verificado"] = email_verificacao
+                                st.session_state["nome_verificado"] = nome
+                                st.sidebar.success(f"✅ Email encontrado!")
+                                st.rerun()
+                            else:
+                                st.sidebar.error("❌ Email não encontrado. Verifique se digitou corretamente.")
+                        except Exception as e:
+                            st.sidebar.error(f"❌ Erro ao verificar email: {str(e)}")
                     else:
-                        st.sidebar.error("❌ Email não encontrado. Verifique se digitou corretamente.")
-                        st.session_state["email_verificado"] = None
-                except Exception as e:
-                    st.sidebar.error(f"❌ Erro ao verificar email: {str(e)}")
+                        st.sidebar.error("❌ Por favor, digite um email válido.")
+            
+            with col_close:
+                if st.button("❌ Fechar", use_container_width=True, key="close_forgot_password"):
+                    st.session_state["show_forgot_password"] = False
                     st.session_state["email_verificado"] = None
+                    st.session_state["nome_verificado"] = None
+                    st.rerun()
         
-        # Mostrar informações se email foi verificado
-        if st.session_state.get("email_verificado"):
+        # Etapa 2: Verificação de nome completo
+        elif not st.session_state.get("nome_confirmado"):
+            st.sidebar.info("🔒 **Verificação de Segurança**")
+            st.sidebar.markdown("Para sua segurança, confirme seu **nome completo** como cadastrado:")
+            
+            nome_digitado = st.sidebar.text_input(
+                "👤 Nome completo",
+                placeholder="Digite seu nome completo",
+                key="nome_completo"
+            )
+            
+            col_confirm, col_back = st.sidebar.columns(2)
+            
+            with col_confirm:
+                if st.button("✅ Confirmar", use_container_width=True, key="confirm_name_button"):
+                    if nome_digitado:
+                        nome_cadastrado = st.session_state.get("nome_verificado", "")
+                        # Comparação case-insensitive
+                        if nome_digitado.lower().strip() == nome_cadastrado.lower().strip():
+                            st.session_state["nome_confirmado"] = True
+                            # Reset automático da senha
+                            email_verificado = st.session_state.get("email_verificado")
+                            success, message = reset_password_to_default(email_verificado)
+                            if success:
+                                st.session_state["senha_resetada"] = True
+                                st.rerun()
+                            else:
+                                st.sidebar.error(f"❌ Erro ao resetar senha: {message}")
+                        else:
+                            st.sidebar.error("❌ Nome não confere com o cadastro.")
+                    else:
+                        st.sidebar.error("❌ Por favor, digite seu nome completo.")
+            
+            with col_back:
+                if st.button("⬅️ Voltar", use_container_width=True, key="back_to_email_verification"):
+                    st.session_state["email_verificado"] = None
+                    st.session_state["nome_verificado"] = None
+                    st.rerun()
+        
+        # Etapa 3: Confirmação de sucesso
+        elif st.session_state.get("senha_resetada"):
             st.sidebar.markdown("""
             <div style='background: #d4edda; padding: 15px; border-radius: 8px; border-left: 4px solid #28a745; margin-bottom: 15px;'>
-                <h4 style='color: #155724; margin-top: 0;'>✅ Email Verificado</h4>
+                <h4 style='color: #155724; margin-top: 0;'>✅ Senha Resetada com Sucesso!</h4>
                 <p style='color: #155724; margin-bottom: 0; font-size: 14px;'>
-                    <strong>Senha padrão:</strong> <code style='background: #f8f9fa; padding: 2px 6px; border-radius: 4px;'>123456</code>
+                    Sua senha foi resetada para a senha enviada no seu <strong>email de boas-vindas</strong>.
                 </p>
             </div>
             """, unsafe_allow_html=True)
             
             st.sidebar.markdown("**Passos para fazer login:**")
             st.sidebar.markdown("1. Use o email verificado acima")
-            st.sidebar.markdown("2. Use a senha: `123456`")
+            st.sidebar.markdown("2. Use a senha do email de boas-vindas")
             st.sidebar.markdown("3. Após o login, você poderá alterar sua senha")
             
-            # Botão para resetar senha se não funcionar
-            st.sidebar.markdown("---")
-            if st.sidebar.button("🔄 Resetar Senha para Padrão", use_container_width=True, type="secondary"):
-                email_verificado = st.session_state.get("email_verificado")
-                if email_verificado:
-                    success, message = reset_password_to_default(email_verificado)
-                    if success:
-                        st.sidebar.success("✅ Senha resetada! Agora você pode usar `123456` para fazer login.")
-                        st.rerun()
-                    else:
-                        st.sidebar.error(f"❌ Erro: {message}")
-                else:
-                    st.sidebar.error("❌ Email não encontrado na sessão.")
-        else:
-            st.sidebar.markdown("""
-            <div style='background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 15px;'>
-                <h4 style='color: #856404; margin-top: 0;'>📧 Informações Gerais</h4>
-                <p style='color: #856404; margin-bottom: 0; font-size: 14px;'>
-                    <strong>Email:</strong> O mesmo usado na compra<br>
-                    <strong>Senha padrão:</strong> <code style='background: #f8f9fa; padding: 2px 6px; border-radius: 4px;'>123456</code>
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        if st.sidebar.button("❌ Fechar", use_container_width=True):
-            st.session_state["show_forgot_password"] = False
-            st.session_state["email_verificado"] = None
-            st.rerun()
+            if st.sidebar.button("✅ Entendi", use_container_width=True, key="understood_button"):
+                # Limpar todos os estados
+                st.session_state["show_forgot_password"] = False
+                st.session_state["email_verificado"] = None
+                st.session_state["nome_verificado"] = None
+                st.session_state["nome_confirmado"] = None
+                st.session_state["senha_resetada"] = None
+                st.rerun()
 
     # Seção de redefinição de senha
     if st.session_state.get("show_password_reset", False):
@@ -1519,7 +1551,7 @@ else:
                         st.sidebar.error("Preencha todos os campos.")
             
             with col_reset2:
-                if st.button("❌ Cancelar", use_container_width=True):
+                if st.button("❌ Cancelar", use_container_width=True, key="cancel_password_reset"):
                     st.session_state["show_password_reset"] = False
                     st.rerun()
         else:
