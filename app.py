@@ -260,7 +260,7 @@ if st.session_state.get("authentication_status"):
 
     # Título centralizado
     st.markdown(
-        "<h1 style='text-align: center; margin-bottom: 0.5rem;'>Dashboard de Análise de Carteiras 💼</h1>",
+        "<h1 style='text-align: center; margin-bottom: 0.5rem;'>Análise de Carteiras </h1>",
         unsafe_allow_html=True
     )
 
@@ -844,7 +844,7 @@ if st.session_state.get("authentication_status"):
             col_pizza_otima, col_metricas = st.columns([1, 1])
             
             with col_pizza_otima:
-                st.subheader('Composição da Carteira Ótima (Markowitz + Risk Parity 50/50)')
+                st.subheader('Composição da Carteira Ótima (Markowitz + Risk Parity)')
                 # Criar DataFrame com os pesos ótimos
                 df_pesos_otimos = pd.DataFrame(pesos_otimos, index=ativos_otimizados, columns=['Peso'])
                 
