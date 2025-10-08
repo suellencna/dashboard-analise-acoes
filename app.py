@@ -746,8 +746,15 @@ if st.session_state.get("authentication_status"):
 
                 df_guia['Valor a Investir (R$)'] = df_guia['Peso (%)'] / 100 * valor_investimento
                 df_guia['Último Preço (R$)'] = df_guia['Ativo'].map(ultimos_precos)
-                df_guia['Quantidade de Ações'] = (
-                            df_guia['Valor a Investir (R$)'] / df_guia['Último Preço (R$)']).astype(int)
+                
+                # Tratamento para evitar NaN e infinitos na conversão
+                df_guia['Último Preço (R$)'] = df_guia['Último Preço (R$)'].fillna(0)
+                df_guia['Último Preço (R$)'] = df_guia['Último Preço (R$)'].replace([np.inf, -np.inf], 0)
+                
+                quantidade_calc = df_guia['Valor a Investir (R$)'] / df_guia['Último Preço (R$)']
+                quantidade_calc = quantidade_calc.replace([np.inf, -np.inf], 0)
+                quantidade_calc = quantidade_calc.fillna(0)
+                df_guia['Quantidade de Ações'] = quantidade_calc.astype(int)
 
                 # 3. CÁLCULO DE MONTE CARLO
                 retorno_anual_esperado = resultados_retorno[indice_max_sharpe]
@@ -907,8 +914,9 @@ if st.session_state.get("authentication_status"):
                     orientation='h',
                     marker_color='#FF6B6B',
                     text=[f"{p*100:.1f}%" for p in pesos_atuais_comparacao],
-                    textposition='outside',
-                    textfont=dict(size=12, color='white')
+                    textposition='auto',
+                    textfont=dict(size=14, color='white'),
+                    texttemplate='%{text}'
                 ))
                     
                 # Adicionar barras para carteira otimizada
@@ -919,8 +927,9 @@ if st.session_state.get("authentication_status"):
                     orientation='h',
                     marker_color='#4ECDC4',
                     text=[f"{p*100:.1f}%" for p in pesos_otimos_comparacao],
-                    textposition='outside',
-                    textfont=dict(size=12, color='white')
+                    textposition='auto',
+                    textfont=dict(size=14, color='white'),
+                    texttemplate='%{text}'
                 ))
                 
                 fig_comparacao.update_layout(
@@ -1153,8 +1162,8 @@ if st.session_state.get("authentication_status"):
             # EXIBIÇÃO DE MARKOWITZ
             st.subheader('Fronteira Eficiente Markowitz (Versão Híbrida de risco)')
             
-            # Gráfico ocupando toda a largura
-            fig, ax = plt.subplots(figsize=(12, 6))
+            # Gráfico com altura reduzida
+            fig, ax = plt.subplots(figsize=(12, 5))
             ax.scatter(res['risco'], res['retorno'], c=res['sharpe'], cmap='viridis', marker='.', s=5,
                        alpha=0.4)
 
