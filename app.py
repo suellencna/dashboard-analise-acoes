@@ -525,8 +525,8 @@ if st.session_state.get("authentication_status"):
             benchmark_selecionado = st.selectbox("Selecione o Benchmark:", list(MAPA_BENCHMARK.keys()))
             caminho_bench = os.path.join(DATA_PATH, MAPA_BENCHMARK[benchmark_selecionado])
             try:
-                # Linha NOVA e CORRIGIDA do Benchmark
-                df_bench = pd.read_csv(caminho_bench, index_col='Date', parse_dates=True, skiprows=[1])
+                # Linha CORRIGIDA do Benchmark (removido skiprows)
+                df_bench = pd.read_csv(caminho_bench, index_col='Date', parse_dates=True)
                 df_bench = df_bench.reindex(df_portfolio.index).ffill().dropna()
 
                 retornos_diarios_comp = pd.DataFrame(
