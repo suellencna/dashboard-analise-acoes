@@ -37,8 +37,8 @@ if DATABASE_URL:
         max_overflow=2,    # Overflow menor
         connect_args={
             "connect_timeout": 5,  # Timeout reduzido
-            "application_name": "hotmart_webhook_optimized",
-            "options": "-c statement_timeout=10000"  # 10 segundos max por query
+            "application_name": "hotmart_webhook_optimized"
+            # Nota: statement_timeout removido pois Neon pooled connection não suporta
         }
     )
 else:
