@@ -115,7 +115,7 @@ def criar_usuario_teste():
                         SET status_conta = 'pendente',
                             token_ativacao = :token,
                             data_expiracao_token = :expiracao,
-                            senha_hash = NULL,
+                            senha_hash = 'TEMP_PASSWORD_TO_BE_CHANGED',
                             data_ativacao = NULL,
                             data_aceite_termos = NULL,
                             nome = :nome
