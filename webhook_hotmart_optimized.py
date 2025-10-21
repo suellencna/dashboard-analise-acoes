@@ -129,9 +129,9 @@ def criar_usuario_teste():
                 conn.execute(
                     sqlalchemy.text("""
                         INSERT INTO usuarios 
-                        (nome, email, status_assinatura, status_conta, token_ativacao, data_expiracao_token)
+                        (nome, email, status_assinatura, status_conta, token_ativacao, data_expiracao_token, senha_hash)
                         VALUES 
-                        (:nome, :email, 'ativo', 'pendente', :token, :expiracao)
+                        (:nome, :email, 'ativo', 'pendente', :token, :expiracao, 'TEMP_PASSWORD_TO_BE_CHANGED')
                     """),
                     {"nome": nome, "email": email, "token": token, "expiracao": expiracao}
                 )
@@ -418,9 +418,9 @@ def processar_compra_background(email, nome):
                 
                 query_insert = sqlalchemy.text("""
                     INSERT INTO usuarios 
-                    (nome, email, status_assinatura, status_conta, token_ativacao, data_expiracao_token) 
+                    (nome, email, status_assinatura, status_conta, token_ativacao, data_expiracao_token, senha_hash) 
                     VALUES 
-                    (:nome, :email, 'ativo', 'pendente', :token, :expiracao)
+                    (:nome, :email, 'ativo', 'pendente', :token, :expiracao, 'TEMP_PASSWORD_TO_BE_CHANGED')
                 """)
                 conn.execute(query_insert, {
                     "nome": nome, 
