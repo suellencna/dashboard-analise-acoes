@@ -217,33 +217,264 @@ def test_email():
 
 @app.route('/ativar/<token>')
 def ativar_conta_page(token):
-    """Página de ativação de conta - versão estática funcional"""
-    try:
-        # Ler o arquivo HTML estático
-        with open('ativacao_railway.html', 'r', encoding='utf-8') as f:
-            html_content = f.read()
+    """Página de ativação de conta - versão inline funcional"""
+    html_content = f"""
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ativar Conta - Ponto Ótimo Invest</title>
+    <style>
+        * {{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }}
         
-        # Substituir o token padrão pelo token real
-        html_content = html_content.replace('Z1PB2y0TSKc1r8_xjnt2r0mOK95YJS74M8sZSCF0ELw', token)
+        body {{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }}
         
-        from flask import Response
-        return Response(html_content, mimetype='text/html')
+        .container {{
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }}
         
-    except Exception as e:
-        logger.error(f"Erro ao servir página de ativação: {e}")
-        # Fallback: página simples
-        return f"""
-        <html>
-            <body style="font-family: Arial, sans-serif; padding: 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center;">
-                <div style="background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 600px;">
-                    <h1 style="color: #2c3e50;">🔐 Ativar Conta</h1>
-                    <p style="color: #7f8c8d;">Token: {token}</p>
-                    <p>Página de ativação carregada com sucesso!</p>
-                    <p style="color: #e74c3c;">Erro ao carregar página completa. Tente novamente.</p>
-                </div>
-            </body>
-        </html>
-        """, 200, {'Content-Type': 'text/html; charset=utf-8'}
+        .logo {{
+            text-align: center;
+            margin-bottom: 30px;
+        }}
+        
+        .logo h1 {{
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin: 0;
+        }}
+        
+        .logo p {{
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 5px 0 0 0;
+        }}
+        
+        h2 {{
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }}
+        
+        .subtitle {{
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }}
+        
+        .token-info {{
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #666;
+        }}
+        
+        .form-group {{
+            margin-bottom: 20px;
+            text-align: left;
+        }}
+        
+        label {{
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }}
+        
+        input[type="password"] {{
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }}
+        
+        input[type="password"]:focus {{
+            outline: none;
+            border-color: #667eea;
+        }}
+        
+        .checkbox-group {{
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            text-align: left;
+        }}
+        
+        .checkbox-group input[type="checkbox"] {{
+            margin-right: 10px;
+            transform: scale(1.2);
+        }}
+        
+        .checkbox-group label {{
+            margin-bottom: 0;
+            font-weight: normal;
+            color: #555;
+        }}
+        
+        .btn {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            margin-bottom: 20px;
+        }}
+        
+        .btn:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }}
+        
+        .disclaimer {{
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: left;
+        }}
+        
+        .disclaimer h3 {{
+            color: #856404;
+            margin-bottom: 10px;
+        }}
+        
+        .disclaimer p {{
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.5;
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>PONTO ÓTIMO INVEST</h1>
+            <p>Ferramentas de Análise de Investimentos</p>
+        </div>
+        
+        <h2>🔐 Ativar Conta</h2>
+        <p class="subtitle">Defina sua senha para acessar a plataforma</p>
+        
+        <div class="token-info">
+            <strong>Token:</strong> {token}
+        </div>
+        
+        <form id="activationForm">
+            <div class="form-group">
+                <label for="password">Nova Senha:</label>
+                <input type="password" id="password" name="password" required minlength="6" placeholder="Digite sua senha (mínimo 6 caracteres)">
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar Senha:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6" placeholder="Confirme sua senha">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
+                <label for="acceptTerms">Aceito os <a href="#" style="color: #667eea;">Termos de Uso</a> e <a href="#" style="color: #667eea;">Política de Privacidade</a></label>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">
+                🚀 Ativar Minha Conta
+            </button>
+        </form>
+        
+        <div class="disclaimer">
+            <h3>⚠️ Aviso Importante</h3>
+            <p>
+                Esta plataforma fornece FERRAMENTAS ANALÍTICAS e DADOS HISTÓRICOS para auxiliar na sua tomada de decisão de investimentos. 
+                As informações e ferramentas aqui apresentadas <strong>NÃO CONSTITUEM RECOMENDAÇÃO DE INVESTIMENTO</strong>, consultoria ou oferta de compra/venda de quaisquer ativos financeiros. 
+                O desempenho passado não é garantia de resultados futuros. Investir no mercado financeiro envolve riscos, e você deve realizar sua própria pesquisa e/ou consultar um profissional qualificado antes de tomar qualquer decisão de investimento.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('activationForm').addEventListener('submit', async function(e) {{
+            e.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const acceptTerms = document.getElementById('acceptTerms').checked;
+            
+            if (password !== confirmPassword) {{
+                alert('As senhas não coincidem!');
+                return;
+            }}
+            
+            if (password.length < 6) {{
+                alert('A senha deve ter pelo menos 6 caracteres!');
+                return;
+            }}
+            
+            if (!acceptTerms) {{
+                alert('Você deve aceitar os Termos de Uso!');
+                return;
+            }}
+            
+            try {{
+                const response = await fetch(`/api/ativar-conta/{token}`, {{
+                    method: 'POST',
+                    headers: {{
+                        'Content-Type': 'application/json',
+                    }},
+                    body: JSON.stringify({{
+                        password: password
+                    }})
+                }});
+                
+                const result = await response.json();
+                
+                if (result.success) {{
+                    alert('✅ Conta ativada com sucesso!');
+                    window.location.href = '/';
+                }} else {{
+                    alert('❌ Erro: ' + result.message);
+                }}
+                
+            }} catch (error) {{
+                console.error('Erro:', error);
+                alert('❌ Erro ao ativar conta. Tente novamente.');
+            }}
+        }});
+    </script>
+</body>
+</html>
+    """
+    
+    from flask import Response
+    return Response(html_content, mimetype='text/html; charset=utf-8')
 
 
 @app.route('/api/verificar-token/<token>', methods=['GET'])
