@@ -473,7 +473,7 @@ def ativar_conta_page(token):
 </html>
     """
     
-    """, token=token)
+    """, token=token), 200, {'Content-Type': 'text/html; charset=utf-8'}
 
 
 @app.route('/api/verificar-token/<token>', methods=['GET'])
