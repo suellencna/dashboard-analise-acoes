@@ -139,10 +139,10 @@ def criar_usuario_teste():
             
             conn.commit()
         
-        # Enviar email de ativação
+        # Enviar email de ativação via Gmail SMTP
         try:
-            from email_service import enviar_email_ativacao
-            sucesso, mensagem = enviar_email_ativacao(email, nome, token)
+            from email_service_gmail import enviar_email_ativacao_gmail
+            sucesso, mensagem = enviar_email_ativacao_gmail(email, nome, token)
             email_enviado = sucesso
             email_mensagem = mensagem
         except Exception as e:
@@ -430,10 +430,10 @@ def processar_compra_background(email, nome):
                 })
                 conn.commit()
                 
-                # Enviar email de ativação
+                # Enviar email de ativação via Gmail SMTP
                 try:
-                    from email_service import enviar_email_ativacao
-                    sucesso, mensagem = enviar_email_ativacao(email, nome, token_ativacao)
+                    from email_service_gmail import enviar_email_ativacao_gmail
+                    sucesso, mensagem = enviar_email_ativacao_gmail(email, nome, token_ativacao)
                     if sucesso:
                         logger.info(f"--- BACKGROUND: Email de ativação enviado para {email} ---")
                     else:

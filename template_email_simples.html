@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Ativação de Conta</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
+    
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        
+        <!-- Header -->
+        <div style="background-color: #2c3e50; padding: 30px; text-align: center;">
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">PONTO ÓTIMO INVEST</h1>
+            <p style="color: #bdc3c7; margin: 5px 0 0 0; font-size: 14px;">Ferramentas de Análise de Investimentos</p>
+        </div>
+        
+        <!-- Conteúdo -->
+        <div style="padding: 40px 30px;">
+            
+            <h2 style="color: #2c3e50; margin: 0 0 20px 0;">Ative sua Conta</h2>
+            
+            <p>Olá <strong>{{nome}}</strong>,</p>
+            
+            <p>Seja bem-vindo(a) ao Ponto Ótimo Invest!</p>
+            
+            <p>Para ativar sua conta e começar a usar nossas ferramentas de análise, clique no botão abaixo:</p>
+            
+            <!-- Botão -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{link_ativacao}}" 
+                   style="background-color: #27ae60; 
+                          color: #ffffff; 
+                          padding: 15px 30px; 
+                          text-decoration: none; 
+                          border-radius: 5px; 
+                          font-weight: bold; 
+                          display: inline-block;">
+                    ATIVAR MINHA CONTA
+                </a>
+            </div>
+            
+            <p><strong>Importante:</strong> Este link expira em 48 horas.</p>
+            
+            <!-- O que você terá -->
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+                <h3 style="color: #2c3e50; margin: 0 0 15px 0;">O que você terá acesso:</h3>
+                <ul style="color: #555; margin: 0;">
+                    <li>Análise de ativos e setores</li>
+                    <li>Métricas de risco e retorno</li>
+                    <li>Dados históricos</li>
+                    <li>Ferramentas educacionais</li>
+                </ul>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p style="color: #856404; margin: 0; font-size: 14px;">
+                    <strong>Aviso:</strong> Esta plataforma fornece ferramentas analíticas e dados históricos 
+                    para fins educacionais. NÃO constitui recomendação de investimento.
+                </p>
+            </div>
+            
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #ecf0f1; padding: 20px; text-align: center;">
+            <p style="color: #7f8c8d; margin: 0; font-size: 12px;">
+                Ponto Ótimo Invest - Este é um email automático
+            </p>
+        </div>
+        
+    </div>
+    
+    <!-- Link de fallback -->
+    <div style="max-width: 600px; margin: 20px auto; padding: 15px; background-color: #ffffff; border-radius: 5px; text-align: center;">
+        <p style="color: #666; font-size: 12px; margin: 0;">
+            Se o botão não funcionar: {{link_ativacao}}
+        </p>
+    </div>
+    
+</body>
+</html>
