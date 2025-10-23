@@ -218,7 +218,8 @@ def test_email():
 @app.route('/ativar/<token>')
 def ativar_conta_page(token):
     """Página de ativação de conta - versão inline funcional"""
-    return render_template_string("""
+    from flask import make_response
+    html_content = """
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -473,7 +474,11 @@ def ativar_conta_page(token):
 </html>
     """
     
-    """, token=token), 200, {'Content-Type': 'text/html; charset=utf-8'}
+    """.replace('{token}', token)
+    
+    response = make_response(html_content)
+    response.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return response
 
 
 @app.route('/api/verificar-token/<token>', methods=['GET'])
