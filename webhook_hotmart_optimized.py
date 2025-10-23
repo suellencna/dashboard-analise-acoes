@@ -216,6 +216,7 @@ def test_email():
 
 
 @app.route('/ativar/<token>')
+@app.route('/ativacao/<token>')
 def ativar_conta_page(token):
     """Página de ativação de conta - versão inline funcional"""
     from flask import make_response
