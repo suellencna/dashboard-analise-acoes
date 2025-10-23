@@ -217,13 +217,33 @@ def test_email():
 
 @app.route('/ativar/<token>')
 def ativar_conta_page(token):
-    """Página de ativação de conta"""
-    # Por enquanto, vamos servir uma página estática
-    with open('ativacao_estatica.html', 'r', encoding='utf-8') as f:
-        html_content = f.read()
-    
-    from flask import Response
-    return Response(html_content, mimetype='text/html')
+    """Página de ativação de conta - versão estática funcional"""
+    try:
+        # Ler o arquivo HTML estático
+        with open('ativacao_railway.html', 'r', encoding='utf-8') as f:
+            html_content = f.read()
+        
+        # Substituir o token padrão pelo token real
+        html_content = html_content.replace('Z1PB2y0TSKc1r8_xjnt2r0mOK95YJS74M8sZSCF0ELw', token)
+        
+        from flask import Response
+        return Response(html_content, mimetype='text/html')
+        
+    except Exception as e:
+        logger.error(f"Erro ao servir página de ativação: {e}")
+        # Fallback: página simples
+        return f"""
+        <html>
+            <body style="font-family: Arial, sans-serif; padding: 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center;">
+                <div style="background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 600px;">
+                    <h1 style="color: #2c3e50;">🔐 Ativar Conta</h1>
+                    <p style="color: #7f8c8d;">Token: {token}</p>
+                    <p>Página de ativação carregada com sucesso!</p>
+                    <p style="color: #e74c3c;">Erro ao carregar página completa. Tente novamente.</p>
+                </div>
+            </body>
+        </html>
+        """, 200, {'Content-Type': 'text/html; charset=utf-8'}
 
 
 @app.route('/api/verificar-token/<token>', methods=['GET'])

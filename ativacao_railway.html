@@ -32,23 +32,42 @@
         }
         
         .logo {
-            width: 150px;
-            height: auto;
-            margin-bottom: 20px;
-            object-fit: contain;
-            max-height: 80px;
+            text-align: center;
+            margin-bottom: 30px;
         }
         
-        h1 {
+        .logo h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin: 0;
+        }
+        
+        .logo p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin: 5px 0 0 0;
+        }
+        
+        h2 {
             color: #2c3e50;
             margin-bottom: 10px;
-            font-size: 2.5em;
+            font-size: 2em;
         }
         
         .subtitle {
             color: #7f8c8d;
             margin-bottom: 30px;
-            font-size: 1.2em;
+            font-size: 1.1em;
+        }
+        
+        .token-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #666;
         }
         
         .form-group {
@@ -160,51 +179,16 @@
             font-weight: 600;
             margin-top: 20px;
         }
-        
-        .token-info {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            font-family: monospace;
-            font-size: 14px;
-            color: #666;
-        }
-        
-        .test-links {
-            background: #e8f4fd;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: left;
-        }
-        
-        .test-links h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-        }
-        
-        .test-links a {
-            display: block;
-            color: #667eea;
-            text-decoration: none;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 5px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .test-links a:hover {
-            background: #f8f9fa;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <img src="https://www.pontootimo.com.br/slogan_preto.png" alt="Ponto Ótimo Invest" class="logo">
+        <div class="logo">
+            <h1>PONTO ÓTIMO INVEST</h1>
+            <p>Ferramentas de Análise de Investimentos</p>
+        </div>
         
-        <h1>🔐 Ativar Conta</h1>
+        <h2>🔐 Ativar Conta</h2>
         <p class="subtitle">Defina sua senha para acessar a plataforma</p>
         
         <div class="token-info">
@@ -244,15 +228,6 @@
             </div>
         </form>
         
-        <div class="test-links">
-            <h3>🔗 Links de Teste:</h3>
-            <a href="?token=A2aRI9Qyk3O5V08U-Ke8YzFElaMPAz9K15c1k5mSXZA">Gmail 1 - suellencna@gmail.com</a>
-            <a href="?token=mSWn34TCEat3PRye9Gmqu1EMNOqvLcGdVMt8dD9z7aI">Yahoo - suellencna@yahoo.com.br</a>
-            <a href="?token=2EgiGzcgqFQv0LNgNqMIBDnPydxMklLUvzwiFYm-2J8">Hotmail - suellencna@hotmail.com</a>
-            <a href="?token=yNkHGUxmy-JZiEiMS43aVgObXa2ipkXOuy21MA6__mQ">Gmail 2 - aaisuellen@gmail.com</a>
-            <a href="?token=4qkr3d7oPphE-TdX1YvoEhrpeX9hei1CTnZXRLCLQdg">Outlook - jorgehap@outlook.com</a>
-        </div>
-        
         <div class="disclaimer">
             <h3>⚠️ Aviso Importante</h3>
             <p>
@@ -276,12 +251,12 @@
             // Tentar extrair do path
             const pathParts = window.location.pathname.split('/');
             const tokenFromPath = pathParts[pathParts.length - 1];
-            if (tokenFromPath && tokenFromPath !== 'ativar' && tokenFromPath !== 'ativacao_melhorada.html') {
+            if (tokenFromPath && tokenFromPath !== 'ativar' && tokenFromPath !== 'ativacao_railway.html') {
                 return tokenFromPath;
             }
             
             // Token padrão para teste
-            return 'A2aRI9Qyk3O5V08U-Ke8YzFElaMPAz9K15c1k5mSXZA';
+            return 'Z1PB2y0TSKc1r8_xjnt2r0mOK95YJS74M8sZSCF0ELw';
         }
         
         // Configurar token
