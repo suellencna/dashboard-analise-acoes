@@ -1,6 +1,6 @@
 # webhook_hotmart_optimized.py - VERSÃO OTIMIZADA PARA CORRIGIR ERRO 408
 
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, render_template_string
 import os
 import sqlalchemy
 from argon2 import PasswordHasher
@@ -218,7 +218,7 @@ def test_email():
 @app.route('/ativar/<token>')
 def ativar_conta_page(token):
     """Página de ativação de conta - versão inline funcional"""
-    html_content = f"""
+    return render_template_string("""
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -473,8 +473,7 @@ def ativar_conta_page(token):
 </html>
     """
     
-    from flask import Response
-    return Response(html_content, mimetype='text/html; charset=utf-8')
+    """, token=token)
 
 
 @app.route('/api/verificar-token/<token>', methods=['GET'])
