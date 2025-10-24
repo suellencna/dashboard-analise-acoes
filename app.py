@@ -1540,7 +1540,7 @@ else:
     
     # LOGO CENTRALIZADO - APENAS IMAGEM
     st.markdown("""
-    <div style="text-align: center; margin: 40px 0;">
+    <div style="text-align: center; margin: 40px 0; display: flex; justify-content: center; align-items: center;">
     """, unsafe_allow_html=True)
     
     try:
@@ -1598,7 +1598,7 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
     
     # Seção de Benefícios
-    st.markdown("### 🎯 Por que escolher o Ponto Ótimo Invest?")
+    st.markdown("###  Por que escolher o Ponto Ótimo Invest?")
     
     col_ben1, col_ben2 = st.columns(2)
     
@@ -1747,7 +1747,7 @@ else:
     st.sidebar.markdown("""
     <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;'>
         <h4 style='color: #333; margin-top: 0; margin-bottom: 10px;'>Precisa de ajuda?</h4>
-        <p style='color: #667eea; font-weight: bold; margin: 5px 0 0 0; font-size: 14px;'>
+        <p style='color: #667eea; font-weight: bold; margin: 5px 0 0 0; font-size: 12px;'>
             pontootimoinvest@gmail.com
         </p>
     </div>
