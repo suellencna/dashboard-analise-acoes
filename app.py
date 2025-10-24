@@ -82,8 +82,9 @@ def check_login(email, password):
         try:
             ph.verify(senha_hash_salva, password)
             if status_assinatura == 'ativo':
-                # Verificar se é senha padrão (primeiro acesso)
-                if password == "123456":
+                # Verificar se é senha temporária (primeiro acesso)
+                # Senhas temporárias são geradas com secrets.token_urlsafe(8) - 8 caracteres
+                if len(password) == 8 and password.isalnum():
                     # Primeiro acesso - forçar troca de senha
                     return True, nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim, "FIRST_ACCESS"
                 else:
@@ -1539,163 +1540,25 @@ else:
     # Botão "Esqueci minha senha"
     st.sidebar.markdown("---")
     
-    # Botões de ajuda
-    col_help1, col_help2 = st.sidebar.columns(2)
+    # Botão de ajuda
+    if st.sidebar.button("🔑 Esqueci minha senha", use_container_width=True):
+        st.session_state["show_forgot_password"] = True
+        st.rerun()
     
-    with col_help1:
-        if st.button("🔑 Esqueci minha senha", use_container_width=True):
-            st.session_state["show_forgot_password"] = True
-            st.rerun()
-    
-    with col_help2:
-        if st.button("📧 Reenviar credenciais", use_container_width=True):
-            st.session_state["show_resend_credentials"] = True
-            st.rerun()
+    # Informações de suporte
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("""
+    <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;'>
+        <h4 style='color: #333; margin-top: 0; margin-bottom: 10px;'>🆘 Precisa de Ajuda?</h4>
+        <p style='color: #666; font-size: 14px; margin: 0;'>
+            Se não conseguir fazer login ou precisar de suas credenciais, entre em contato conosco:
+        </p>
+        <p style='color: #667eea; font-weight: bold; margin: 5px 0 0 0;'>
+            📧 pontootimoinvest@gmail.com
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Seção de "Reenviar credenciais"
-    if st.session_state.get("show_resend_credentials", False):
-        st.sidebar.markdown("---")
-        st.sidebar.subheader("📧 Reenviar Credenciais")
-        
-        email_reenvio = st.sidebar.text_input(
-            "📧 Digite seu email",
-            placeholder="seu@email.com",
-            key="email_reenvio"
-        )
-        
-        col_send, col_cancel = st.sidebar.columns(2)
-        
-        with col_send:
-            if st.button("📤 Reenviar", use_container_width=True):
-                if email_reenvio:
-                    try:
-                        # Verificar se usuário existe
-                        existe, nome = verificar_usuario_existe(email_reenvio)
-                        if existe:
-                            # Gerar nova senha temporária
-                            import secrets
-                            senha_temporaria = secrets.token_urlsafe(8)
-                            senha_hash = ph.hash(senha_temporaria)
-                            
-                            # Atualizar senha no banco
-                            with engine.connect() as conn:
-                                query_update = sqlalchemy.text("""
-                                    UPDATE usuarios 
-                                    SET senha_hash = :senha_hash 
-                                    WHERE email = :email
-                                """)
-                                conn.execute(query_update, {
-                                    "senha_hash": senha_hash,
-                                    "email": email_reenvio
-                                })
-                                conn.commit()
-                            
-                            # Enviar email com credenciais
-                            try:
-                                import smtplib
-                                import ssl
-                                from email.mime.text import MIMEText
-                                from email.mime.multipart import MIMEMultipart
-                                
-                                # Configurações Gmail SMTP
-                                smtp_server = "smtp.gmail.com"
-                                smtp_port = 587
-                                email_remetente = "pontootimoinvest@gmail.com"
-                                senha_app = os.getenv("GMAIL_APP_PASSWORD", "snbo xxle cero dloe")
-                                
-                                # Conteúdo do email
-                                assunto = "🔑 Suas Credenciais de Acesso - Ponto Ótimo Invest"
-                                
-                                html_content = f"""
-                                <!DOCTYPE html>
-                                <html>
-                                <head>
-                                    <meta charset="UTF-8">
-                                    <title>Credenciais de Acesso</title>
-                                </head>
-                                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-                                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-                                        <h1 style="color: white; margin: 0; font-size: 28px;">🎯 Ponto Ótimo Invest</h1>
-                                        <p style="color: white; margin: 10px 0 0 0; font-size: 16px;">Suas credenciais de acesso</p>
-                                    </div>
-                                    
-                                    <div style="background: #f8f9fa; padding: 30px; border-radius: 10px; margin-bottom: 30px;">
-                                        <h2 style="color: #333; margin-top: 0;">🔑 Suas Credenciais de Acesso</h2>
-                                        <p>Olá! Aqui estão suas credenciais para acessar o sistema:</p>
-                                        
-                                        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #4caf50;">
-                                            <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px 0;">
-                                                <p style="margin: 5px 0; font-family: monospace; font-size: 16px;">
-                                                    <strong>Email:</strong> {email_reenvio}
-                                                </p>
-                                                <p style="margin: 5px 0; font-family: monospace; font-size: 16px;">
-                                                    <strong>Senha temporária:</strong> {senha_temporaria}
-                                                </p>
-                                            </div>
-                                            <p style="color: #666; font-size: 14px; margin: 10px 0 0 0;">
-                                                ⚠️ <strong>Importante:</strong> Na primeira vez que fizer login, você será obrigado a alterar esta senha por segurança.
-                                            </p>
-                                        </div>
-                                        
-                                        <div style="text-align: center; margin: 30px 0;">
-                                            <a href="https://streamlit-analise-acoes.onrender.com/" 
-                                               style="background: linear-gradient(135deg, #667eea, #764ba2); 
-                                                      color: white; 
-                                                      padding: 15px 30px; 
-                                                      text-decoration: none; 
-                                                      border-radius: 50px; 
-                                                      font-weight: bold; 
-                                                      font-size: 16px;
-                                                      display: inline-block;">
-                                                🚀 Acessar Dashboard
-                                            </a>
-                                        </div>
-                                    </div>
-                                    
-                                    <div style="text-align: center; padding: 20px; border-top: 1px solid #eee;">
-                                        <p style="margin: 0; color: #666; font-size: 14px;">
-                                            <strong>Ponto Ótimo Invest</strong><br>
-                                            Seu dashboard de análise de ações<br>
-                                            <a href="mailto:pontootimoinvest@gmail.com" style="color: #667eea;">pontootimoinvest@gmail.com</a>
-                                        </p>
-                                    </div>
-                                </body>
-                                </html>
-                                """
-                                
-                                # Criar mensagem
-                                msg = MIMEMultipart("alternative")
-                                msg["From"] = email_remetente
-                                msg["To"] = email_reenvio
-                                msg["Subject"] = assunto
-                                
-                                # Adicionar conteúdo HTML
-                                html_part = MIMEText(html_content, "html", "utf-8")
-                                msg.attach(html_part)
-                                
-                                # Enviar email
-                                context = ssl.create_default_context()
-                                with smtplib.SMTP(smtp_server, smtp_port) as server:
-                                    server.starttls(context=context)
-                                    server.login(email_remetente, senha_app)
-                                    server.sendmail(email_remetente, email_reenvio, msg.as_string())
-                                
-                                st.sidebar.success(f"✅ Credenciais reenviadas para {email_reenvio}")
-                                st.sidebar.info(f"🔑 Nova senha: {senha_temporaria}")
-                                
-                            except Exception as e:
-                                st.sidebar.error(f"❌ Erro ao enviar email: {e}")
-                        else:
-                            st.sidebar.error("❌ Email não encontrado no sistema")
-                    except Exception as e:
-                        st.sidebar.error(f"❌ Erro: {e}")
-                else:
-                    st.sidebar.warning("⚠️ Digite um email válido")
-        
-        with col_cancel:
-            if st.button("❌ Cancelar", use_container_width=True):
-                st.session_state["show_resend_credentials"] = False
-                st.rerun()
 
     # Seção de "Esqueci minha senha"
     if st.session_state.get("show_forgot_password", False):
