@@ -157,7 +157,18 @@ if 'gerar_analise_ia' not in st.session_state:
 if 'force_password_change' not in st.session_state:
     st.session_state.force_password_change = False
 
-# --- 5. LÓGICA DA INTERFACE ---
+# --- 5. VERIFICAR TOKEN DE ATIVAÇÃO ---
+# Verificar se há token na URL (para ativação)
+if 'token' in st.query_params:
+    token = st.query_params['token']
+    st.info(f"🔗 Token de ativação detectado: {token}")
+    
+    # Aqui você pode adicionar lógica para processar o token
+    # Por exemplo, verificar se o token é válido e ativar a conta
+    st.success("✅ Token de ativação recebido! Sua conta será ativada em breve.")
+    st.info("💡 Faça login normalmente para acessar o sistema.")
+
+# --- 6. LÓGICA DA INTERFACE ---
 if st.session_state.get("authentication_status"):
     # SE ESTIVER LOGADO, MOSTRA O DASHBOARD COMPLETO
     st.sidebar.image("prints/slogan_preto.png", width=150)
