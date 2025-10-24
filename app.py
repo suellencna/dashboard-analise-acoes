@@ -17,19 +17,20 @@ import yfinance as yf
 # --- Configurações da Página e Estilo ---
 st.set_page_config(page_title="Análise de Carteira", layout="wide")
 
-# Tema personalizado com melhor contraste
+# Tema personalizado que se adapta ao sistema do usuário
 st.markdown("""
 <style>
+    /* Tema personalizado que se adapta ao sistema */
     .stApp {
-        background-color: #f8f9fa;
-        color: #333333;
+        background-color: var(--background-color, #f8f9fa);
+        color: var(--text-color, #333333);
     }
     .stSidebar {
-        background-color: #ffffff;
-        border-right: 1px solid #e0e0e0;
+        background-color: var(--sidebar-bg, #ffffff);
+        border-right: 1px solid var(--border-color, #e0e0e0);
     }
     .stSidebar .stMarkdown {
-        color: #333333;
+        color: var(--text-color, #333333);
     }
     .stButton > button {
         background-color: #667eea;
@@ -45,9 +46,9 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
     .stTextInput > div > div > input {
-        background-color: #ffffff;
-        color: #333333;
-        border: 2px solid #e0e0e0;
+        background-color: var(--input-bg, #ffffff);
+        color: var(--text-color, #333333);
+        border: 2px solid var(--border-color, #e0e0e0);
         border-radius: 8px;
         padding: 0.5rem;
     }
@@ -56,31 +57,31 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
     .stSelectbox > div > div > select {
-        background-color: #ffffff;
-        color: #333333;
-        border: 2px solid #e0e0e0;
+        background-color: var(--input-bg, #ffffff);
+        color: var(--text-color, #333333);
+        border: 2px solid var(--border-color, #e0e0e0);
         border-radius: 8px;
     }
     .stNumberInput > div > div > input {
-        background-color: #ffffff;
-        color: #333333;
-        border: 2px solid #e0e0e0;
+        background-color: var(--input-bg, #ffffff);
+        color: var(--text-color, #333333);
+        border: 2px solid var(--border-color, #e0e0e0);
         border-radius: 8px;
     }
     .stDateInput > div > div > input {
-        background-color: #ffffff;
-        color: #333333;
-        border: 2px solid #e0e0e0;
+        background-color: var(--input-bg, #ffffff);
+        color: var(--text-color, #333333);
+        border: 2px solid var(--border-color, #e0e0e0);
         border-radius: 8px;
     }
     .stDataFrame {
-        background-color: #ffffff;
-        border: 1px solid #e0e0e0;
+        background-color: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e0e0e0);
         border-radius: 8px;
     }
     .stAlert {
-        background-color: #ffffff;
-        border: 1px solid #e0e0e0;
+        background-color: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e0e0e0);
         border-radius: 8px;
     }
     .stSuccess {
@@ -103,12 +104,46 @@ st.markdown("""
         border: 1px solid #bee5eb;
         color: #0c5460;
     }
-    /* Melhorar contraste dos labels */
+    
+    /* Cores cinza claro para todos os textos (exceto botões) */
+    .stMarkdown, .stMarkdown p, .stMarkdown div, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #6c757d !important;
+    }
+    
+    /* Labels do login em cinza claro */
     .stSidebar .stMarkdown h1, .stSidebar .stMarkdown h2, .stSidebar .stMarkdown h3 {
-        color: #333333 !important;
+        color: #6c757d !important;
     }
     .stSidebar .stMarkdown p, .stSidebar .stMarkdown div {
-        color: #333333 !important;
+        color: #6c757d !important;
+    }
+    
+    /* Inputs com texto cinza claro */
+    .stTextInput > div > div > input {
+        color: #6c757d !important;
+    }
+    
+    /* Cards com texto cinza claro */
+    .feature-card {
+        color: #6c757d !important;
+    }
+    
+    /* Seção de benefícios com texto cinza claro */
+    .benefits-section {
+        color: #6c757d !important;
+    }
+    
+    /* Responsividade para evitar overflow */
+    .stMarkdown {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+    }
+    
+    /* Container responsivo */
+    .main-container {
+        max-width: 100%;
+        overflow-x: hidden;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -1500,11 +1535,14 @@ if st.session_state.get("authentication_status"):
                 st.rerun()
 
 else:
+    # Container responsivo para evitar overflow
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
+    
     # PÁGINA INICIAL PROFISSIONAL (ANTES DO LOGIN)
     st.markdown("""
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 20px; border-radius: 15px; margin-bottom: 40px; text-align: center; color: white;">
         <h1 style="font-size: 3.5rem; margin: 0; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-            🎯 Ponto Ótimo Invest
+            Ponto Ótimo Invest
         </h1>
         <p style="font-size: 1.5rem; margin: 20px 0; opacity: 0.9; font-weight: 300;">
             Otimizando seu conhecimento em Investimentos
@@ -1521,10 +1559,10 @@ else:
     
     with col1:
         st.markdown("""
-        <div style="background: #ffffff; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #e0e0e0; height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--card-bg, #ffffff); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">⭐</div>
             <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Análise Markowitz</h3>
-            <p style="color: #666; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+            <p style="color: #6c757d; font-size: 0.9rem; line-height: 1.4; margin: 0;">
                 Otimização de carteiras com análise de risco e retorno, 
                 encontrando a melhor combinação de ativos para seus objetivos
             </p>
@@ -1533,10 +1571,10 @@ else:
     
     with col2:
         st.markdown("""
-        <div style="background: #ffffff; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #e0e0e0; height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--card-bg, #ffffff); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">📈</div>
             <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Simulação Monte Carlo</h3>
-            <p style="color: #666; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+            <p style="color: #6c757d; font-size: 0.9rem; line-height: 1.4; margin: 0;">
                 Projeções de cenários futuros com milhares de simulações, 
                 ajudando você a tomar decisões mais informadas
             </p>
@@ -1545,10 +1583,10 @@ else:
     
     with col3:
         st.markdown("""
-        <div style="background: #ffffff; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #e0e0e0; height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--card-bg, #ffffff); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
             <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Métricas em Tempo Real</h3>
-            <p style="color: #666; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+            <p style="color: #6c757d; font-size: 0.9rem; line-height: 1.4; margin: 0;">
                 Dados atualizados constantemente com análises de volatilidade, 
                 Sharpe ratio e comparações com benchmarks
             </p>
@@ -1558,35 +1596,33 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
     
     # Seção de Benefícios
-    st.markdown("""
-    <div style="background: #ffffff; padding: 40px; border-radius: 15px; margin: 30px 0; border: 1px solid #e0e0e0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <h2 style="color: #667eea; text-align: center; margin-bottom: 30px; font-size: 2rem;">
-            🎯 Por que escolher o Ponto Ótimo Invest?
-        </h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <div>
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Interface Intuitiva</h4>
-                <p style="color: #666; margin: 0 0 20px 0;">Design moderno e fácil de usar</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Análise Profissional</h4>
-                <p style="color: #666; margin: 0 0 20px 0;">Ferramentas de nível institucional</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Dados Confiáveis</h4>
-                <p style="color: #666; margin: 0;">Fontes oficiais da B3 e CVM</p>
-            </div>
-            <div>
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Otimização Avançada</h4>
-                <p style="color: #666; margin: 0 0 20px 0;">Algoritmos híbridos Markowitz + Risk Parity</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Projeções Realistas</h4>
-                <p style="color: #666; margin: 0 0 20px 0;">Simulações Monte Carlo precisas</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Suporte Especializado</h4>
-                <p style="color: #666; margin: 0;">Atendimento personalizado</p>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 🎯 Por que escolher o Ponto Ótimo Invest?")
+    
+    col_ben1, col_ben2 = st.columns(2)
+    
+    with col_ben1:
+        st.markdown("""
+        **✅ Interface Intuitiva**  
+        Design moderno e fácil de usar
+        
+        **✅ Análise Profissional**  
+        Ferramentas de nível institucional
+        
+        **✅ Dados Confiáveis**  
+        Fontes oficiais da B3 e CVM
+        """)
+    
+    with col_ben2:
+        st.markdown("""
+        **✅ Otimização Avançada**  
+        Algoritmos híbridos Markowitz + Risk Parity
+        
+        **✅ Projeções Realistas**  
+        Simulações Monte Carlo precisas
+        
+        **✅ Suporte Especializado**  
+        Atendimento personalizado
+        """)
     
     # Call to Action com link para compra
     st.markdown("""
@@ -1612,6 +1648,9 @@ else:
     </div>
     """, unsafe_allow_html=True)
     
+    # Fechar container responsivo
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     # Seção de Login
     st.markdown("---")
     st.markdown("### 🔑 Já tem acesso? Faça login:")
@@ -1629,9 +1668,9 @@ else:
                 raise FileNotFoundError("Logo não encontrado")
         except Exception as e:
             st.markdown("""
-            <div style="text-align: center; padding: 40px; background: #1e1e1e; border-radius: 15px; border: 1px solid #333;">
-                <h1 style="color: #667eea; font-size: 2.5rem; margin: 0;">🎯 Ponto Ótimo Invest</h1>
-                <p style="color: #ccc; font-size: 1.2rem; margin: 10px 0 0 0;">Otimizando seu conhecimento em Investimentos</p>
+            <div style="text-align: center; padding: 40px; background: var(--card-bg, #ffffff); border-radius: 15px; border: 1px solid var(--border-color, #e0e0e0); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h1 style="color: #667eea; font-size: 2.5rem; margin: 0;">Ponto Ótimo Invest</h1>
+                <p style="color: #6c757d; font-size: 1.2rem; margin: 10px 0 0 0;">Otimizando seu conhecimento em Investimentos</p>
             </div>
             """, unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
