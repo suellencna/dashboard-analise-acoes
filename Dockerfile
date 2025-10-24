@@ -17,8 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose port
-EXPOSE 5000
+# Expose port (Railway will set PORT environment variable)
+EXPOSE $PORT
 
 # Run the application
-CMD ["gunicorn", "webhook_hotmart_optimized:app", "--bind", "0.0.0.0:5000", "--timeout", "15", "--workers", "2", "--threads", "2"]
+CMD gunicorn webhook_hotmart_optimized:app --bind 0.0.0.0:$PORT --timeout 15 --workers 2 --threads 2
