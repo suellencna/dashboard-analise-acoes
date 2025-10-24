@@ -60,26 +60,8 @@ def test():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check otimizado"""
-    try:
-        if not engine:
-            return jsonify({"status": "unhealthy", "database": "no_engine"}), 503
-            
-        # Teste rápido de conexão
-        with engine.connect() as conn:
-            conn.execute(sqlalchemy.text("SELECT 1"))
-        return jsonify({
-            "status": "healthy", 
-            "database": "neon_connected",
-            "email_test": {
-                "mailersend_api_key": "SIM" if os.environ.get('MAILERSEND_API_KEY') else "NÃO",
-                "from_email": os.environ.get('FROM_EMAIL', 'NÃO DEFINIDO'),
-                "app_url": os.environ.get('APP_URL', 'NÃO DEFINIDO')
-            }
-        }), 200
-    except Exception as e:
-        logger.error(f"Health check failed: {e}")
-        return jsonify({"status": "unhealthy", "error": str(e)}), 503
+    """Health check simples para Railway"""
+    return "OK", 200
 
 
 @app.route('/criar-usuario-teste', methods=['POST'])
