@@ -1478,7 +1478,7 @@ else:
             🎯 Ponto Ótimo Invest
         </h1>
         <p style="font-size: 1.5rem; margin: 20px 0; opacity: 0.9; font-weight: 300;">
-            A carteira ideal ao seu alcance
+            Otimizando seu conhecimento em Investimentos
         </p>
         <p style="font-size: 1.1rem; margin: 0; opacity: 0.8; max-width: 600px; margin: 0 auto;">
             Plataforma profissional de análise de carteiras com otimização Markowitz, 
@@ -1529,35 +1529,33 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
     
     # Seção de Benefícios
-    st.markdown("""
-    <div style="background: #2d2d2d; padding: 40px; border-radius: 15px; margin: 30px 0; border: 1px solid #444;">
-        <h2 style="color: #667eea; text-align: center; margin-bottom: 30px; font-size: 2rem;">
-            Por que escolher o Ponto Ótimo Invest?
-        </h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <div>
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Interface Intuitiva</h4>
-                <p style="color: #ccc; margin: 0 0 20px 0;">Design moderno e fácil de usar</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Análise Profissional</h4>
-                <p style="color: #ccc; margin: 0 0 20px 0;">Ferramentas de nível institucional</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Dados Confiáveis</h4>
-                <p style="color: #ccc; margin: 0;">Fontes oficiais da B3 e CVM</p>
-            </div>
-            <div>
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Otimização Avançada</h4>
-                <p style="color: #ccc; margin: 0 0 20px 0;">Algoritmos híbridos Markowitz + Risk Parity</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Projeções Realistas</h4>
-                <p style="color: #ccc; margin: 0 0 20px 0;">Simulações Monte Carlo precisas</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Suporte Especializado</h4>
-                <p style="color: #ccc; margin: 0;">Atendimento personalizado</p>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("### 🎯 Por que escolher o Ponto Ótimo Invest?")
+    
+    col_ben1, col_ben2 = st.columns(2)
+    
+    with col_ben1:
+        st.markdown("""
+        **✅ Interface Intuitiva**  
+        Design moderno e fácil de usar
+        
+        **✅ Análise Profissional**  
+        Ferramentas de nível institucional
+        
+        **✅ Dados Confiáveis**  
+        Fontes oficiais da B3 e CVM
+        """)
+    
+    with col_ben2:
+        st.markdown("""
+        **✅ Otimização Avançada**  
+        Algoritmos híbridos Markowitz + Risk Parity
+        
+        **✅ Projeções Realistas**  
+        Simulações Monte Carlo precisas
+        
+        **✅ Suporte Especializado**  
+        Atendimento personalizado
+        """)
     
     # Call to Action com link para compra
     st.markdown("""
@@ -1578,7 +1576,7 @@ else:
             box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
             transition: all 0.3s ease;
         " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 75, 75, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 75, 75, 0.3)'">
-            🛒 Comprar Agora - R$ 59,90
+            🛒 Comprar Agora
         </a>
     </div>
     """, unsafe_allow_html=True)
@@ -1592,7 +1590,15 @@ else:
     with col2:
         # Logo centralizado e maior
         st.markdown("<div style='text-align: center; margin-top: 2rem;'>", unsafe_allow_html=True)
-        st.image("prints/slogan_preto.png", width=800)
+        try:
+            st.image("prints/slogan_preto.png", width=800)
+        except:
+            st.markdown("""
+            <div style="text-align: center; padding: 40px; background: #1e1e1e; border-radius: 15px; border: 1px solid #333;">
+                <h1 style="color: #667eea; font-size: 2.5rem; margin: 0;">🎯 Ponto Ótimo Invest</h1>
+                <p style="color: #ccc; font-size: 1.2rem; margin: 10px 0 0 0;">Otimizando seu conhecimento em Investimentos</p>
+            </div>
+            """, unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
         
         print()
@@ -1663,18 +1669,22 @@ else:
         # Limpar credenciais após usar
         del st.session_state["activation_credentials"]
     
+    st.sidebar.markdown("**📧 Email:**")
     email = st.sidebar.text_input(
-        "📧 Email", 
+        "Email", 
         value=email_default,
         placeholder="seu@email.com",
-        help="Digite o email cadastrado na Hotmart"
+        help="Digite o email cadastrado na Hotmart",
+        label_visibility="collapsed"
     )
+    st.sidebar.markdown("**🔒 Senha:**")
     password = st.sidebar.text_input(
-        "🔒 Senha", 
+        "Senha", 
         value=password_default,
         type="password",
         placeholder="Sua senha",
-        help="Digite a senha da sua conta Hotmart"
+        help="Digite a senha da sua conta Hotmart",
+        label_visibility="collapsed"
     )
 
     # Botão de login estilizado
