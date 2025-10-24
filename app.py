@@ -159,9 +159,8 @@ if 'force_password_change' not in st.session_state:
 
 # --- 5. VERIFICAR TOKEN DE ATIVAÇÃO ---
 # Verificar se há token na URL (para ativação)
-if 'token' in st.query_params:
+if 'token' in st.query_params and not st.session_state.get("authentication_status"):
     token = st.query_params['token']
-    st.info(f"🔗 Token de ativação detectado: {token}")
     
     # Processar ativação da conta
     try:
@@ -189,10 +188,6 @@ if 'token' in st.query_params:
                     conn.execute(query_ativar, {"token": token})
                     conn.commit()
                     
-                    st.success(f"✅ Conta ativada com sucesso! Bem-vindo(a), {nome}!")
-                    st.info("💡 Agora você pode fazer login com seu email e a senha temporária.")
-                    st.warning("⚠️ **IMPORTANTE:** Na primeira vez que fizer login, você será obrigado a alterar sua senha por segurança.")
-                    
                     # Gerar senha temporária
                     import secrets
                     senha_temporaria = secrets.token_urlsafe(8)
@@ -207,10 +202,19 @@ if 'token' in st.query_params:
                     conn.execute(query_senha, {"senha_hash": senha_hash_temp, "email": email})
                     conn.commit()
                     
+                    # Salvar credenciais na sessão
+                    st.session_state["activation_credentials"] = {
+                        "email": email,
+                        "senha": senha_temporaria,
+                        "nome": nome
+                    }
+                    
+                    st.success(f"✅ Conta ativada com sucesso! Bem-vindo(a), {nome}!")
+                    
                     # Mostrar informações de login
-                    st.markdown("### 🔑 Informações de Login:")
-                    st.code(f"Email: {email}")
-                    st.code(f"Senha temporária: {senha_temporaria}")
+                    st.markdown("### 🔑 Suas Credenciais de Login:")
+                    st.markdown(f"**Email:** `{email}`")
+                    st.markdown(f"**Senha temporária:** `{senha_temporaria}`")
                     st.warning("⚠️ **IMPORTANTE:** Use esta senha temporária para fazer login. Você será obrigado a alterá-la na primeira vez.")
                     
                 else:
@@ -1470,13 +1474,24 @@ else:
     </div>
     """, unsafe_allow_html=True)
     
+    # Preencher automaticamente se houver credenciais de ativação
+    email_default = ""
+    password_default = ""
+    if "activation_credentials" in st.session_state:
+        email_default = st.session_state["activation_credentials"]["email"]
+        password_default = st.session_state["activation_credentials"]["senha"]
+        # Limpar credenciais após usar
+        del st.session_state["activation_credentials"]
+    
     email = st.sidebar.text_input(
         "📧 Email", 
+        value=email_default,
         placeholder="seu@email.com",
         help="Digite o email cadastrado na Hotmart"
     )
     password = st.sidebar.text_input(
         "🔒 Senha", 
+        value=password_default,
         type="password",
         placeholder="Sua senha",
         help="Digite a senha da sua conta Hotmart"
