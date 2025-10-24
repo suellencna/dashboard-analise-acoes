@@ -1,0 +1,52 @@
+# Ignorar arquivos Python para deploy estático
+*.py
+__pycache__/
+venv/
+env/
+.python-version
+requirements.txt
+runtime.txt
+Procfile
+webhook_*.py
+email_service*.py
+test_*.py
+criar_*.py
+migrate_*.py
+deletar.py
+limpar_*.py
+pipeline_*.py
+coleta_*.py
+configurar_*.py
+consultar_*.py
+gerador_*.py
+mapa_*.py
+validador_*.py
+sistema_*.py
+webhook_server.py
+app.py
+backend.py
+curl.py
+test_login.py
+test_webhook.py
+servidor_temporario.py
+executar_ativacao.py
+ativacao_streamlit.py
+
+# Ignorar dados
+dados/
+downloads_brutos/
+prints/
+
+# Ignorar documentação
+*.md
+*.txt
+*.sql
+*.yaml
+*.yml
+*.json
+*.sh
+
+# Ignorar outros arquivos
+.git/
+.gitignore
+
