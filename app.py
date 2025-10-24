@@ -17,69 +17,98 @@ import yfinance as yf
 # --- Configurações da Página e Estilo ---
 st.set_page_config(page_title="Análise de Carteira", layout="wide")
 
-# Forçar tema escuro
+# Tema personalizado com melhor contraste
 st.markdown("""
 <style>
     .stApp {
-        background-color: #0e1117;
-        color: #ffffff;
+        background-color: #f8f9fa;
+        color: #333333;
     }
     .stSidebar {
-        background-color: #1e1e1e;
+        background-color: #ffffff;
+        border-right: 1px solid #e0e0e0;
+    }
+    .stSidebar .stMarkdown {
+        color: #333333;
     }
     .stButton > button {
-        background-color: #ff4b4b;
+        background-color: #667eea;
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
     }
     .stButton > button:hover {
-        background-color: #ff6b6b;
+        background-color: #5a6fd8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
     .stTextInput > div > div > input {
-        background-color: #2d2d2d;
-        color: white;
-        border: 1px solid #4a4a4a;
+        background-color: #ffffff;
+        color: #333333;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.5rem;
     }
     .stTextInput > div > div > input:focus {
-        border-color: #ff4b4b;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
     .stSelectbox > div > div > select {
-        background-color: #2d2d2d;
-        color: white;
+        background-color: #ffffff;
+        color: #333333;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
     }
     .stNumberInput > div > div > input {
-        background-color: #2d2d2d;
-        color: white;
-        border: 1px solid #4a4a4a;
+        background-color: #ffffff;
+        color: #333333;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
     }
     .stDateInput > div > div > input {
-        background-color: #2d2d2d;
-        color: white;
-        border: 1px solid #4a4a4a;
+        background-color: #ffffff;
+        color: #333333;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
     }
     .stDataFrame {
-        background-color: #1e1e1e;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
     }
     .stAlert {
-        background-color: #2d2d2d;
-        border: 1px solid #4a4a4a;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
     }
     .stSuccess {
-        background-color: #1e3a1e;
-        border: 1px solid #4a7c4a;
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
     }
     .stError {
-        background-color: #3a1e1e;
-        border: 1px solid #7c4a4a;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
     }
     .stWarning {
-        background-color: #3a3a1e;
-        border: 1px solid #7c7c4a;
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
     }
     .stInfo {
-        background-color: #1e3a3a;
-        border: 1px solid #4a7c7c;
+        background-color: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+    }
+    /* Melhorar contraste dos labels */
+    .stSidebar .stMarkdown h1, .stSidebar .stMarkdown h2, .stSidebar .stMarkdown h3 {
+        color: #333333 !important;
+    }
+    .stSidebar .stMarkdown p, .stSidebar .stMarkdown div {
+        color: #333333 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -1492,10 +1521,10 @@ else:
     
     with col1:
         st.markdown("""
-        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
-            <div style="font-size: 3rem; margin-bottom: 20px;">📊</div>
+        <div style="background: #ffffff; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #e0e0e0; height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-size: 3rem; margin-bottom: 20px;">⭐</div>
             <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Análise Markowitz</h3>
-            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+            <p style="color: #666; font-size: 0.9rem; line-height: 1.4; margin: 0;">
                 Otimização de carteiras com análise de risco e retorno, 
                 encontrando a melhor combinação de ativos para seus objetivos
             </p>
@@ -1504,10 +1533,10 @@ else:
     
     with col2:
         st.markdown("""
-        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
-            <div style="font-size: 3rem; margin-bottom: 20px;">🎲</div>
+        <div style="background: #ffffff; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #e0e0e0; height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="font-size: 3rem; margin-bottom: 20px;">📈</div>
             <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Simulação Monte Carlo</h3>
-            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+            <p style="color: #666; font-size: 0.9rem; line-height: 1.4; margin: 0;">
                 Projeções de cenários futuros com milhares de simulações, 
                 ajudando você a tomar decisões mais informadas
             </p>
@@ -1516,10 +1545,10 @@ else:
     
     with col3:
         st.markdown("""
-        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
+        <div style="background: #ffffff; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #e0e0e0; height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
             <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Métricas em Tempo Real</h3>
-            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+            <p style="color: #666; font-size: 0.9rem; line-height: 1.4; margin: 0;">
                 Dados atualizados constantemente com análises de volatilidade, 
                 Sharpe ratio e comparações com benchmarks
             </p>
@@ -1529,33 +1558,35 @@ else:
     st.markdown("<br>", unsafe_allow_html=True)
     
     # Seção de Benefícios
-    st.markdown("### 🎯 Por que escolher o Ponto Ótimo Invest?")
-    
-    col_ben1, col_ben2 = st.columns(2)
-    
-    with col_ben1:
-        st.markdown("""
-        **✅ Interface Intuitiva**  
-        Design moderno e fácil de usar
-        
-        **✅ Análise Profissional**  
-        Ferramentas de nível institucional
-        
-        **✅ Dados Confiáveis**  
-        Fontes oficiais da B3 e CVM
-        """)
-    
-    with col_ben2:
-        st.markdown("""
-        **✅ Otimização Avançada**  
-        Algoritmos híbridos Markowitz + Risk Parity
-        
-        **✅ Projeções Realistas**  
-        Simulações Monte Carlo precisas
-        
-        **✅ Suporte Especializado**  
-        Atendimento personalizado
-        """)
+    st.markdown("""
+    <div style="background: #ffffff; padding: 40px; border-radius: 15px; margin: 30px 0; border: 1px solid #e0e0e0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <h2 style="color: #667eea; text-align: center; margin-bottom: 30px; font-size: 2rem;">
+            🎯 Por que escolher o Ponto Ótimo Invest?
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Interface Intuitiva</h4>
+                <p style="color: #666; margin: 0 0 20px 0;">Design moderno e fácil de usar</p>
+                
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Análise Profissional</h4>
+                <p style="color: #666; margin: 0 0 20px 0;">Ferramentas de nível institucional</p>
+                
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Dados Confiáveis</h4>
+                <p style="color: #666; margin: 0;">Fontes oficiais da B3 e CVM</p>
+            </div>
+            <div>
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Otimização Avançada</h4>
+                <p style="color: #666; margin: 0 0 20px 0;">Algoritmos híbridos Markowitz + Risk Parity</p>
+                
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Projeções Realistas</h4>
+                <p style="color: #666; margin: 0 0 20px 0;">Simulações Monte Carlo precisas</p>
+                
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0; font-size: 1.1rem;">✅ Suporte Especializado</h4>
+                <p style="color: #666; margin: 0;">Atendimento personalizado</p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
     
     # Call to Action com link para compra
     st.markdown("""
@@ -1591,8 +1622,12 @@ else:
         # Logo centralizado e maior
         st.markdown("<div style='text-align: center; margin-top: 2rem;'>", unsafe_allow_html=True)
         try:
-            st.image("prints/slogan_preto.png", width=800)
-        except:
+            # Tentar carregar o logo
+            if os.path.exists("prints/slogan_preto.png"):
+                st.image("prints/slogan_preto.png", width=800)
+            else:
+                raise FileNotFoundError("Logo não encontrado")
+        except Exception as e:
             st.markdown("""
             <div style="text-align: center; padding: 40px; background: #1e1e1e; border-radius: 15px; border: 1px solid #333;">
                 <h1 style="color: #667eea; font-size: 2.5rem; margin: 0;">🎯 Ponto Ótimo Invest</h1>
