@@ -18,7 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose port (Railway will set PORT environment variable)
-EXPOSE $PORT
+EXPOSE 5000
+
+# Create startup script
+RUN echo '#!/bin/bash\nPORT=${PORT:-5000}\ngunicorn webhook_hotmart_optimized:app --bind 0.0.0.0:$PORT --timeout 15 --workers 2 --threads 2' > /app/start.sh && chmod +x /app/start.sh
 
 # Run the application
-CMD gunicorn webhook_hotmart_optimized:app --bind 0.0.0.0:$PORT --timeout 15 --workers 2 --threads 2
+CMD ["/app/start.sh"]
