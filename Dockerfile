@@ -24,4 +24,4 @@ RUN echo '#!/bin/bash\nPORT=${PORT:-5000}\ngunicorn webhook_hotmart_optimized:ap
 EXPOSE 5000
 
 # Run the application
-CMD ["/app/start.sh"]
+CMD ["bash", "/app/start.sh"]
