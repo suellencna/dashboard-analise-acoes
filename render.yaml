@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: streamlit-analise-acoes
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: HOTMART_HOTTOK
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: GMAIL_EMAIL
+        sync: false
+    healthCheckPath: /
