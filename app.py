@@ -45,6 +45,24 @@ st.markdown("""
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
+    
+    /* CORRIGIR CONTRASTE - TEXTO ESCURO EM FUNDO CLARO */
+    .stMarkdown, .stText, .stSelectbox label, .stTextInput label, .stDateInput label {
+        color: #333333 !important;
+    }
+    
+    .stSidebar .stMarkdown, .stSidebar .stText {
+        color: #333333 !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        color: #333333 !important;
+    }
+    
+    /* Corrigir contraste para elementos específicos do Streamlit */
+    .stApp > div > div > div > div {
+        color: #333333 !important;
+    }
     .stTextInput > div > div > input {
         background-color: var(--input-bg, #ffffff);
         color: var(--text-color, #333333);
