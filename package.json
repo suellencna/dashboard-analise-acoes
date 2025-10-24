@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Ponto Ótimo Invest - Sistema de Ativação",
   "main": "ativacao_netlify.html",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "build": "echo 'Static site - no build needed'"
   },
