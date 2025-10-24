@@ -82,9 +82,8 @@ def check_login(email, password):
         try:
             ph.verify(senha_hash_salva, password)
             if status_assinatura == 'ativo':
-                # Verificar se é senha temporária (primeiro acesso)
-                # Senhas temporárias são geradas com secrets.token_urlsafe(8) - 8 caracteres
-                if len(password) == 8 and password.isalnum():
+                # Verificar se é senha padrão (primeiro acesso)
+                if password == "123456":
                     # Primeiro acesso - forçar troca de senha
                     return True, nome_usuario, ultima_carteira, ultimos_pesos, data_inicio, data_fim, "FIRST_ACCESS"
                 else:
