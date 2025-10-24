@@ -149,7 +149,7 @@ def criar_usuario_teste():
             email_enviado = False
             email_mensagem = str(e)
         
-        link_ativacao = f"{os.environ.get('APP_URL', 'https://web-production-e66d.up.railway.app')}/ativar/{token}"
+        link_ativacao = f"https://streamlit-analise-acoes.onrender.com/?token={token}"
         
         return jsonify({
             "status": "success",
