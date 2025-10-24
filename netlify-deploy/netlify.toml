@@ -10,12 +10,19 @@
     X-XSS-Protection = "1; mode=block"
     Content-Type = "text/html; charset=utf-8"
 
+# Redirecionamentos para página de ativação
 [[redirects]]
   from = "/ativacao/*"
-  to = "/ativacao_netlify.html"
+  to = "/index.html"
   status = 200
 
 [[redirects]]
   from = "/ativar/*"
-  to = "/ativacao_netlify.html"
+  to = "/index.html"
+  status = 200
+
+# Redirecionamento para arquivo específico
+[[redirects]]
+  from = "/ativacao_netlify.html"
+  to = "/index.html"
   status = 200
