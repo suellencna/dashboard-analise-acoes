@@ -1538,19 +1538,21 @@ else:
     # Container responsivo para evitar overflow
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     
-    # PÁGINA INICIAL PROFISSIONAL (ANTES DO LOGIN)
+    # LOGO CENTRALIZADO - APENAS IMAGEM
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 20px; border-radius: 15px; margin-bottom: 40px; text-align: center; color: white;">
-        <h1 style="font-size: 3.5rem; margin: 0; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-            Ponto Ótimo Invest
-        </h1>
-        <p style="font-size: 1.5rem; margin: 20px 0; opacity: 0.9; font-weight: 300;">
-            Otimizando seu conhecimento em Investimentos
-        </p>
-        <p style="font-size: 1.1rem; margin: 0; opacity: 0.8; max-width: 600px; margin: 0 auto;">
-            Plataforma profissional de análise de carteiras com otimização Markowitz, 
-            simulação Monte Carlo e métricas em tempo real
-        </p>
+    <div style="text-align: center; margin: 40px 0;">
+    """, unsafe_allow_html=True)
+    
+    try:
+        # Tentar carregar o logo
+        if os.path.exists("prints/slogan_preto.png"):
+            st.image("prints/slogan_preto.png", width=800)
+        else:
+            st.error("Logo não encontrado: prints/slogan_preto.png")
+    except Exception as e:
+        st.error(f"Erro ao carregar logo: {e}")
+    
+    st.markdown("""
     </div>
     """, unsafe_allow_html=True)
     
@@ -1655,25 +1657,8 @@ else:
     st.markdown("---")
     st.markdown("### 🔑 Já tem acesso? Faça login:")
     
-    # Área principal com branding melhorado
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        # Logo centralizado e maior
-        st.markdown("<div style='text-align: center; margin-top: 2rem;'>", unsafe_allow_html=True)
-        try:
-            # Tentar carregar o logo
-            if os.path.exists("prints/slogan_preto.png"):
-                st.image("prints/slogan_preto.png", width=800)
-            else:
-                raise FileNotFoundError("Logo não encontrado")
-        except Exception as e:
-            st.markdown("""
-            <div style="text-align: center; padding: 40px; background: var(--card-bg, #ffffff); border-radius: 15px; border: 1px solid var(--border-color, #e0e0e0); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <h1 style="color: #667eea; font-size: 2.5rem; margin: 0;">Ponto Ótimo Invest</h1>
-                <p style="color: #6c757d; font-size: 1.2rem; margin: 10px 0 0 0;">Otimizando seu conhecimento em Investimentos</p>
-            </div>
-            """, unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+    # Área principal - apenas espaçamento
+    st.markdown("<br><br>", unsafe_allow_html=True)
         
         print()
         print()
