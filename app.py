@@ -1659,57 +1659,6 @@ else:
     
     # Área principal - apenas espaçamento
     st.markdown("<br><br>", unsafe_allow_html=True)
-        
-        print()
-        print()
-        print()
-        print()
-        
-        
-        # Card de informações com estilo moderno
-        st.markdown("""
-        <div style='
-            background: #2f2f2f;
-            padding: 1.5rem;
-            border-radius: 15px;
-            margin: 1rem 0;
-            border: 1px solid #404040;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        '>
-            <h4 style='color: #ffffff; margin-top: 0; text-align: center; font-size: 1.5rem;'>
-                Plataforma Profissional de Análise de Carteiras
-            </h4>
-                        <ul style='color: #ffffff; margin: 0; padding-left: 1.5rem;'>
-                <li style='margin-bottom: 0.5rem;'>Análise Markowitz Híbrida e Monte Carlo</li>
-                <li style='margin-bottom: 0.5rem;'>Métricas em tempo real</li>
-                <li style='margin-bottom: 0.5rem;'>Otimização de portfólio</li>
-                <li style='margin-bottom: 0.5rem;'>Interface intuitiva</li>
-            </ul>
-            
-        </div>
-        """, unsafe_allow_html=True)
-        
-        
-        
-        
-        
-        # Aviso especial para novos usuários
-        st.markdown("""
-        <div style='
-            background: #d4edda;
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #28a745;
-            margin: 1rem 0;
-        '>
-            <h4 style='color: #155724; margin-top: 0;'>🎉 Primeiro Acesso?</h4>
-            <p style='color: #155724; margin-bottom: 0;'>
-                <strong>Email:</strong> O mesmo usado na compra<br>
-                <strong>Senha:</strong> A senha enviada no seu email de boas-vindas<br>
-                <em>Você poderá alterar sua senha após o login.</em>
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
 
     # Sidebar com login melhorado
     st.sidebar.markdown("""
