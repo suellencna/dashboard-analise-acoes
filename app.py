@@ -1656,7 +1656,7 @@ else:
                                         <p style="margin: 0; color: #666; font-size: 14px;">
                                             <strong>Ponto Ótimo Invest</strong><br>
                                             Seu dashboard de análise de ações<br>
-                                            <a href="mailto:suellencna@gmail.com" style="color: #667eea;">suellencna@gmail.com</a>
+                                            <a href="mailto:pontootimoinvest@gmail.com" style="color: #667eea;">pontootimoinvest@gmail.com</a>
                                         </p>
                                     </div>
                                 </body>
