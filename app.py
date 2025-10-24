@@ -1539,22 +1539,17 @@ else:
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     
     # LOGO CENTRALIZADO - APENAS IMAGEM
-    st.markdown("""
-    <div style="text-align: center; margin: 40px 0; display: flex; justify-content: center; align-items: center;">
-    """, unsafe_allow_html=True)
+    col_logo1, col_logo2, col_logo3 = st.columns([1, 2, 1])
     
-    try:
-        # Tentar carregar o logo
-        if os.path.exists("prints/slogan_preto.png"):
-            st.image("prints/slogan_preto.png", width=800)
-        else:
-            st.error("Logo não encontrado: prints/slogan_preto.png")
-    except Exception as e:
-        st.error(f"Erro ao carregar logo: {e}")
-    
-    st.markdown("""
-    </div>
-    """, unsafe_allow_html=True)
+    with col_logo2:
+        try:
+            # Tentar carregar o logo
+            if os.path.exists("prints/slogan_preto.png"):
+                st.image("prints/slogan_preto.png", width=800)
+            else:
+                st.error("Logo não encontrado: prints/slogan_preto.png")
+        except Exception as e:
+            st.error(f"Erro ao carregar logo: {e}")
     
     # Cards de Funcionalidades
     col1, col2, col3 = st.columns(3)
