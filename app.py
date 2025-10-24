@@ -163,10 +163,64 @@ if 'token' in st.query_params:
     token = st.query_params['token']
     st.info(f"🔗 Token de ativação detectado: {token}")
     
-    # Aqui você pode adicionar lógica para processar o token
-    # Por exemplo, verificar se o token é válido e ativar a conta
-    st.success("✅ Token de ativação recebido! Sua conta será ativada em breve.")
-    st.info("💡 Faça login normalmente para acessar o sistema.")
+    # Processar ativação da conta
+    try:
+        with engine.connect() as conn:
+            # Verificar se o token é válido
+            query_token = sqlalchemy.text("""
+                SELECT email, nome, data_expiracao_token 
+                FROM usuarios 
+                WHERE token_ativacao = :token AND status_conta = 'pendente'
+            """)
+            result = conn.execute(query_token, {"token": token}).first()
+            
+            if result:
+                email, nome, expiracao = result
+                
+                # Verificar se o token não expirou
+                from datetime import datetime
+                if datetime.now() <= expiracao:
+                    # Ativar a conta
+                    query_ativar = sqlalchemy.text("""
+                        UPDATE usuarios 
+                        SET status_conta = 'ativo', token_ativacao = NULL 
+                        WHERE token_ativacao = :token
+                    """)
+                    conn.execute(query_ativar, {"token": token})
+                    conn.commit()
+                    
+                    st.success(f"✅ Conta ativada com sucesso! Bem-vindo(a), {nome}!")
+                    st.info("💡 Agora você pode fazer login com seu email e a senha temporária.")
+                    st.warning("⚠️ **IMPORTANTE:** Na primeira vez que fizer login, você será obrigado a alterar sua senha por segurança.")
+                    
+                    # Gerar senha temporária
+                    import secrets
+                    senha_temporaria = secrets.token_urlsafe(8)
+                    
+                    # Atualizar senha temporária no banco
+                    query_senha = sqlalchemy.text("""
+                        UPDATE usuarios 
+                        SET senha_hash = :senha_hash 
+                        WHERE email = :email
+                    """)
+                    senha_hash_temp = ph.hash(senha_temporaria)
+                    conn.execute(query_senha, {"senha_hash": senha_hash_temp, "email": email})
+                    conn.commit()
+                    
+                    # Mostrar informações de login
+                    st.markdown("### 🔑 Informações de Login:")
+                    st.code(f"Email: {email}")
+                    st.code(f"Senha temporária: {senha_temporaria}")
+                    st.warning("⚠️ **IMPORTANTE:** Use esta senha temporária para fazer login. Você será obrigado a alterá-la na primeira vez.")
+                    
+                else:
+                    st.error("❌ Token expirado. Entre em contato conosco para reenviar o link de ativação.")
+            else:
+                st.error("❌ Token inválido ou conta já ativada.")
+                
+    except Exception as e:
+        st.error(f"❌ Erro ao processar ativação: {e}")
+        st.info("💡 Entre em contato conosco se o problema persistir.")
 
 # --- 6. LÓGICA DA INTERFACE ---
 if st.session_state.get("authentication_status"):
