@@ -394,103 +394,6 @@ if st.session_state.get("authentication_status"):
         st.error(f"Pasta de dados '{DATA_PATH}' não encontrada.")
         st.stop()
 
-    # Hero Section Profissional
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 20px; border-radius: 15px; margin-bottom: 40px; text-align: center; color: white;">
-        <h1 style="font-size: 3.5rem; margin: 0; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-            🎯 Ponto Ótimo Invest
-        </h1>
-        <p style="font-size: 1.5rem; margin: 20px 0; opacity: 0.9; font-weight: 300;">
-            A carteira ideal ao seu alcance
-        </p>
-        <p style="font-size: 1.1rem; margin: 0; opacity: 0.8; max-width: 600px; margin: 0 auto;">
-            Plataforma profissional de análise de carteiras com otimização Markowitz, 
-            simulação Monte Carlo e métricas em tempo real
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Cards de Funcionalidades
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        st.markdown("""
-        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
-            <div style="font-size: 3rem; margin-bottom: 20px;">📊</div>
-            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Análise Markowitz</h3>
-            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
-                Otimização de carteiras com análise de risco e retorno, 
-                encontrando a melhor combinação de ativos para seus objetivos
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
-            <div style="font-size: 3rem; margin-bottom: 20px;">🎲</div>
-            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Simulação Monte Carlo</h3>
-            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
-                Projeções de cenários futuros com milhares de simulações, 
-                ajudando você a tomar decisões mais informadas
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
-            <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
-            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Métricas em Tempo Real</h3>
-            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
-                Dados atualizados constantemente com análises de volatilidade, 
-                Sharpe ratio e comparações com benchmarks
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Seção de Benefícios
-    st.markdown("""
-    <div style="background: #2d2d2d; padding: 40px; border-radius: 15px; margin: 30px 0; border: 1px solid #444;">
-        <h2 style="color: #667eea; text-align: center; margin-bottom: 30px; font-size: 2rem;">
-            Por que escolher o Ponto Ótimo Invest?
-        </h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <div>
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Interface Intuitiva</h4>
-                <p style="color: #ccc; margin: 0 0 20px 0;">Design moderno e fácil de usar</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Análise Profissional</h4>
-                <p style="color: #ccc; margin: 0 0 20px 0;">Ferramentas de nível institucional</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Dados Confiáveis</h4>
-                <p style="color: #ccc; margin: 0;">Fontes oficiais da B3 e CVM</p>
-            </div>
-            <div>
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Otimização Avançada</h4>
-                <p style="color: #ccc; margin: 0 0 20px 0;">Algoritmos híbridos Markowitz + Risk Parity</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Projeções Realistas</h4>
-                <p style="color: #ccc; margin: 0 0 20px 0;">Simulações Monte Carlo precisas</p>
-                
-                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Suporte Especializado</h4>
-                <p style="color: #ccc; margin: 0;">Atendimento personalizado</p>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Call to Action
-    st.markdown("""
-    <div style="text-align: center; margin: 40px 0;">
-        <h2 style="color: #667eea; margin-bottom: 20px;">Pronto para otimizar sua carteira?</h2>
-        <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 30px;">
-            Comece agora e descubra o potencial máximo dos seus investimentos
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
 
     st.sidebar.header('Definição da Carteira')
 
@@ -1568,7 +1471,121 @@ if st.session_state.get("authentication_status"):
                 st.rerun()
 
 else:
-    # SE NÃO ESTIVER LOGADO, MOSTRA A TELA DE LOGIN
+    # PÁGINA INICIAL PROFISSIONAL (ANTES DO LOGIN)
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 60px 20px; border-radius: 15px; margin-bottom: 40px; text-align: center; color: white;">
+        <h1 style="font-size: 3.5rem; margin: 0; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+            🎯 Ponto Ótimo Invest
+        </h1>
+        <p style="font-size: 1.5rem; margin: 20px 0; opacity: 0.9; font-weight: 300;">
+            A carteira ideal ao seu alcance
+        </p>
+        <p style="font-size: 1.1rem; margin: 0; opacity: 0.8; max-width: 600px; margin: 0 auto;">
+            Plataforma profissional de análise de carteiras com otimização Markowitz, 
+            simulação Monte Carlo e métricas em tempo real
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Cards de Funcionalidades
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">📊</div>
+            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Análise Markowitz</h3>
+            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+                Otimização de carteiras com análise de risco e retorno, 
+                encontrando a melhor combinação de ativos para seus objetivos
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🎲</div>
+            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Simulação Monte Carlo</h3>
+            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+                Projeções de cenários futuros com milhares de simulações, 
+                ajudando você a tomar decisões mais informadas
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style="background: #1e1e1e; padding: 30px; border-radius: 15px; text-align: center; border: 1px solid #333; height: 250px;">
+            <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
+            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Métricas em Tempo Real</h3>
+            <p style="color: #ccc; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+                Dados atualizados constantemente com análises de volatilidade, 
+                Sharpe ratio e comparações com benchmarks
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Seção de Benefícios
+    st.markdown("""
+    <div style="background: #2d2d2d; padding: 40px; border-radius: 15px; margin: 30px 0; border: 1px solid #444;">
+        <h2 style="color: #667eea; text-align: center; margin-bottom: 30px; font-size: 2rem;">
+            Por que escolher o Ponto Ótimo Invest?
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Interface Intuitiva</h4>
+                <p style="color: #ccc; margin: 0 0 20px 0;">Design moderno e fácil de usar</p>
+                
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Análise Profissional</h4>
+                <p style="color: #ccc; margin: 0 0 20px 0;">Ferramentas de nível institucional</p>
+                
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Dados Confiáveis</h4>
+                <p style="color: #ccc; margin: 0;">Fontes oficiais da B3 e CVM</p>
+            </div>
+            <div>
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Otimização Avançada</h4>
+                <p style="color: #ccc; margin: 0 0 20px 0;">Algoritmos híbridos Markowitz + Risk Parity</p>
+                
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Projeções Realistas</h4>
+                <p style="color: #ccc; margin: 0 0 20px 0;">Simulações Monte Carlo precisas</p>
+                
+                <h4 style="color: #4CAF50; margin: 0 0 10px 0;">✅ Suporte Especializado</h4>
+                <p style="color: #ccc; margin: 0;">Atendimento personalizado</p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Call to Action com link para compra
+    st.markdown("""
+    <div style="text-align: center; margin: 40px 0;">
+        <h2 style="color: #667eea; margin-bottom: 20px;">Ainda não tem acesso?</h2>
+        <p style="color: #ccc; font-size: 1.1rem; margin-bottom: 30px;">
+            Adquira agora e comece a otimizar seus investimentos
+        </p>
+        <a href="https://pontootimo.hotmart.host/carteira-ideal" target="_blank" style="
+            background: linear-gradient(135deg, #ff4b4b, #ff6b6b);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 16px;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
+            transition: all 0.3s ease;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 75, 75, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 75, 75, 0.3)'">
+            🛒 Comprar Agora - R$ 59,90
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Seção de Login
+    st.markdown("---")
+    st.markdown("### 🔑 Já tem acesso? Faça login:")
     
     # Área principal com branding melhorado
     col1, col2, col3 = st.columns([1, 2, 1])
