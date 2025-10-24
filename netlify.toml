@@ -1,0 +1,7 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/ativacao/*"
+  to = "/ativacao_final.html"
+  status = 200
