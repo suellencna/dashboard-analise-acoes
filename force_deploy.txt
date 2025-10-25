@@ -1,1 +1,1 @@
-# Forçar deploy Gmail SMTP Thu Oct 23 15:17:45 -03 2025
+Force Railway deploy - $(date)
