@@ -18,4 +18,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run the application directly with gunicorn
-CMD gunicorn webhook_railway:app --bind 0.0.0.0:5000 --timeout 15 --workers 2 --threads 2
+CMD gunicorn test_railway_simple:app --bind 0.0.0.0:5000 --timeout 15 --workers 2 --threads 2
