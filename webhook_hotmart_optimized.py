@@ -60,8 +60,8 @@ def test():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check simples para Railway"""
-    return "OK", 200
+    """Health check simples para Railway - VERSÃO ATUALIZADA"""
+    return "RAILWAY_OK", 200
 
 @app.route('/health-db', methods=['GET'])
 def health_check_db():
