@@ -83,13 +83,13 @@ EMAIL_BOAS_VINDAS_TEMPLATE = """
 <head>
     <title>Bem-vindo ao Ponto Ótimo Invest!</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { width: 80%; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-        .header { background-color: #f4f4f4; padding: 20px; text-align: center; border-bottom: 1px solid #ddd; }
-        .content { padding: 20px 0; }
-        .button { display: inline-block; background-color: #007bff; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; }
-        .footer { margin-top: 20px; font-size: 0.8em; color: #777; text-align: center; }
-        .credentials { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ width: 80%; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }}
+        .header {{ background-color: #f4f4f4; padding: 20px; text-align: center; border-bottom: 1px solid #ddd; }}
+        .content {{ padding: 20px 0; }}
+        .button {{ display: inline-block; background-color: #007bff; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; }}
+        .footer {{ margin-top: 20px; font-size: 0.8em; color: #777; text-align: center; }}
+        .credentials {{ background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 20px 0; }}
     </style>
 </head>
 <body>
