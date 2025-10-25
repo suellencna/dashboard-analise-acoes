@@ -1,15 +1,22 @@
 {
-  "$schema": "https://railway.app/railway.schema.json",
+  "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS",
-    "buildCommand": "pip install -r requirements.txt"
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "gunicorn webhook_hotmart_optimized:app --bind 0.0.0.0:$PORT --timeout 15 --workers 2 --threads 2",
+    "runtime": "V2",
+    "numReplicas": 1,
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 100,
+    "sleepApplication": false,
+    "useLegacyStacker": false,
+    "multiRegionConfig": {
+      "us-east4-eqdc4a": {
+        "numReplicas": 1
+      }
+    },
     "restartPolicyType": "ON_FAILURE",
+    "healthcheckTimeout": 30,
     "restartPolicyMaxRetries": 10
   }
 }
-
