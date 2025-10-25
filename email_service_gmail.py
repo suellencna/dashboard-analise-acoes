@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 # Configurações
 GMAIL_EMAIL = os.environ.get('GMAIL_EMAIL', 'pontootimoinvest@gmail.com')
 GMAIL_APP_PASSWORD = os.environ.get('GMAIL_APP_PASSWORD')  # Senha de app do Gmail
-APP_URL = os.environ.get('APP_URL', 'https://web-production-e66d.up.railway.app')
+APP_URL = os.environ.get('APP_URL', 'https://web-production-040d1.up.railway.app')
 
 def enviar_email_ativacao_gmail(email, nome, token):
     """
