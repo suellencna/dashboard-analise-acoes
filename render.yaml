@@ -1,0 +1,41 @@
+# Configuração para deploy no Render
+# Sistema completo: Streamlit + Flask
+
+services:
+  # Serviço principal - Dashboard Streamlit
+  - type: web
+    name: ponto-otimo-invest
+    env: python
+    plan: starter  # $7/mês - suficiente para começar
+    buildCommand: pip install -r requirements_clean.txt
+    startCommand: streamlit run app_clean.py --server.port=$PORT --server.address=0.0.0.0
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./usuarios.db
+      - key: GMAIL_EMAIL
+        value: pontootimoinvest@gmail.com
+      - key: GMAIL_APP_PASSWORD
+        sync: false  # Configurar manualmente
+      - key: APP_URL
+        value: https://ponto-otimo-invest.onrender.com
+      - key: APP_DOWNLOAD_URL
+        value: https://ponto-otimo-invest.onrender.com
+
+  # Serviço de webhook - Flask
+  - type: web
+    name: ponto-otimo-webhook
+    env: python
+    plan: starter  # $7/mês
+    buildCommand: pip install -r requirements_clean.txt
+    startCommand: python webhook_clean.py
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:///./sistema_vendas.db
+      - key: GMAIL_EMAIL
+        value: pontootimoinvest@gmail.com
+      - key: GMAIL_APP_PASSWORD
+        sync: false  # Configurar manualmente
+      - key: APP_URL
+        value: https://ponto-otimo-invest.onrender.com
+      - key: APP_DOWNLOAD_URL
+        value: https://ponto-otimo-invest.onrender.com
