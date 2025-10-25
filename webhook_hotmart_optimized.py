@@ -455,8 +455,6 @@ def ativar_conta_page(token):
     </script>
 </body>
 </html>
-    """
-    
     """.replace('{token}', token)
     
     response = make_response(html_content)
