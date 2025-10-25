@@ -12,7 +12,7 @@ import json
 import time
 
 # Configurações
-LOCAL_URL = "http://localhost:5000"
+LOCAL_URL = "http://localhost:5001"
 TEST_EMAIL = "cliente@teste.com"
 TEST_NAME = "Cliente Teste"
 TEST_PRODUTO_ID = "PROD123"

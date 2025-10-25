@@ -476,13 +476,13 @@ def main():
     print("   4. Cliente acessa → Validação automática")
     print("   5. Controle ativo → Expiração automática")
     print()
-    print("🌐 Acesse: http://localhost:5000")
+    print("🌐 Acesse: http://localhost:5001")
     print("⏹️  Para parar: Ctrl+C")
     print("=" * 60)
     
     # Iniciar servidor
     try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=5001, debug=True)
     except KeyboardInterrupt:
         print("\n🛑 Sistema de vendas parado pelo usuário.")
     except Exception as e:
