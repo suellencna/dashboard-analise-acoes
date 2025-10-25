@@ -16,7 +16,8 @@
       }
     },
     "restartPolicyType": "ON_FAILURE",
-    "healthcheckTimeout": 30,
-    "restartPolicyMaxRetries": 10
+    "healthcheckTimeout": 60,
+    "restartPolicyMaxRetries": 10,
+    "healthcheckStartPeriod": 30
   }
 }
