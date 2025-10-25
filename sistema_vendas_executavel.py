@@ -399,6 +399,49 @@ def test_email_route():
     else:
         return jsonify({"status": "error", "message": "Falha ao enviar email", "details": message}), 500
 
+@app.route('/test-email-get', methods=['GET'])
+def test_email_get():
+    """Testar envio de email via GET (para facilitar testes no navegador)"""
+    email = request.args.get('email', 'teste@example.com')
+    nome = request.args.get('nome', 'Cliente Teste')
+    token_acesso = secrets.token_urlsafe(32)
+    data_expiracao = (datetime.now() + timedelta(days=365)).strftime("%d/%m/%Y")
+
+    logger.info(f"Testando email de boas-vindas para {email}")
+    success, message = enviar_email_boas_vindas(email, nome, token_acesso, data_expiracao)
+
+    if success:
+        return f"""
+        <html>
+        <head><title>Teste de Email - Sucesso</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h2>✅ Email de Boas-vindas Enviado!</h2>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Nome:</strong> {nome}</p>
+                <p><strong>Token:</strong> {token_acesso}</p>
+                <p><strong>Status:</strong> {message}</p>
+                <a href="/" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Voltar ao Início</a>
+            </div>
+        </body>
+        </html>
+        """, 200
+    else:
+        return f"""
+        <html>
+        <head><title>Teste de Email - Erro</title></head>
+        <body style="font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h2>❌ Erro ao Enviar Email</h2>
+                <p><strong>Email:</strong> {email}</p>
+                <p><strong>Nome:</strong> {nome}</p>
+                <p><strong>Erro:</strong> {message}</p>
+                <a href="/" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Voltar ao Início</a>
+            </div>
+        </body>
+        </html>
+        """, 500
+
 @app.route('/')
 def home():
     """Página inicial do sistema de vendas"""
@@ -431,12 +474,13 @@ def home():
                 <div class="endpoint"><strong>GET /health</strong> - Health check</div>
                 <div class="endpoint"><strong>POST /webhook</strong> - Webhook Hotmart (compras)</div>
                 <div class="endpoint"><strong>GET /validar?token=XXX</strong> - Validar acesso do cliente</div>
-                <div class="endpoint"><strong>POST /test-email</strong> - Testar email de boas-vindas</div>
+                <div class="endpoint"><strong>POST /test-email</strong> - Testar email de boas-vindas (API)</div>
+                <div class="endpoint"><strong>GET /test-email-get</strong> - Testar email de boas-vindas (Navegador)</div>
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
                 <a href="/health" class="button">Testar Health Check</a>
-                <a href="/test-email" class="button">Testar Email</a>
+                <a href="/test-email-get" class="button">Testar Email</a>
             </div>
         </div>
     </body>
