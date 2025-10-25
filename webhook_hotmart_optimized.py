@@ -63,6 +63,23 @@ def health_check():
     """Health check simples para Railway"""
     return "OK", 200
 
+@app.route('/health-db', methods=['GET'])
+def health_check_db():
+    """Health check com teste de banco"""
+    try:
+        if not engine:
+            return jsonify({"status": "unhealthy", "database": "no_engine"}), 503
+            
+        # Teste rápido de conexão
+        with engine.connect() as conn:
+            conn.execute(sqlalchemy.text("SELECT 1"))
+        return jsonify({
+            "status": "healthy", 
+            "database": "connected"
+        }), 200
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "error": str(e)}), 503
+
 
 @app.route('/criar-usuario-teste', methods=['POST'])
 def criar_usuario_teste():

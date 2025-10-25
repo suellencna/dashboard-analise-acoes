@@ -17,11 +17,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create startup script
-RUN echo '#!/bin/bash\nPORT=${PORT:-5000}\ngunicorn webhook_hotmart_optimized:app --bind 0.0.0.0:$PORT --timeout 15 --workers 2 --threads 2' > /app/start.sh && chmod +x /app/start.sh
-
-# Expose port
-EXPOSE 5000
-
 # Run the application
-CMD ["bash", "/app/start.sh"]
+CMD ["gunicorn", "webhook_hotmart_optimized:app", "--bind", "0.0.0.0:${PORT:-5000}", "--timeout", "15", "--workers", "2", "--threads", "2"]
