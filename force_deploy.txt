@@ -1,1 +1,6 @@
-Forçando deploy Sat Oct 25 14:27:09 -03 2025
+Forcing deploy at 2025-10-25T18:01:00Z
+This file forces Railway to redeploy with clean configuration.
+All conflicting files have been removed.
+Only Dockerfile should be used.
+Port: 5000 (fixed)
+App: webhook_hotmart:app
