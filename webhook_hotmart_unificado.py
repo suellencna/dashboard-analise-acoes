@@ -300,7 +300,7 @@ def webhook_hotmart():
             event_type = data.get('event')
             
             # Extrair dados baseado no tipo de evento
-            if event_type in ['PURCHASE_APPROVED', 'PURCHASE_EXPIRED', 'PURCHASE_CANCELLED', 'PURCHASE_DELAYED', 'PURCHASE_REFUNDED', 'PURCHASE_CHARGEBACK']:
+            if event_type in ['PURCHASE_APPROVED', 'PURCHASE_EXPIRED', 'PURCHASE_CANCELLED', 'PURCHASE_CANCELED', 'PURCHASE_DELAYED', 'PURCHASE_REFUNDED', 'PURCHASE_CHARGEBACK', 'PURCHASE_PROTEST']:
                 # Eventos de compra - usar buyer
                 buyer = event_data.get('buyer', {})
                 email = buyer.get('email')
