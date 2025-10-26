@@ -20,7 +20,7 @@ st.set_page_config(page_title="Análise de Carteira", layout="wide")
 # Tema responsivo e adaptável ao sistema do usuário
 st.markdown("""
     <style>
-    /* ===== SISTEMA DE CORES UNIFORME ===== */
+    /* ===== SISTEMA DE CORES UNIFORME - TEMA PRETO ===== */
     :root {
         /* Cores primárias - Amarelo vibrante */
         --primary-color: #f39c12;
@@ -28,27 +28,27 @@ st.markdown("""
         --secondary-color: #f1c40f;
         --accent-color: #e74c3c;
         
-        /* TEMA UNIFORME - TUDO BRANCO */
-        --bg-primary: #ffffff;
-        --bg-secondary: #ffffff;
-        --bg-card: #ffffff;
-        --bg-sidebar: #ffffff;
+        /* TEMA UNIFORME - TUDO PRETO */
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-card: #2d2d2d;
+        --bg-sidebar: #2d2d2d;
         
         /* Cores de texto uniformes */
-        --text-primary: #2c3e50;
-        --text-secondary: #6c757d;
-        --text-muted: #8e8e93;
+        --text-primary: #ffffff;
+        --text-secondary: #b0b0b0;
+        --text-muted: #808080;
         --text-white: #ffffff;
         
         /* Cores de borda uniformes */
-        --border-color: #e0e0e0;
+        --border-color: #404040;
         --border-focus: var(--primary-color);
-        --border-strong: #d0d0d0;
+        --border-strong: #505050;
         
-        /* Sombras uniformes */
-        --shadow-light: rgba(0, 0, 0, 0.1);
-        --shadow-medium: rgba(0, 0, 0, 0.15);
-        --shadow-heavy: rgba(0, 0, 0, 0.25);
+        /* Sombras uniformes para tema preto */
+        --shadow-light: rgba(255, 255, 255, 0.1);
+        --shadow-medium: rgba(255, 255, 255, 0.15);
+        --shadow-heavy: rgba(255, 255, 255, 0.25);
         
         /* Transições suaves */
         --transition-fast: 0.2s ease;
@@ -114,6 +114,52 @@ st.markdown("""
         min-height: 48px !important;
     }
     
+    /* ===== BORDAS NOS CAMPOS DE NÚMEROS ===== */
+    .stNumberInput > div > div > input {
+        background-color: var(--bg-card) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        font-size: 16px !important;
+        color: var(--text-primary) !important;
+        text-align: center !important;
+        min-width: 80px !important;
+        transition: all var(--transition-normal) !important;
+    }
+    
+    .stNumberInput > div > div > input:focus {
+        border-color: var(--border-focus) !important;
+        box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1) !important;
+        outline: none !important;
+    }
+    
+    /* ===== BORDAS NOS ATIVOS SELECIONADOS ===== */
+    .stMultiSelect > div > div > div {
+        border: 2px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        background-color: var(--bg-card) !important;
+        min-height: 48px !important;
+    }
+    
+    .stMultiSelect > div > div > div:focus-within {
+        border-color: var(--border-focus) !important;
+        box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1) !important;
+    }
+    
+    /* Tags dos ativos selecionados */
+    .stMultiSelect > div > div > div > div[data-baseweb="tag"] {
+        background-color: var(--primary-color) !important;
+        color: #2c3e50 !important;
+        border: 1px solid var(--primary-hover) !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        margin: 2px !important;
+    }
+    
+    .stMultiSelect > div > div > div > div[data-baseweb="tag"]:hover {
+        background-color: var(--primary-hover) !important;
+    }
+    
     /* Garantir que placeholder seja visível */
     .stTextInput > div > div > input::placeholder {
         color: var(--text-muted) !important;
@@ -173,18 +219,45 @@ st.markdown("""
         align-items: center !important;
         justify-content: center !important;
         text-align: center !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        line-height: 1.2 !important;
     }
     
-    /* Garantir que texto dos botões seja sempre visível */
+    /* Botão específico para "Salvar configurações da carteira" */
+    .stButton > button:contains("Salvar Configuração"),
+    .stButton > button:contains("Salvar configuração") {
+        white-space: normal !important;
+        line-height: 1.3 !important;
+        padding: 16px 24px !important;
+        min-height: 60px !important;
+    }
+    
+    /* Garantir que texto dos botões seja sempre visível e centralizado */
     .stButton > button * {
         color: #2c3e50 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
     }
     
     .stButton > button span {
         color: #2c3e50 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        width: 100% !important;
+    }
+    
+    /* Centralização específica para ícones e texto */
+    .stButton > button .stButtonIcon {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin-right: 8px !important;
     }
     
     .stButton > button:hover {
@@ -241,7 +314,18 @@ st.markdown("""
     
     .button-group .stButton {
         flex: 1 !important;
+        min-width: 140px !important;
+    }
+    
+    /* Botões específicos para "Esqueci minha senha" */
+    .stButton > button:contains("Esqueci"),
+    .stButton > button:contains("Verificar"),
+    .stButton > button:contains("Fechar") {
+        white-space: normal !important;
+        line-height: 1.2 !important;
         min-width: 120px !important;
+        font-size: 14px !important;
+        padding: 12px 16px !important;
     }
     
     @media (max-width: 768px) {
@@ -254,12 +338,28 @@ st.markdown("""
             flex: none !important;
             min-width: auto !important;
         }
+        
+        .stButton > button:contains("Esqueci"),
+        .stButton > button:contains("Verificar"),
+        .stButton > button:contains("Fechar") {
+            font-size: 13px !important;
+            padding: 10px 12px !important;
+            min-width: 100px !important;
+        }
     }
     
     @media (max-width: 480px) {
         .button-group .stButton > button {
-            font-size: 13px !important;
-            padding: 10px 12px !important;
+            font-size: 12px !important;
+            padding: 8px 10px !important;
+        }
+        
+        .stButton > button:contains("Esqueci"),
+        .stButton > button:contains("Verificar"),
+        .stButton > button:contains("Fechar") {
+            font-size: 11px !important;
+            padding: 8px 10px !important;
+            min-width: 90px !important;
         }
     }
     
@@ -353,6 +453,30 @@ st.markdown("""
     a:hover {
         color: var(--primary-hover) !important;
         text-decoration: underline !important;
+    }
+    
+    /* ===== CORREÇÃO DE QUEBRA DE TEXTO DO EMAIL ===== */
+    .stMarkdown a[href*="@"] {
+        word-break: break-all !important;
+        word-wrap: break-word !important;
+        white-space: normal !important;
+        display: inline-block !important;
+        max-width: 100% !important;
+    }
+    
+    /* Quebrar especificamente no @ para emails */
+    .stMarkdown a[href*="mailto:"] {
+        word-break: break-all !important;
+        word-wrap: break-word !important;
+        white-space: normal !important;
+    }
+    
+    /* Texto de ajuda com quebra controlada */
+    .stMarkdown p:contains("@") {
+        word-break: break-all !important;
+        word-wrap: break-word !important;
+        white-space: normal !important;
+        line-height: 1.4 !important;
     }
     
     /* Atualizar cores de foco para amarelo */
