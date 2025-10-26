@@ -449,30 +449,40 @@ def activate_account(token):
 
 @app.route('/test-email', methods=['POST'])
 def test_email():
-    """Endpoint para testar envio de email"""
+    """Endpoint para testar envio de email - ASSÍNCRONO"""
     try:
         data = request.get_json()
         email = data.get('email', 'suellencna@hotmail.com')
         nome = data.get('nome', 'Teste')
         
+        # Processar em background para evitar timeout
+        threading.Thread(
+            target=processar_teste_email_background,
+            args=(email, nome)
+        ).start()
+        
+        return jsonify({
+            "success": True,
+            "message": "Teste de email iniciado em background",
+            "email": email
+        }), 200
+            
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def processar_teste_email_background(email, nome):
+    """Processar teste de email em background"""
+    try:
         token = generate_activation_token()
         success, result = send_activation_email(email, nome, token)
         
         if success:
-            return jsonify({
-                "success": True,
-                "message": "Email enviado com sucesso",
-                "email": email,
-                "token": token
-            }), 200
+            logger.info(f"✅ Email de teste enviado com sucesso para {email}")
         else:
-            return jsonify({
-                "success": False,
-                "error": result
-            }), 500
+            logger.error(f"❌ Email de teste falhou para {email}: {result}")
             
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"❌ Erro no teste de email para {email}: {e}")
 
 @app.route('/')
 def home():
