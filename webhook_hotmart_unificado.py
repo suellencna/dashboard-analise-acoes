@@ -295,17 +295,34 @@ def webhook_hotmart():
         
         # Verificar se é webhook v2.0
         if data.get('version') == '2.0.0':
-            # Formato v2.0
+            # Formato v2.0 - Suportar diferentes tipos de eventos
             event_data = data.get('data', {})
-            subscriber = event_data.get('subscriber', {})
-            product = event_data.get('product', {})
+            event_type = data.get('event')
             
-            email = subscriber.get('email')
-            nome = subscriber.get('name')
-            transaction_id = subscriber.get('code') or data.get('id')
-            status_compra = 'approved' if data.get('event') in ['PURCHASE_APPROVED', 'SUBSCRIPTION_CANCELLATION'] else 'pending'
+            # Extrair dados baseado no tipo de evento
+            if event_type in ['PURCHASE_APPROVED', 'PURCHASE_EXPIRED', 'PURCHASE_CANCELLED', 'PURCHASE_DELAYED', 'PURCHASE_REFUNDED', 'PURCHASE_CHARGEBACK']:
+                # Eventos de compra - usar buyer
+                buyer = event_data.get('buyer', {})
+                email = buyer.get('email')
+                nome = buyer.get('name')
+                purchase = event_data.get('purchase', {})
+                transaction_id = purchase.get('transaction') or data.get('id')
+                status_compra = 'approved' if event_type == 'PURCHASE_APPROVED' else 'pending'
+                
+            elif event_type in ['SUBSCRIPTION_CANCELLATION', 'SUBSCRIPTION_APPROVED']:
+                # Eventos de assinatura - usar subscriber
+                subscriber = event_data.get('subscriber', {})
+                email = subscriber.get('email')
+                nome = subscriber.get('name')
+                transaction_id = subscriber.get('code') or data.get('id')
+                status_compra = 'approved' if event_type == 'SUBSCRIPTION_APPROVED' else 'pending'
+                
+            else:
+                # Evento não suportado
+                logger.warning(f"Evento não suportado: {event_type}")
+                return jsonify({"error": f"Evento {event_type} não suportado"}), 400
             
-            logger.info(f"Webhook v2.0 - Evento: {data.get('event')}, Email: {email}, Nome: {nome}")
+            logger.info(f"Webhook v2.0 - Evento: {event_type}, Email: {email}, Nome: {nome}")
         else:
             # Formato v1.0 (antigo)
             buyer = data.get('buyer', {})
