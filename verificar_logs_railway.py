@@ -1,47 +1,55 @@
 #!/usr/bin/env python3
 """
-Script para verificar logs e status do Railway
+Verificar logs e status do Railway
 """
 
 import requests
-import json
 import time
 
-def verificar_status_railway():
-    """Verificar status completo do Railway"""
-    print("🔍 VERIFICANDO STATUS DO RAILWAY")
+def verificar_railway_detalhado():
+    """Verificação detalhada do Railway"""
+    print("🔍 VERIFICAÇÃO DETALHADA DO RAILWAY")
     print("=" * 50)
     
-    base_url = "https://web-production-040d1.up.railway.app"
+    RAILWAY_URL = "https://web-production-040d1.up.railway.app"
     
-    # 1. Health Check
+    # 1. Health check
     print("1. Health Check...")
     try:
-        response = requests.get(f"{base_url}/health", timeout=10)
+        response = requests.get(f"{RAILWAY_URL}/health", timeout=10)
         print(f"   Status: {response.status_code}")
-        if response.status_code == 200:
-            print("   ✅ Health Check OK")
-        else:
-            print(f"   ❌ Health Check falhou: {response.text}")
+        print(f"   Resposta: {response.text}")
     except Exception as e:
         print(f"   ❌ Erro: {e}")
     
-    # 2. Testar webhook com dados simples
-    print("\n2. Testando webhook...")
+    # 2. Testar página inicial
+    print("\n2. Página inicial...")
+    try:
+        response = requests.get(f"{RAILWAY_URL}/", timeout=10)
+        print(f"   Status: {response.status_code}")
+        if response.status_code == 200:
+            print("   ✅ Página inicial OK")
+        else:
+            print(f"   ❌ Página inicial falhou: {response.text[:200]}")
+    except Exception as e:
+        print(f"   ❌ Erro: {e}")
+    
+    # 3. Testar webhook com dados específicos
+    print("\n3. Testando webhook específico...")
     webhook_data = {
         "buyer": {
-            "email": "teste@exemplo.com",
-            "name": "Teste Usuario"
+            "email": "suellencna@yahoo.com.br",
+            "name": "Teste Logs"
         },
         "transaction": {
-            "id": f"TEST_{int(time.time())}"
+            "id": f"LOGS_{int(time.time())}"
         },
         "status": "approved"
     }
     
     try:
         response = requests.post(
-            f"{base_url}/webhook/hotmart",
+            f"{RAILWAY_URL}/webhook/hotmart",
             json=webhook_data,
             headers={"Content-Type": "application/json"},
             timeout=30
@@ -53,14 +61,17 @@ def verificar_status_railway():
         else:
             print(f"   ❌ Webhook falhou: {response.text}")
     except Exception as e:
-        print(f"   ❌ Erro no webhook: {e}")
+        print(f"   ❌ Erro: {e}")
     
-    # 3. Testar endpoint de teste de email
-    print("\n3. Testando endpoint de email...")
+    # 4. Aguardar e testar email
+    print("\n4. Aguardando processamento (5 segundos)...")
+    time.sleep(5)
+    
+    print("\n5. Testando email...")
     try:
         response = requests.post(
-            f"{base_url}/test-email",
-            json={"email": "teste@exemplo.com", "nome": "Teste"},
+            f"{RAILWAY_URL}/test-email",
+            json={"email": "suellencna@yahoo.com.br", "nome": "Teste Logs"},
             headers={"Content-Type": "application/json"},
             timeout=30
         )
@@ -71,7 +82,7 @@ def verificar_status_railway():
         else:
             print(f"   ❌ Email falhou: {response.text}")
     except Exception as e:
-        print(f"   ❌ Erro no email: {e}")
+        print(f"   ❌ Erro: {e}")
 
 if __name__ == "__main__":
-    verificar_status_railway()
+    verificar_railway_detalhado()
