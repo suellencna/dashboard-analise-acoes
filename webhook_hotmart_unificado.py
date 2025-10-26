@@ -573,12 +573,15 @@ if __name__ == '__main__':
     logger.info("   ✅ Integração completa Hotmart → NEON → Gmail → RENDER")
     logger.info("   ✅ Sistema robusto e confiável")
     logger.info("")
-    logger.info("🌐 Acesse: http://localhost:5000")
+    # Obter porta do Railway ou usar 5000 como padrão
+    port = int(os.environ.get('PORT', 5000))
+    
+    logger.info(f"🌐 Acesse: http://localhost:{port}")
     logger.info("⏹️  Para parar: Ctrl+C")
     logger.info("=" * 70)
     
     try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=port, debug=False)
     except KeyboardInterrupt:
         logger.info("\n🛑 Sistema de webhook parado pelo usuário.")
     except Exception as e:
