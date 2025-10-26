@@ -22,6 +22,7 @@ import ssl
 import logging
 import threading
 import requests
+import time
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -50,6 +51,11 @@ GMAIL_EMAIL = os.environ.get('GMAIL_EMAIL', 'pontootimoinvest@gmail.com')
 GMAIL_APP_PASSWORD = os.environ.get('GMAIL_APP_PASSWORD')
 RENDER_APP_URL = os.environ.get('RENDER_APP_URL', 'https://ponto-otimo-invest.onrender.com')
 RAILWAY_APP_URL = os.environ.get('RAILWAY_APP_URL', 'https://web-production-040d1.up.railway.app')
+
+# Rate limiting para evitar bloqueios do Gmail
+EMAIL_SEND_LOCK = threading.Lock()
+LAST_EMAIL_TIME = 0
+EMAIL_DELAY = 2  # 2 segundos entre emails
 
 def get_db_connection():
     """Conectar ao banco de dados Neon"""
@@ -100,7 +106,21 @@ def hash_password(password):
     return password_hasher.hash(password)
 
 def send_activation_email(email, nome, token):
-    """Enviar email de ativação via Gmail SMTP"""
+    """Enviar email de ativação via Gmail SMTP com rate limiting"""
+    global LAST_EMAIL_TIME
+    
+    # Rate limiting para evitar bloqueios do Gmail
+    with EMAIL_SEND_LOCK:
+        current_time = time.time()
+        time_since_last = current_time - LAST_EMAIL_TIME
+        
+        if time_since_last < EMAIL_DELAY:
+            sleep_time = EMAIL_DELAY - time_since_last
+            logger.info(f"⏳ Rate limiting: aguardando {sleep_time:.1f}s antes de enviar email")
+            time.sleep(sleep_time)
+        
+        LAST_EMAIL_TIME = time.time()
+    
     try:
         # Configurar SMTP
         smtp_server = "smtp.gmail.com"
@@ -178,7 +198,7 @@ def send_activation_email(email, nome, token):
             server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
             server.send_message(msg)
         
-        logger.info(f"Email de ativação enviado para {email}")
+        logger.info(f"✅ Email de ativação enviado com sucesso para {email}")
         return True, temp_password
         
     except Exception as e:
