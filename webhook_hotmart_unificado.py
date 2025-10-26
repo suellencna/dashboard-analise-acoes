@@ -108,9 +108,12 @@ def send_activation_email(email, nome, token):
         
         # Criar mensagem
         msg = MIMEMultipart()
-        msg['From'] = GMAIL_EMAIL
+        msg['From'] = f"Ponto Ótimo Investimentos <{GMAIL_EMAIL}>"
         msg['To'] = email
-        msg['Subject'] = "🎉 Ative sua conta - Ponto Ótimo Investimentos"
+        msg['Subject'] = "Ative sua conta - Ponto Ótimo Investimentos"
+        msg['Reply-To'] = GMAIL_EMAIL
+        msg['X-Mailer'] = "Ponto Ótimo Investimentos System"
+        msg['X-Priority'] = "3"
         
         # Corpo do email
         activation_link = f"{RAILWAY_APP_URL}/ativar/{token}"
@@ -119,26 +122,26 @@ def send_activation_email(email, nome, token):
         body = f"""
         <html>
         <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
-                <h1 style="color: white; margin: 0;">🎉 Bem-vindo ao Ponto Ótimo!</h1>
+            <div style="background: #f8f9fa; padding: 30px; text-align: center; border: 1px solid #dee2e6;">
+                <h1 style="color: #333; margin: 0;">Bem-vindo ao Ponto Ótimo Investimentos</h1>
             </div>
             
-            <div style="padding: 30px; background: #f8f9fa;">
+            <div style="padding: 30px; background: white;">
                 <h2 style="color: #333;">Olá, {nome}!</h2>
                 
-                <p>Sua compra foi aprovada com sucesso! Para ativar sua conta e acessar o sistema, clique no botão abaixo:</p>
+                <p>Sua compra foi aprovada com sucesso! Para ativar sua conta e acessar o sistema, clique no link abaixo:</p>
                 
                 <div style="text-align: center; margin: 30px 0;">
                     <a href="{activation_link}" 
-                       style="background: #28a745; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
-                        ✅ Ativar Minha Conta
+                       style="background: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                        Ativar Minha Conta
                     </a>
                 </div>
                 
-                <div style="background: #e9ecef; padding: 20px; border-radius: 5px; margin: 20px 0;">
-                    <h3 style="color: #495057; margin-top: 0;">📋 Suas Credenciais Temporárias:</h3>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; border: 1px solid #dee2e6;">
+                    <h3 style="color: #495057; margin-top: 0;">Suas Credenciais Temporárias:</h3>
                     <p><strong>Email:</strong> {email}</p>
-                    <p><strong>Senha Temporária:</strong> <code style="background: #fff; padding: 2px 5px; border-radius: 3px;">{temp_password}</code></p>
+                    <p><strong>Senha Temporária:</strong> <code style="background: #fff; padding: 2px 5px; border-radius: 3px; border: 1px solid #dee2e6;">{temp_password}</code></p>
                     <p style="color: #dc3545; font-size: 14px;"><strong>⚠️ Importante:</strong> Você será obrigado a trocar esta senha no primeiro login.</p>
                 </div>
                 
