@@ -22,7 +22,7 @@ load_dotenv()
 
 # URLs dos serviços
 RAILWAY_URL = os.environ.get('RAILWAY_APP_URL', 'https://web-production-040d1.up.railway.app')
-RENDER_URL = os.environ.get('RENDER_APP_URL', 'https://ponto-otimo-invest.onrender.com')
+RENDER_URL = os.environ.get('RENDER_APP_URL', 'https://streamlit-analise-acoes.onrender.com')
 
 def testar_health_check():
     """Testar se o webhook está funcionando"""

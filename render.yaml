@@ -15,6 +15,6 @@ services:
       - key: GMAIL_APP_PASSWORD
         sync: false
       - key: RENDER_APP_URL
-        value: https://ponto-otimo-invest.onrender.com
+        value: https://streamlit-analise-acoes.onrender.com
       - key: RAILWAY_APP_URL
         value: https://web-production-040d1.up.railway.app
