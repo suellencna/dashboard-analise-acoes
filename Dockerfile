@@ -17,8 +17,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Expose port
-EXPOSE $PORT
+# Make start script executable
+RUN chmod +x start.sh
 
-# Run the application directly with gunicorn
-CMD gunicorn test_railway_simple:app --bind 0.0.0.0:$PORT --timeout 15 --workers 2 --threads 2
+# Expose port
+EXPOSE 5000
+
+# Run the application using start script
+CMD ["./start.sh"]

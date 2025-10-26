@@ -384,7 +384,7 @@ if __name__ == '__main__':
     print("=" * 60)
     
     try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=5002, debug=True)
     except KeyboardInterrupt:
         logger.info("\n🛑 Sistema de webhook parado pelo usuário.")
     except Exception as e:

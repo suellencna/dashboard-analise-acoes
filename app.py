@@ -316,22 +316,22 @@ if 'token' in st.query_params and not st.session_state.get("authentication_statu
         with engine.connect() as conn:
             # Verificar se o token é válido
             query_token = sqlalchemy.text("""
-                SELECT email, nome, data_expiracao_token 
+                SELECT email, nome, status_conta 
                 FROM usuarios 
-                WHERE token_ativacao = :token AND status_conta = 'pendente'
+                WHERE token_ativacao = :token
             """)
             result = conn.execute(query_token, {"token": token}).first()
             
             if result:
-                email, nome, expiracao = result
+                email, nome, status_conta = result
                 
-                # Verificar se o token não expirou
-                from datetime import datetime
-                if datetime.now() <= expiracao:
+                if status_conta == 'pendente':
                     # Ativar a conta
                     query_ativar = sqlalchemy.text("""
                         UPDATE usuarios 
-                        SET status_conta = 'ativo', token_ativacao = NULL 
+                        SET status_conta = 'ativo', 
+                            token_ativacao = NULL,
+                            data_ativacao = CURRENT_TIMESTAMP
                         WHERE token_ativacao = :token
                     """)
                     conn.execute(query_ativar, {"token": token})
@@ -366,10 +366,12 @@ if 'token' in st.query_params and not st.session_state.get("authentication_statu
                     st.markdown(f"**Senha temporária:** `{senha_temporaria}`")
                     st.warning("⚠️ **IMPORTANTE:** Use esta senha temporária para fazer login. Você será obrigado a alterá-la na primeira vez.")
                     
+                elif status_conta == 'ativo':
+                    st.info("✅ Sua conta já está ativa! Você pode fazer login normalmente.")
                 else:
-                    st.error("❌ Token expirado. Entre em contato conosco para reenviar o link de ativação.")
+                    st.error("❌ Status da conta inválido. Entre em contato conosco.")
             else:
-                st.error("❌ Token inválido ou conta já ativada.")
+                st.error("❌ Token inválido ou não encontrado.")
                 
     except Exception as e:
         st.error(f"❌ Erro ao processar ativação: {e}")

@@ -1,12 +1,10 @@
 {
+  "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "python webhook_railway.py",
-    "healthcheckPath": "/health",
-    "healthcheckTimeout": 30,
-    "healthcheckStartPeriod": 15,
+    "startCommand": "python webhook_hotmart_unificado.py",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
