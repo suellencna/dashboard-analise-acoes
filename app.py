@@ -17,93 +17,487 @@ import yfinance as yf
 # --- Configurações da Página e Estilo ---
 st.set_page_config(page_title="Análise de Carteira", layout="wide")
 
-# Tema personalizado que se adapta ao sistema do usuário
+# Tema responsivo e adaptável ao sistema do usuário
 st.markdown("""
-
     <style>
-    /* CSS CORRIGIDO PARA LOGIN */
+    /* ===== SISTEMA DE CORES UNIFORME ===== */
+    :root {
+        /* Cores primárias - Amarelo vibrante */
+        --primary-color: #f39c12;
+        --primary-hover: #e67e22;
+        --secondary-color: #f1c40f;
+        --accent-color: #e74c3c;
+        
+        /* TEMA UNIFORME - TUDO BRANCO */
+        --bg-primary: #ffffff;
+        --bg-secondary: #ffffff;
+        --bg-card: #ffffff;
+        --bg-sidebar: #ffffff;
+        
+        /* Cores de texto uniformes */
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --text-muted: #8e8e93;
+        --text-white: #ffffff;
+        
+        /* Cores de borda uniformes */
+        --border-color: #e0e0e0;
+        --border-focus: var(--primary-color);
+        --border-strong: #d0d0d0;
+        
+        /* Sombras uniformes */
+        --shadow-light: rgba(0, 0, 0, 0.1);
+        --shadow-medium: rgba(0, 0, 0, 0.15);
+        --shadow-heavy: rgba(0, 0, 0, 0.25);
+        
+        /* Transições suaves */
+        --transition-fast: 0.2s ease;
+        --transition-normal: 0.3s ease;
+        --transition-slow: 0.5s ease;
+    }
     
-    /* Reset básico para campos de input */
+    /* ===== RESET E BASE ===== */
+    * {
+        box-sizing: border-box;
+    }
+    
+    /* ===== LAYOUT RESPONSIVO ===== */
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        max-width: 1200px;
+    }
+    
+    /* ===== SIDEBAR UNIFORME ===== */
+    .stSidebar {
+        background-color: var(--bg-sidebar) !important;
+        border-right: 2px solid var(--border-strong) !important;
+        padding: 1.5rem !important;
+        color: var(--text-primary) !important;
+    }
+    
+    /* Garantir que todo texto na sidebar seja visível */
+    .stSidebar * {
+        color: var(--text-primary) !important;
+    }
+    
+    .stSidebar label {
+        color: var(--text-primary) !important;
+        font-weight: 600 !important;
+    }
+    
+    .stSidebar .stMarkdown {
+        color: var(--text-primary) !important;
+    }
+    
+    .stSidebar h1, .stSidebar h2, .stSidebar h3, .stSidebar h4, .stSidebar h5, .stSidebar h6 {
+        color: var(--text-primary) !important;
+    }
+    
+    @media (max-width: 768px) {
+        .stSidebar {
+            padding: 1rem !important;
+        }
+    }
+    
+    /* ===== CAMPOS DE INPUT UNIFORMES ===== */
     .stTextInput > div > div > input {
-        background-color: white !important;
-        border: 2px solid #e0e0e0 !important;
-        border-radius: 8px !important;
-        padding: 12px !important;
+        background-color: var(--bg-card) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        padding: 14px 16px !important;
         font-size: 16px !important;
-        color: #333 !important;
+        color: var(--text-primary) !important;
         width: 100% !important;
         box-sizing: border-box !important;
+        transition: all var(--transition-normal) !important;
+        min-height: 48px !important;
+    }
+    
+    /* Garantir que placeholder seja visível */
+    .stTextInput > div > div > input::placeholder {
+        color: var(--text-muted) !important;
+        opacity: 0.8 !important;
+    }
+    
+    /* Garantir que texto digitado seja sempre visível */
+    .stTextInput > div > div > input:not(:placeholder-shown) {
+        color: var(--text-primary) !important;
     }
     
     .stTextInput > div > div > input:focus {
-        border-color: #667eea !important;
+        border-color: var(--border-focus) !important;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
         outline: none !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .stTextInput > div > div > input::placeholder {
+        color: var(--text-muted) !important;
+        opacity: 0.7 !important;
     }
     
     /* Labels dos campos */
     .stTextInput label {
-        color: #333 !important;
+        color: var(--text-primary) !important;
         font-weight: 600 !important;
         font-size: 14px !important;
         margin-bottom: 8px !important;
+        display: block !important;
     }
     
-    /* Sidebar */
-    .stSidebar {
-        background-color: #ffffff !important;
-        border-right: 1px solid #e0e0e0 !important;
-        padding: 20px !important;
-    }
-    
-    /* Botões */
-    .stButton > button {
-        background-color: #667eea !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        padding: 12px 24px !important;
-        width: 100% !important;
-        font-size: 16px !important;
-    }
-    
-    .stButton > button:hover {
-        background-color: #5a6fd8 !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
-    }
-    
-    /* Remover estilos problemáticos */
+    /* Container dos inputs */
     .stTextInput > div {
         background: transparent !important;
     }
     
-    /* Garantir que os campos sejam visíveis */
     .stTextInput {
-        margin-bottom: 20px !important;
+        margin-bottom: 1.5rem !important;
     }
     
-    /* Cards principais */
-    .card {
-        background: white !important;
+    /* ===== BOTÕES AMARELOS UNIFORMES ===== */
+    .stButton > button {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
+        color: #2c3e50 !important;
+        border: none !important;
         border-radius: 12px !important;
+        font-weight: 700 !important;
+        padding: 14px 24px !important;
+        width: 100% !important;
+        font-size: 16px !important;
+        min-height: 48px !important;
+        transition: all var(--transition-normal) !important;
+        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* Garantir que texto dos botões seja sempre visível */
+    .stButton > button * {
+        color: #2c3e50 !important;
+    }
+    
+    .stButton > button span {
+        color: #2c3e50 !important;
+    }
+    
+    .stButton > button:hover {
+        background: linear-gradient(135deg, var(--primary-hover) 0%, #d4ac0d 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5) !important;
+    }
+    
+    .stButton > button:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3) !important;
+    }
+    
+    /* ===== BOTÃO COMPRAR AGORA ESPECIAL ===== */
+    .stButton > button:contains("Comprar Agora"),
+    .stButton > button:contains("Comprar"),
+    .stButton > button[data-testid*="comprar"] {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3) !important;
+    }
+    
+    .stButton > button:contains("Comprar Agora"):hover,
+    .stButton > button:contains("Comprar"):hover,
+    .stButton > button[data-testid*="comprar"]:hover {
+        background: linear-gradient(135deg, #c0392b 0%, #a93226 100%) !important;
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.5) !important;
+    }
+    
+    /* Estilo para botões de compra/venda */
+    .stButton > button[style*="red"],
+    .stButton > button[style*="crimson"] {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3) !important;
+    }
+    
+    /* Botões pequenos para telas pequenas */
+    @media (max-width: 480px) {
+        .stButton > button {
+            font-size: 14px !important;
+            padding: 12px 16px !important;
+            min-height: 44px !important;
+        }
+    }
+    
+    /* ===== BOTÕES LADO A LADO RESPONSIVOS ===== */
+    .button-group {
+        display: flex !important;
+        gap: 12px !important;
+        width: 100% !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .button-group .stButton {
+        flex: 1 !important;
+        min-width: 120px !important;
+    }
+    
+    @media (max-width: 768px) {
+        .button-group {
+            flex-direction: column !important;
+            gap: 8px !important;
+        }
+        
+        .button-group .stButton {
+            flex: none !important;
+            min-width: auto !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .button-group .stButton > button {
+            font-size: 13px !important;
+            padding: 10px 12px !important;
+        }
+    }
+    
+    /* ===== CARDS RESPONSIVOS ===== */
+    .card {
+        background: var(--bg-card) !important;
+        border-radius: 16px !important;
         padding: 24px !important;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-        margin-bottom: 20px !important;
+        box-shadow: 0 4px 12px var(--shadow-light) !important;
+        margin-bottom: 24px !important;
+        border: 1px solid var(--border-color) !important;
+        transition: all var(--transition-normal) !important;
     }
     
-    /* Títulos */
-    h1, h2, h3 {
-        color: #333 !important;
+    .card:hover {
+        box-shadow: 0 8px 24px var(--shadow-medium) !important;
+        transform: translateY(-2px) !important;
     }
     
-    /* Texto geral */
+    @media (max-width: 768px) {
+        .card {
+            padding: 16px !important;
+            margin-bottom: 16px !important;
+        }
+    }
+    
+    /* ===== TÍTULOS RESPONSIVOS ===== */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-primary) !important;
+        margin-bottom: 1rem !important;
+        line-height: 1.3 !important;
+    }
+    
+    h1 {
+        font-size: 2.5rem !important;
+        font-weight: 700 !important;
+    }
+    
+    h2 {
+        font-size: 2rem !important;
+        font-weight: 600 !important;
+    }
+    
+    h3 {
+        font-size: 1.5rem !important;
+        font-weight: 600 !important;
+    }
+    
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2rem !important;
+        }
+        
+        h2 {
+            font-size: 1.75rem !important;
+        }
+        
+        h3 {
+            font-size: 1.25rem !important;
+        }
+    }
+    
+    /* ===== TEXTO GERAL UNIFORME ===== */
     .stMarkdown {
-        color: #333 !important;
+        color: var(--text-primary) !important;
+        line-height: 1.6 !important;
+    }
+    
+    p {
+        color: var(--text-primary) !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    /* Garantir que todos os textos sejam visíveis */
+    body, .main, .block-container {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    /* Forçar visibilidade de todos os elementos de texto */
+    div, span, p, h1, h2, h3, h4, h5, h6, label, a, button {
+        color: inherit !important;
+    }
+    
+    /* Garantir que links sejam visíveis */
+    a {
+        color: var(--primary-color) !important;
+        text-decoration: none !important;
+    }
+    
+    a:hover {
+        color: var(--primary-hover) !important;
+        text-decoration: underline !important;
+    }
+    
+    /* Atualizar cores de foco para amarelo */
+    .stButton > button:focus,
+    .stTextInput > div > div > input:focus,
+    .stSelectbox > div > div > div:focus-within {
+        outline: 2px solid var(--primary-color) !important;
+        outline-offset: 2px !important;
+    }
+    
+    /* ===== GRID RESPONSIVO ===== */
+    .stColumns {
+        gap: 1rem !important;
+    }
+    
+    @media (max-width: 768px) {
+        .stColumns {
+            flex-direction: column !important;
+        }
+        
+        .stColumns > div {
+            width: 100% !important;
+        }
+    }
+    
+    /* ===== SLIDERS E CONTROLES ===== */
+    .stSlider > div > div > div > div {
+        background: var(--primary-color) !important;
+    }
+    
+    .stSlider label {
+        color: var(--text-primary) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* ===== SELECTBOX E DROPDOWN ===== */
+    .stSelectbox > div > div > div {
+        background-color: var(--bg-card) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .stSelectbox > div > div > div:focus-within {
+        border-color: var(--border-focus) !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    .stSelectbox label {
+        color: var(--text-primary) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* ===== RADIO BUTTONS ===== */
+    .stRadio > div {
+        gap: 12px !important;
+    }
+    
+    .stRadio > div > label {
+        color: var(--text-primary) !important;
+        font-weight: 500 !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        transition: all var(--transition-fast) !important;
+    }
+    
+    .stRadio > div > label:hover {
+        background-color: rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    /* ===== CHECKBOX ===== */
+    .stCheckbox > div > label {
+        color: var(--text-primary) !important;
+        font-weight: 500 !important;
+    }
+    
+    /* ===== MENSAGENS DE ERRO E SUCESSO ===== */
+    .stAlert {
+        border-radius: 12px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px var(--shadow-light) !important;
+    }
+    
+    /* ===== SCROLLBAR PERSONALIZADA ===== */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--bg-secondary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-hover);
+    }
+    
+    /* ===== ANIMAÇÕES ===== */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .main .block-container {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    /* ===== MELHORIAS DE ACESSIBILIDADE ===== */
+    .stButton > button:focus,
+    .stTextInput > div > div > input:focus,
+    .stSelectbox > div > div > div:focus-within {
+        outline: 2px solid var(--primary-color) !important;
+        outline-offset: 2px !important;
+    }
+    
+    /* ===== TEMA UNIFORME BRANCO ===== */
+    /* Mantendo tema branco uniforme em todos os dispositivos */
+    
+    /* ===== PRINT STYLES ===== */
+    @media print {
+        .stSidebar {
+            display: none !important;
+        }
+        
+        .main .block-container {
+            max-width: none !important;
+            padding: 0 !important;
+        }
+        
+        .card {
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+        }
     }
     </style>
-    
 """, unsafe_allow_html=True)
 
 

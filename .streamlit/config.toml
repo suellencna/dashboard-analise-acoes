@@ -1,0 +1,29 @@
+[theme]
+# Cores do tema
+primaryColor = "#667eea"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f8f9fa"
+textColor = "#262730"
+
+[server]
+# Configurações do servidor
+headless = true
+port = 8501
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+# Configurações do navegador
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8501
+
+[client]
+# Configurações do cliente
+showErrorDetails = true
+toolbarMode = "minimal"
+
+[logger]
+# Configurações de log
+level = "info"
+messageFormat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
