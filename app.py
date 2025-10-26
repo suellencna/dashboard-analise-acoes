@@ -19,151 +19,91 @@ st.set_page_config(page_title="Análise de Carteira", layout="wide")
 
 # Tema personalizado que se adapta ao sistema do usuário
 st.markdown("""
-<style>
-    /* Tema personalizado que se adapta ao sistema */
-    .stApp {
-        background-color: var(--background-color, #f8f9fa);
-        color: var(--text-color, #333333);
-    }
-    .stSidebar {
-        background-color: var(--sidebar-bg, #ffffff);
-        border-right: 1px solid var(--border-color, #e0e0e0);
-    }
-    .stSidebar .stMarkdown {
-        color: var(--text-color, #333333);
-    }
-    .stButton > button {
-        background-color: #667eea;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 0.5rem 1rem;
-    }
-    .stButton > button:hover {
-        background-color: #5a6fd8;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
+
+    <style>
+    /* CSS CORRIGIDO PARA LOGIN */
     
-    /* CORRIGIR CONTRASTE - TEXTO ESCURO EM FUNDO CLARO */
-    .stMarkdown, .stText, .stSelectbox label, .stTextInput label, .stDateInput label {
-        color: #333333 !important;
-    }
-    
-    .stSidebar .stMarkdown, .stSidebar .stText {
-        color: #333333 !important;
-    }
-    
-    h1, h2, h3, h4, h5, h6 {
-        color: #333333 !important;
-    }
-    
-    /* Corrigir contraste para elementos específicos do Streamlit */
-    .stApp > div > div > div > div {
-        color: #333333 !important;
-    }
+    /* Reset básico para campos de input */
     .stTextInput > div > div > input {
-        background-color: var(--input-bg, #ffffff);
-        color: var(--text-color, #333333);
-        border: 2px solid var(--border-color, #e0e0e0);
-        border-radius: 8px;
-        padding: 0.5rem;
+        background-color: white !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        padding: 12px !important;
+        font-size: 16px !important;
+        color: #333 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
     }
+    
     .stTextInput > div > div > input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    .stSelectbox > div > div > select {
-        background-color: var(--input-bg, #ffffff);
-        color: var(--text-color, #333333);
-        border: 2px solid var(--border-color, #e0e0e0);
-        border-radius: 8px;
-    }
-    .stNumberInput > div > div > input {
-        background-color: var(--input-bg, #ffffff);
-        color: var(--text-color, #333333);
-        border: 2px solid var(--border-color, #e0e0e0);
-        border-radius: 8px;
-    }
-    .stDateInput > div > div > input {
-        background-color: var(--input-bg, #ffffff);
-        color: var(--text-color, #333333);
-        border: 2px solid var(--border-color, #e0e0e0);
-        border-radius: 8px;
-    }
-    .stDataFrame {
-        background-color: var(--card-bg, #ffffff);
-        border: 1px solid var(--border-color, #e0e0e0);
-        border-radius: 8px;
-    }
-    .stAlert {
-        background-color: var(--card-bg, #ffffff);
-        border: 1px solid var(--border-color, #e0e0e0);
-        border-radius: 8px;
-    }
-    .stSuccess {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    .stError {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-    }
-    .stWarning {
-        background-color: #fff3cd;
-        border: 1px solid #ffeaa7;
-        color: #856404;
-    }
-    .stInfo {
-        background-color: #d1ecf1;
-        border: 1px solid #bee5eb;
-        color: #0c5460;
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        outline: none !important;
     }
     
-    /* Cores cinza claro para todos os textos (exceto botões) */
-    .stMarkdown, .stMarkdown p, .stMarkdown div, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
-        color: #6c757d !important;
+    /* Labels dos campos */
+    .stTextInput label {
+        color: #333 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        margin-bottom: 8px !important;
     }
     
-    /* Labels do login em cinza claro */
-    .stSidebar .stMarkdown h1, .stSidebar .stMarkdown h2, .stSidebar .stMarkdown h3 {
-        color: #6c757d !important;
-    }
-    .stSidebar .stMarkdown p, .stSidebar .stMarkdown div {
-        color: #6c757d !important;
-    }
-    
-    /* Inputs com texto cinza claro */
-    .stTextInput > div > div > input {
-        color: #6c757d !important;
+    /* Sidebar */
+    .stSidebar {
+        background-color: #ffffff !important;
+        border-right: 1px solid #e0e0e0 !important;
+        padding: 20px !important;
     }
     
-    /* Cards com texto cinza claro */
-    .feature-card {
-        color: #6c757d !important;
+    /* Botões */
+    .stButton > button {
+        background-color: #667eea !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        padding: 12px 24px !important;
+        width: 100% !important;
+        font-size: 16px !important;
     }
     
-    /* Seção de benefícios com texto cinza claro */
-    .benefits-section {
-        color: #6c757d !important;
+    .stButton > button:hover {
+        background-color: #5a6fd8 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
     }
     
-    /* Responsividade para evitar overflow */
+    /* Remover estilos problemáticos */
+    .stTextInput > div {
+        background: transparent !important;
+    }
+    
+    /* Garantir que os campos sejam visíveis */
+    .stTextInput {
+        margin-bottom: 20px !important;
+    }
+    
+    /* Cards principais */
+    .card {
+        background: white !important;
+        border-radius: 12px !important;
+        padding: 24px !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Títulos */
+    h1, h2, h3 {
+        color: #333 !important;
+    }
+    
+    /* Texto geral */
     .stMarkdown {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        max-width: 100%;
+        color: #333 !important;
     }
+    </style>
     
-    /* Container responsivo */
-    .main-container {
-        max-width: 100%;
-        overflow-x: hidden;
-    }
-</style>
 """, unsafe_allow_html=True)
 
 
@@ -446,12 +386,91 @@ if st.session_state.get("authentication_status"):
     
     # Botões de ação do usuário - alinhados verticalmente
     st.markdown("""
+    
     <style>
-    .stButton > button[kind="secondary"] {
-        height: 45px !important;
-        min-height: 45px !important;
+    /* CSS CORRIGIDO PARA LOGIN */
+    
+    /* Reset básico para campos de input */
+    .stTextInput > div > div > input {
+        background-color: white !important;
+        border: 2px solid #e0e0e0 !important;
+        border-radius: 8px !important;
+        padding: 12px !important;
+        font-size: 16px !important;
+        color: #333 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+        outline: none !important;
+    }
+    
+    /* Labels dos campos */
+    .stTextInput label {
+        color: #333 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    /* Sidebar */
+    .stSidebar {
+        background-color: #ffffff !important;
+        border-right: 1px solid #e0e0e0 !important;
+        padding: 20px !important;
+    }
+    
+    /* Botões */
+    .stButton > button {
+        background-color: #667eea !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        padding: 12px 24px !important;
+        width: 100% !important;
+        font-size: 16px !important;
+    }
+    
+    .stButton > button:hover {
+        background-color: #5a6fd8 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    /* Remover estilos problemáticos */
+    .stTextInput > div {
+        background: transparent !important;
+    }
+    
+    /* Garantir que os campos sejam visíveis */
+    .stTextInput {
+        margin-bottom: 20px !important;
+    }
+    
+    /* Cards principais */
+    .card {
+        background: white !important;
+        border-radius: 12px !important;
+        padding: 24px !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        margin-bottom: 20px !important;
+    }
+    
+    /* Títulos */
+    h1, h2, h3 {
+        color: #333 !important;
+    }
+    
+    /* Texto geral */
+    .stMarkdown {
+        color: #333 !important;
     }
     </style>
+    
     """, unsafe_allow_html=True)
     
 
