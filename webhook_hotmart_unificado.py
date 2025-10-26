@@ -290,13 +290,32 @@ def webhook_hotmart():
         if not data:
             return jsonify({"error": "Dados não fornecidos"}), 400
         
-        # Extrair dados do webhook da Hotmart
-        buyer = data.get('buyer', {})
-        email = buyer.get('email')
-        nome = buyer.get('name')
-        transaction = data.get('transaction', {})
-        transaction_id = transaction.get('id')
-        status_compra = data.get('status')
+        # Extrair dados do webhook da Hotmart (suporta v1.0 e v2.0)
+        logger.info(f"Webhook recebido - Versão: {data.get('version', '1.0')}")
+        
+        # Verificar se é webhook v2.0
+        if data.get('version') == '2.0.0':
+            # Formato v2.0
+            event_data = data.get('data', {})
+            subscriber = event_data.get('subscriber', {})
+            product = event_data.get('product', {})
+            
+            email = subscriber.get('email')
+            nome = subscriber.get('name')
+            transaction_id = subscriber.get('code') or data.get('id')
+            status_compra = 'approved' if data.get('event') in ['PURCHASE_APPROVED', 'SUBSCRIPTION_CANCELLATION'] else 'pending'
+            
+            logger.info(f"Webhook v2.0 - Evento: {data.get('event')}, Email: {email}, Nome: {nome}")
+        else:
+            # Formato v1.0 (antigo)
+            buyer = data.get('buyer', {})
+            email = buyer.get('email')
+            nome = buyer.get('name')
+            transaction = data.get('transaction', {})
+            transaction_id = transaction.get('id')
+            status_compra = data.get('status')
+            
+            logger.info(f"Webhook v1.0 - Email: {email}, Nome: {nome}")
         
         if not email or not nome:
             logger.error("Email ou nome não encontrado no webhook")
