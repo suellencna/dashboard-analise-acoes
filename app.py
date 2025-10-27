@@ -257,6 +257,52 @@ st.markdown("""
         margin-bottom: 1.5rem !important;
     }
     
+    /* ===== ÍCONE DO OLHO NO CAMPO DE SENHA ===== */
+    /* Botão do ícone de visibilidade da senha */
+    .stTextInput > div > div > button {
+        background-color: transparent !important;
+        border: none !important;
+        color: var(--primary-color) !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
+        transition: all var(--transition-normal) !important;
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 10 !important;
+    }
+    
+    .stTextInput > div > div > button:hover {
+        background-color: rgba(135, 206, 235, 0.1) !important;
+        color: var(--primary-hover) !important;
+    }
+    
+    .stTextInput > div > div > button:focus {
+        outline: 2px solid var(--primary-color) !important;
+        outline-offset: 2px !important;
+    }
+    
+    /* SVG do ícone do olho */
+    .stTextInput > div > div > button svg {
+        fill: var(--primary-color) !important;
+        stroke: var(--primary-color) !important;
+        width: 20px !important;
+        height: 20px !important;
+    }
+    
+    .stTextInput > div > div > button:hover svg {
+        fill: var(--primary-hover) !important;
+        stroke: var(--primary-hover) !important;
+    }
+    
+    /* Container do input com posição relativa para o ícone */
+    .stTextInput > div > div {
+        position: relative !important;
+    }
+    
     /* ===== BOTÕES COM CORES DO LOGO ===== */
     .stButton > button {
         background: linear-gradient(135deg, var(--logo-blue) 0%, var(--logo-gold) 100%) !important;
@@ -2379,10 +2425,10 @@ else:
     
     with col1:
         st.markdown("""
-        <div class="feature-card" style="background: var(--card-bg, #ffffff); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--card-bg, #303841); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">⭐</div>
-            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Análise Markowitz</h3>
-            <p style="color: #6c757d; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+            <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Melhor Risco/Retorno</h3>
+            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
                 Otimização de carteiras com análise de risco e retorno, 
                 encontrando a melhor combinação de ativos para seus objetivos
             </p>
@@ -2391,24 +2437,24 @@ else:
     
     with col2:
         st.markdown("""
-        <div class="feature-card" style="background: var(--card-bg, #ffffff); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--card-bg, #303841); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">📈</div>
-            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Simulação Monte Carlo</h3>
-            <p style="color: #6c757d; font-size: 0.9rem; line-height: 1.4; margin: 0;">
-                Projeções de cenários futuros com milhares de simulações, 
-                ajudando você a tomar decisões mais informadas
+            <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Simulador de Cenários</h3>
+            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+                Projeções de cenários futuros, BONS E RUINS, com MILHARES de simulações, 
+                ajudando você a tomar decisões mais informadas.
             </p>
         </div>
         """, unsafe_allow_html=True)
     
     with col3:
         st.markdown("""
-        <div class="feature-card" style="background: var(--card-bg, #ffffff); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--card-bg, #303841); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
-            <h3 style="color: #667eea; margin: 0 0 15px 0; font-size: 1.3rem;">Métricas em Tempo Real</h3>
-            <p style="color: #6c757d; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+            <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Acompanhamento do Mercado</h3>
+            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
                 Dados atualizados constantemente com análises de volatilidade, 
-                Sharpe ratio e comparações com benchmarks
+                Sharpe ratio e comparações com benchmarks.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -2471,9 +2517,7 @@ else:
     # Fechar container responsivo
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Seção de Login
-    st.markdown("---")
-    st.markdown("### 🔑 Já tem acesso? Faça login:")
+    
     
     # Área principal - apenas espaçamento
     st.markdown("<br><br>", unsafe_allow_html=True)
@@ -2497,7 +2541,6 @@ else:
     
     st.sidebar.markdown("**📧 Email:**")
     email = st.sidebar.text_input(
-        "Email", 
         value=email_default,
         placeholder="seu@email.com",
         help="Digite o email cadastrado na Hotmart",
@@ -2505,7 +2548,6 @@ else:
     )
     st.sidebar.markdown("**🔒 Senha:**")
     password = st.sidebar.text_input(
-        "Senha", 
         value=password_default,
         type="password",
         placeholder="Sua senha",
@@ -2516,7 +2558,7 @@ else:
     # Botão de login estilizado
     col_btn1, col_btn2, col_btn3 = st.sidebar.columns([1, 2, 1])
     with col_btn2:
-        if st.button("🚀 Entrar", type="primary", use_container_width=True):
+        if st.button("Entrar", type="primary", use_container_width=True):
             login_result = check_login(email, password)
             
             # Verificar se é primeiro acesso
@@ -2563,9 +2605,9 @@ else:
     # Informações de suporte
     st.sidebar.markdown("---")
     st.sidebar.markdown("""
-    <div style='background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;'>
-        <h4 style='color: #333; margin-top: 0; margin-bottom: 10px;'>Precisa de ajuda?</h4>
-        <p style='color: #667eea; font-weight: bold; margin: 5px 0 0 0; font-size: 12px;'>
+    <div style='background: #303841; padding: 15px; border-radius: 8px; border-left: 4px solid #edf3f3;'>
+        <h4 style='color: #edf3f3; margin-top: 0; margin-bottom: 10px;'>Precisa de ajuda?</h4>
+        <p style='color: #edf3f3; font-weight: bold; margin: 5px 0 0 0; font-size: 12px;'>
             pontootimoinvest@gmail.com
         </p>
     </div>
