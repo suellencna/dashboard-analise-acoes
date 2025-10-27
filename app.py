@@ -20,13 +20,15 @@ st.set_page_config(page_title="Análise de Carteira", layout="wide")
 # Tema responsivo e adaptável ao sistema do usuário
 st.markdown("""
     <style>
-    /* ===== SISTEMA DE CORES UNIFORME - TEMA PRETO ===== */
+    /* ===== SISTEMA DE CORES UNIFORME - CORES DO LOGO ===== */
     :root {
-        /* Cores primárias - Amarelo vibrante */
-        --primary-color: #f39c12;
-        --primary-hover: #e67e22;
-        --secondary-color: #f1c40f;
-        --accent-color: #e74c3c;
+        /* Cores do logo - Azul claro e dourado */
+        --primary-color: #87CEEB;  /* Azul claro do logo */
+        --primary-hover: #6BB6FF;  /* Azul mais escuro */
+        --secondary-color: #FFD700; /* Dourado do logo */
+        --accent-color: #e74c3c;   /* Vermelho para compra */
+        --logo-blue: #87CEEB;      /* Azul claro do logo */
+        --logo-gold: #FFD700;      /* Dourado do logo */
         
         /* TEMA UNIFORME - TUDO PRETO */
         --bg-primary: #1a1a1a;
@@ -115,10 +117,40 @@ st.markdown("""
     }
     
     /* ===== CORRIGIR CONTAINERS BRANCOS ===== */
-    /* Forçar tema preto em todos os containers */
+    /* Forçar tema escuro em todos os containers */
     .stContainer, .stDataFrame, .stTable, .stMetric, .stColumns > div {
         background-color: var(--bg-card) !important;
         color: var(--text-primary) !important;
+    }
+    
+    /* Containers específicos que estavam brancos */
+    .stAlert, .stInfo, .stSuccess, .stWarning, .stError {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--primary-color) !important;
+    }
+    
+    /* Container "Precisa de ajuda" */
+    .stMarkdown:contains("Precisa de ajuda"),
+    .stMarkdown:contains("contato"),
+    .stMarkdown:contains("gmail") {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        padding: 16px !important;
+        border-radius: 12px !important;
+        border: 2px solid var(--primary-color) !important;
+    }
+    
+    /* Cards de funcionalidades */
+    .stMarkdown:contains("Análise Markowitz"),
+    .stMarkdown:contains("Simulação Monte Carlo"),
+    .stMarkdown:contains("Métricas em Tempo Real") {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        padding: 20px !important;
+        border-radius: 16px !important;
+        border: 2px solid var(--primary-color) !important;
+        margin: 10px 0 !important;
     }
     
     /* Containers de gráficos */
@@ -225,10 +257,10 @@ st.markdown("""
         margin-bottom: 1.5rem !important;
     }
     
-    /* ===== BOTÕES AMARELOS UNIFORMES ===== */
+    /* ===== BOTÕES COM CORES DO LOGO ===== */
     .stButton > button {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: #2c3e50 !important;
+        background: linear-gradient(135deg, var(--logo-blue) 0%, var(--logo-gold) 100%) !important;
+        color: #1a1a1a !important;
         border: none !important;
         border-radius: 12px !important;
         font-weight: 700 !important;
@@ -237,7 +269,7 @@ st.markdown("""
         font-size: 16px !important;
         min-height: 48px !important;
         transition: all var(--transition-normal) !important;
-        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(135, 206, 235, 0.3) !important;
         cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
@@ -686,15 +718,17 @@ st.markdown("""
     }
     
     /* ===== CORREÇÃO DE GRÁFICOS E LEGENDAS ===== */
-    /* Forçar tema preto nos gráficos Plotly */
+    /* Forçar tema escuro nos gráficos Plotly */
     .stPlotlyChart {
         background-color: var(--bg-card) !important;
     }
     
-    /* Corrigir legendas dos gráficos */
+    /* Corrigir legendas dos gráficos - TORNAR VISÍVEL */
     .stPlotlyChart .legend {
         color: var(--text-primary) !important;
         background-color: var(--bg-card) !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
     }
     
     /* Forçar tema escuro nos gráficos */
@@ -705,16 +739,34 @@ st.markdown("""
     /* Corrigir textos dos eixos */
     .js-plotly-plot .plotly .xtick, .js-plotly-plot .plotly .ytick {
         color: var(--text-primary) !important;
+        font-size: 12px !important;
+        font-weight: 500 !important;
     }
     
     /* Corrigir títulos dos gráficos */
     .js-plotly-plot .plotly .gtitle {
         color: var(--text-primary) !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
     }
     
-    /* Forçar fundo preto nos gráficos */
+    /* Forçar fundo escuro nos gráficos */
     .stPlotlyChart .plotly .plotly {
         background-color: var(--bg-card) !important;
+    }
+    
+    /* Corrigir legenda do gráfico pizza especificamente */
+    .stPlotlyChart .legend text {
+        fill: var(--text-primary) !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Corrigir labels do gráfico pizza */
+    .stPlotlyChart .pie text {
+        fill: var(--text-primary) !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
     }
     
     /* Corrigir tabelas de dados */
@@ -770,34 +822,70 @@ st.markdown("""
     }
     </style>
     <script>
-    // Forçar tema escuro nos gráficos Plotly
+    // Forçar tema escuro nos gráficos Plotly com cores do logo
     document.addEventListener('DOMContentLoaded', function() {
         // Aguardar carregamento dos gráficos
         setTimeout(function() {
             const plots = document.querySelectorAll('.js-plotly-plot');
             plots.forEach(function(plot) {
                 if (plot && plot.layout) {
+                    // Fundo escuro
                     plot.layout.paper_bgcolor = '#2d2d2d';
                     plot.layout.plot_bgcolor = '#2d2d2d';
-                    plot.layout.font = { color: '#ffffff' };
+                    plot.layout.font = { color: '#ffffff', size: 14 };
+                    
+                    // Corrigir eixos
                     if (plot.layout.xaxis) {
                         plot.layout.xaxis.color = '#ffffff';
                         plot.layout.xaxis.gridcolor = '#404040';
+                        plot.layout.xaxis.tickfont = { color: '#ffffff', size: 12 };
                     }
                     if (plot.layout.yaxis) {
                         plot.layout.yaxis.color = '#ffffff';
                         plot.layout.yaxis.gridcolor = '#404040';
+                        plot.layout.yaxis.tickfont = { color: '#ffffff', size: 12 };
                     }
+                    
+                    // Corrigir legenda - TORNAR VISÍVEL
                     if (plot.layout.legend) {
                         plot.layout.legend.bgcolor = '#2d2d2d';
-                        plot.layout.legend.font = { color: '#ffffff' };
+                        plot.layout.legend.font = { color: '#ffffff', size: 14 };
+                        plot.layout.legend.bordercolor = '#87CEEB';
+                        plot.layout.legend.borderwidth = 2;
                     }
+                    
+                    // Corrigir títulos
+                    if (plot.layout.title) {
+                        plot.layout.title.font = { color: '#ffffff', size: 16 };
+                    }
+                    
+                    // Para gráficos de pizza, corrigir labels
+                    if (plot.data) {
+                        plot.data.forEach(function(trace) {
+                            if (trace.type === 'pie') {
+                                trace.textfont = { color: '#ffffff', size: 12 };
+                                trace.marker = trace.marker || {};
+                                trace.marker.line = { color: '#87CEEB', width: 2 };
+                            }
+                        });
+                    }
+                    
                     if (typeof Plotly !== 'undefined') {
                         Plotly.redraw(plot);
                     }
                 }
             });
         }, 1000);
+        
+        // Reaplicar após 3 segundos para garantir
+        setTimeout(function() {
+            const plots = document.querySelectorAll('.js-plotly-plot');
+            plots.forEach(function(plot) {
+                if (typeof Plotly !== 'undefined' && plot) {
+                    Plotly.redraw(plot);
+                }
+            });
+        }, 3000);
     });
     </script>
 """, unsafe_allow_html=True)
