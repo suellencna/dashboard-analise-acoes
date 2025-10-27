@@ -114,6 +114,30 @@ st.markdown("""
         min-height: 48px !important;
     }
     
+    /* ===== CORRIGIR CONTAINERS BRANCOS ===== */
+    /* Forçar tema preto em todos os containers */
+    .stContainer, .stDataFrame, .stTable, .stMetric, .stColumns > div {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    /* Containers de gráficos */
+    .stPlotlyChart, .stPyplot, .stAltair {
+        background-color: var(--bg-card) !important;
+    }
+    
+    /* Tabelas e dataframes */
+    .stDataFrame table, .stTable table {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .stDataFrame th, .stDataFrame td, .stTable th, .stTable td {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
+    }
+    
     /* ===== BORDAS NOS CAMPOS DE NÚMEROS ===== */
     .stNumberInput > div > div > input {
         background-color: var(--bg-card) !important;
@@ -219,19 +243,34 @@ st.markdown("""
         align-items: center !important;
         justify-content: center !important;
         text-align: center !important;
-        white-space: normal !important;
-        overflow: visible !important;
-        text-overflow: unset !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
         line-height: 1.2 !important;
     }
     
-    /* Botão específico para "Salvar configurações da carteira" */
+    /* Botões que PRECISAM de quebra de linha */
     .stButton > button:contains("Salvar Configuração"),
-    .stButton > button:contains("Salvar configuração") {
+    .stButton > button:contains("Salvar configuração"),
+    .stButton > button:contains("Otimização e Projeções"),
+    .stButton > button:contains("Clique aqui para") {
         white-space: normal !important;
         line-height: 1.3 !important;
         padding: 16px 24px !important;
         min-height: 60px !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+    }
+    
+    /* Botões que NÃO precisam de quebra (texto curto) */
+    .stButton > button:contains("Entrar"),
+    .stButton > button:contains("Login"),
+    .stButton > button:contains("Logout"),
+    .stButton > button:contains("Fechar"),
+    .stButton > button:contains("Verificar") {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
     
     /* Garantir que texto dos botões seja sempre visível e centralizado */
@@ -317,11 +356,24 @@ st.markdown("""
         min-width: 140px !important;
     }
     
+    /* Layout específico para botões verificar email e fechar */
+    .button-group-vertical {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    
+    .button-group-vertical .stButton {
+        flex: none !important;
+        min-width: auto !important;
+    }
+    
     /* Botões específicos para "Esqueci minha senha" */
     .stButton > button:contains("Esqueci"),
     .stButton > button:contains("Verificar"),
     .stButton > button:contains("Fechar") {
-        white-space: normal !important;
+        white-space: nowrap !important;
         line-height: 1.2 !important;
         min-width: 120px !important;
         font-size: 14px !important;
@@ -553,11 +605,42 @@ st.markdown("""
         font-weight: 500 !important;
     }
     
-    /* ===== MENSAGENS DE ERRO E SUCESSO ===== */
+    /* ===== MENSAGENS DE ERRO E SUCESSO DESTACADAS ===== */
     .stAlert {
         border-radius: 12px !important;
-        border: none !important;
-        box-shadow: 0 4px 12px var(--shadow-light) !important;
+        border: 2px solid var(--primary-color) !important;
+        box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4) !important;
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        font-weight: 600 !important;
+        animation: pulse 2s infinite !important;
+    }
+    
+    /* Alertas de erro */
+    .stAlert[data-testid="stAlert"]:has(.alert-danger),
+    .stAlert:contains("erro"),
+    .stAlert:contains("Erro") {
+        border-color: #e74c3c !important;
+        background-color: rgba(231, 76, 60, 0.1) !important;
+        color: #e74c3c !important;
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4) !important;
+    }
+    
+    /* Alertas de sucesso */
+    .stAlert:contains("sucesso"),
+    .stAlert:contains("Sucesso"),
+    .stAlert:contains("concluído") {
+        border-color: #27ae60 !important;
+        background-color: rgba(39, 174, 96, 0.1) !important;
+        color: #27ae60 !important;
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
+    }
+    
+    /* Animação de destaque */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
     }
     
     /* ===== SCROLLBAR PERSONALIZADA ===== */
@@ -602,8 +685,72 @@ st.markdown("""
         outline-offset: 2px !important;
     }
     
-    /* ===== TEMA UNIFORME BRANCO ===== */
-    /* Mantendo tema branco uniforme em todos os dispositivos */
+    /* ===== CORREÇÃO DE GRÁFICOS E LEGENDAS ===== */
+    /* Forçar tema preto nos gráficos Plotly */
+    .stPlotlyChart {
+        background-color: var(--bg-card) !important;
+    }
+    
+    /* Corrigir legendas dos gráficos */
+    .stPlotlyChart .legend {
+        color: var(--text-primary) !important;
+        background-color: var(--bg-card) !important;
+    }
+    
+    /* Forçar tema escuro nos gráficos */
+    .js-plotly-plot .plotly {
+        background-color: var(--bg-card) !important;
+    }
+    
+    /* Corrigir textos dos eixos */
+    .js-plotly-plot .plotly .xtick, .js-plotly-plot .plotly .ytick {
+        color: var(--text-primary) !important;
+    }
+    
+    /* Corrigir títulos dos gráficos */
+    .js-plotly-plot .plotly .gtitle {
+        color: var(--text-primary) !important;
+    }
+    
+    /* Forçar fundo preto nos gráficos */
+    .stPlotlyChart .plotly .plotly {
+        background-color: var(--bg-card) !important;
+    }
+    
+    /* Corrigir tabelas de dados */
+    .stDataFrame, .stTable {
+        background-color: var(--bg-card) !important;
+    }
+    
+    .stDataFrame table, .stTable table {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .stDataFrame th, .stDataFrame td {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border-color: var(--border-color) !important;
+    }
+    
+    /* Corrigir métricas */
+    .stMetric {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .stMetric > div {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .stMetric label {
+        color: var(--text-secondary) !important;
+    }
+    
+    .stMetric [data-testid="metric-value"] {
+        color: var(--text-primary) !important;
+    }
     
     /* ===== PRINT STYLES ===== */
     @media print {
@@ -622,6 +769,37 @@ st.markdown("""
         }
     }
     </style>
+    <script>
+    // Forçar tema escuro nos gráficos Plotly
+    document.addEventListener('DOMContentLoaded', function() {
+        // Aguardar carregamento dos gráficos
+        setTimeout(function() {
+            const plots = document.querySelectorAll('.js-plotly-plot');
+            plots.forEach(function(plot) {
+                if (plot && plot.layout) {
+                    plot.layout.paper_bgcolor = '#2d2d2d';
+                    plot.layout.plot_bgcolor = '#2d2d2d';
+                    plot.layout.font = { color: '#ffffff' };
+                    if (plot.layout.xaxis) {
+                        plot.layout.xaxis.color = '#ffffff';
+                        plot.layout.xaxis.gridcolor = '#404040';
+                    }
+                    if (plot.layout.yaxis) {
+                        plot.layout.yaxis.color = '#ffffff';
+                        plot.layout.yaxis.gridcolor = '#404040';
+                    }
+                    if (plot.layout.legend) {
+                        plot.layout.legend.bgcolor = '#2d2d2d';
+                        plot.layout.legend.font = { color: '#ffffff' };
+                    }
+                    if (typeof Plotly !== 'undefined') {
+                        Plotly.redraw(plot);
+                    }
+                }
+            });
+        }, 1000);
+    });
+    </script>
 """, unsafe_allow_html=True)
 
 
