@@ -20,32 +20,40 @@ st.set_page_config(page_title="Análise de Carteira", layout="wide")
 # Tema responsivo e adaptável ao sistema do usuário
 st.markdown("""
     <style>
-    /* ===== SISTEMA DE CORES UNIFORME - CORES DO LOGO ===== */
+    /* ===== SISTEMA DE CORES UNIFORME - NOVA PALETA ===== */
     :root {
-        /* Cores do logo - Azul claro e dourado */
-        --primary-color: #87CEEB;  /* Azul claro do logo */
-        --primary-hover: #6BB6FF;  /* Azul mais escuro */
-        --secondary-color: #FFD700; /* Dourado do logo */
-        --accent-color: #e74c3c;   /* Vermelho para compra */
-        --logo-blue: #87CEEB;      /* Azul claro do logo */
-        --logo-gold: #FFD700;      /* Dourado do logo */
+        /* Nova paleta de cores */
+        --primary-color: #eccf75;      /* Amarelo */
+        --primary-hover: #d4ba69;      /* Amarelo Apagado */
+        --secondary-color: #edf3f3;    /* Ciano/Branco */
+        --accent-color: #e74c3c;       /* Vermelho para compra */
+        --logo-blue: #303841;          /* Azul Acinzentado */
+        --logo-gold: #eccf75;          /* Amarelo */
         
-        /* TEMA UNIFORME - TUDO PRETO */
-        --bg-primary: #1a1a1a;
-        --bg-secondary: #2d2d2d;
-        --bg-card: #2d2d2d;
-        --bg-sidebar: #2d2d2d;
+        /* Cores da paleta */
+        --azul-acinzentado: #303841;
+        --cinza-escuro: #73726e;
+        --cinza-claro: #969e9f;
+        --ciano-branco: #edf3f3;
+        --amarelo: #eccf75;
+        --amarelo-apagado: #d4ba69;
+        
+        /* TEMA UNIFORME - NOVA PALETA */
+        --bg-primary: var(--azul-acinzentado);
+        --bg-secondary: var(--cinza-escuro);
+        --bg-card: var(--cinza-escuro);
+        --bg-sidebar: var(--azul-acinzentado);
         
         /* Cores de texto uniformes */
-        --text-primary: #ffffff;
-        --text-secondary: #b0b0b0;
-        --text-muted: #808080;
-        --text-white: #ffffff;
+        --text-primary: var(--ciano-branco);
+        --text-secondary: var(--cinza-claro);
+        --text-muted: var(--cinza-claro);
+        --text-white: var(--ciano-branco);
         
         /* Cores de borda uniformes */
-        --border-color: #404040;
-        --border-focus: var(--primary-color);
-        --border-strong: #505050;
+        --border-color: var(--cinza-claro);
+        --border-focus: var(--amarelo);
+        --border-strong: var(--cinza-claro);
         
         /* Sombras uniformes para tema preto */
         --shadow-light: rgba(255, 255, 255, 0.1);
@@ -262,7 +270,7 @@ st.markdown("""
     .stTextInput > div > div > button {
         background-color: transparent !important;
         border: none !important;
-        color: var(--primary-color) !important;
+        color: var(--amarelo) !important;
         padding: 8px !important;
         margin: 0 !important;
         border-radius: 4px !important;
@@ -276,26 +284,26 @@ st.markdown("""
     }
     
     .stTextInput > div > div > button:hover {
-        background-color: rgba(135, 206, 235, 0.1) !important;
-        color: var(--primary-hover) !important;
+        background-color: rgba(236, 207, 117, 0.1) !important;
+        color: var(--amarelo-apagado) !important;
     }
     
     .stTextInput > div > div > button:focus {
-        outline: 2px solid var(--primary-color) !important;
+        outline: 2px solid var(--amarelo) !important;
         outline-offset: 2px !important;
     }
     
     /* SVG do ícone do olho */
     .stTextInput > div > div > button svg {
-        fill: var(--primary-color) !important;
-        stroke: var(--primary-color) !important;
+        fill: var(--amarelo) !important;
+        stroke: var(--amarelo) !important;
         width: 20px !important;
         height: 20px !important;
     }
     
     .stTextInput > div > div > button:hover svg {
-        fill: var(--primary-hover) !important;
-        stroke: var(--primary-hover) !important;
+        fill: var(--amarelo-apagado) !important;
+        stroke: var(--amarelo-apagado) !important;
     }
     
     /* Container do input com posição relativa para o ícone */
@@ -303,10 +311,10 @@ st.markdown("""
         position: relative !important;
     }
     
-    /* ===== BOTÕES COM CORES DO LOGO ===== */
+    /* ===== BOTÕES COM NOVA PALETA ===== */
     .stButton > button {
-        background: linear-gradient(135deg, var(--logo-blue) 0%, var(--logo-gold) 100%) !important;
-        color: #1a1a1a !important;
+        background: linear-gradient(135deg, var(--amarelo) 0%, var(--amarelo-apagado) 100%) !important;
+        color: var(--azul-acinzentado) !important;
         border: none !important;
         border-radius: 12px !important;
         font-weight: 700 !important;
@@ -2425,7 +2433,7 @@ else:
     
     with col1:
         st.markdown("""
-        <div class="feature-card" style="background: var(--card-bg, #303841); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--bg-card); padding: 30px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">⭐</div>
             <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Melhor Risco/Retorno</h3>
             <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
@@ -2437,7 +2445,7 @@ else:
     
     with col2:
         st.markdown("""
-        <div class="feature-card" style="background: var(--card-bg, #303841); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--bg-card); padding: 30px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">📈</div>
             <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Simulador de Cenários</h3>
             <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
@@ -2449,7 +2457,7 @@ else:
     
     with col3:
         st.markdown("""
-        <div class="feature-card" style="background: var(--card-bg, #303841); padding: 30px; border-radius: 15px; text-align: center; border: 1px solid var(--border-color, #e0e0e0); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="feature-card" style="background: var(--bg-card); padding: 30px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
             <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Acompanhamento do Mercado</h3>
             <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
@@ -2541,6 +2549,7 @@ else:
     
     st.sidebar.markdown("**📧 Email:**")
     email = st.sidebar.text_input(
+        "Email", 
         value=email_default,
         placeholder="seu@email.com",
         help="Digite o email cadastrado na Hotmart",
@@ -2548,6 +2557,7 @@ else:
     )
     st.sidebar.markdown("**🔒 Senha:**")
     password = st.sidebar.text_input(
+        "Senha", 
         value=password_default,
         type="password",
         placeholder="Sua senha",
