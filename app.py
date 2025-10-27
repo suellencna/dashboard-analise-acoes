@@ -104,6 +104,58 @@ st.markdown("""
         color: var(--text-primary) !important;
     }
     
+    /* ===== SIDEBAR APÓS LOGIN - NOVA PALETA ===== */
+    /* Forçar cores da nova paleta em todos os elementos do sidebar */
+    .stSidebar .stTextInput > div > div > input,
+    .stSidebar .stNumberInput > div > div > input {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    .stSidebar .stSelectbox > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    .stSidebar .stMultiSelect > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    .stSidebar .stDateInput > div > div > input {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    .stSidebar .stSlider > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    /* Botões do sidebar com nova paleta */
+    .stSidebar .stButton > button {
+        background: linear-gradient(135deg, var(--amarelo) 0%, var(--amarelo-apagado) 100%) !important;
+        color: var(--azul-acinzentado) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Alertas e mensagens do sidebar */
+    .stSidebar .stAlert,
+    .stSidebar .stSuccess,
+    .stSidebar .stError,
+    .stSidebar .stWarning,
+    .stSidebar .stInfo {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--amarelo) !important;
+    }
+    
     @media (max-width: 768px) {
         .stSidebar {
             padding: 1rem !important;
@@ -242,10 +294,7 @@ st.markdown("""
         transform: translateY(-1px) !important;
     }
     
-    .stTextInput > div > div > input::placeholder {
-        color: var(--text-muted) !important;
-        opacity: 0.7 !important;
-    }
+    /* Placeholder duplicado removido */
     
     /* Labels dos campos */
     .stTextInput label {
@@ -772,22 +821,142 @@ st.markdown("""
     }
     
     /* ===== CORREÇÃO DE GRÁFICOS E LEGENDAS ===== */
-    /* Forçar tema escuro nos gráficos Plotly */
+    /* Forçar tema escuro nos gráficos Plotly - MESMA COR DO FUNDO DA PÁGINA */
     .stPlotlyChart {
+        background-color: var(--bg-primary) !important;
+    }
+    
+    /* ===== ÁREA PRINCIPAL APÓS LOGIN - NOVA PALETA ===== */
+    /* Forçar cores da nova paleta em toda a área principal */
+    .main .block-container {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    /* Títulos da área principal */
+    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
+        color: var(--text-primary) !important;
+    }
+    
+    /* Textos da área principal */
+    .main .stMarkdown {
+        color: var(--text-primary) !important;
+    }
+    
+    /* Containers e cards da área principal */
+    .main .stContainer,
+    .main .stDataFrame,
+    .main .stTable,
+    .main .stMetric {
         background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    /* Radio buttons e selectbox da área principal */
+    .main .stRadio > div > div > label,
+    .main .stSelectbox > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    /* ===== TEXTOS RECOLHÍVEIS (EXPANDERS) - CORES LEGÍVEIS ===== */
+    /* Cabeçalho do expander */
+    .stExpander > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Conteúdo do expander */
+    .stExpander > div > div > div > div {
+        background-color: var(--bg-primary) !important;
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Textos dentro do expander */
+    .stExpander .stMarkdown,
+    .stExpander .stMarkdown p,
+    .stExpander .stMarkdown h1,
+    .stExpander .stMarkdown h2,
+    .stExpander .stMarkdown h3,
+    .stExpander .stMarkdown h4,
+    .stExpander .stMarkdown h5,
+    .stExpander .stMarkdown h6,
+    .stExpander .stMarkdown li,
+    .stExpander .stMarkdown ul,
+    .stExpander .stMarkdown ol {
+        color: var(--ciano-branco) !important;
+        background-color: transparent !important;
+    }
+    
+    /* Links dentro do expander */
+    .stExpander .stMarkdown a {
+        color: var(--amarelo) !important;
+    }
+    
+    /* Listas dentro do expander */
+    .stExpander .stMarkdown ul li,
+    .stExpander .stMarkdown ol li {
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Texto em negrito dentro do expander */
+    .stExpander .stMarkdown strong {
+        color: var(--amarelo) !important;
+        font-weight: 700 !important;
+    }
+    
+    /* ===== OUTROS ELEMENTOS RECOLHÍVEIS ===== */
+    /* Accordion e outros elementos expansíveis */
+    .stAccordion > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--amarelo) !important;
+    }
+    
+    .stAccordion .stMarkdown,
+    .stAccordion .stMarkdown p,
+    .stAccordion .stMarkdown h1,
+    .stAccordion .stMarkdown h2,
+    .stAccordion .stMarkdown h3,
+    .stAccordion .stMarkdown h4,
+    .stAccordion .stMarkdown h5,
+    .stAccordion .stMarkdown h6 {
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Containers com texto */
+    .stContainer .stMarkdown,
+    .stContainer .stMarkdown p {
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Alertas e mensagens */
+    .stAlert .stMarkdown,
+    .stAlert .stMarkdown p {
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Info boxes */
+    .stInfo .stMarkdown,
+    .stInfo .stMarkdown p {
+        color: var(--ciano-branco) !important;
     }
     
     /* Corrigir legendas dos gráficos - TORNAR VISÍVEL */
     .stPlotlyChart .legend {
         color: var(--text-primary) !important;
-        background-color: var(--bg-card) !important;
+        background-color: var(--bg-primary) !important;
         font-size: 14px !important;
         font-weight: 600 !important;
     }
     
-    /* Forçar tema escuro nos gráficos */
+    /* Forçar tema escuro nos gráficos - MESMA COR DO FUNDO DA PÁGINA */
     .js-plotly-plot .plotly {
-        background-color: var(--bg-card) !important;
+        background-color: var(--bg-primary) !important;
     }
     
     /* Corrigir textos dos eixos */
@@ -883,9 +1052,9 @@ st.markdown("""
             const plots = document.querySelectorAll('.js-plotly-plot');
             plots.forEach(function(plot) {
                 if (plot && plot.layout) {
-                    // Fundo escuro
-                    plot.layout.paper_bgcolor = '#2d2d2d';
-                    plot.layout.plot_bgcolor = '#2d2d2d';
+                    // Fundo escuro - MESMA COR DO FUNDO DA PÁGINA
+                    plot.layout.paper_bgcolor = '#303841';
+                    plot.layout.plot_bgcolor = '#303841';
                     plot.layout.font = { color: '#ffffff', size: 14 };
                     
                     // Corrigir eixos
@@ -902,9 +1071,9 @@ st.markdown("""
                     
                     // Corrigir legenda - TORNAR VISÍVEL
                     if (plot.layout.legend) {
-                        plot.layout.legend.bgcolor = '#2d2d2d';
+                        plot.layout.legend.bgcolor = '#303841';
                         plot.layout.legend.font = { color: '#ffffff', size: 14 };
-                        plot.layout.legend.bordercolor = '#87CEEB';
+                        plot.layout.legend.bordercolor = '#eccf75';
                         plot.layout.legend.borderwidth = 2;
                     }
                     
@@ -1228,17 +1397,7 @@ if st.session_state.get("authentication_status"):
     <style>
     /* CSS CORRIGIDO PARA LOGIN */
     
-    /* Reset básico para campos de input */
-    .stTextInput > div > div > input {
-        background-color: white !important;
-        border: 2px solid #e0e0e0 !important;
-        border-radius: 8px !important;
-        padding: 12px !important;
-        font-size: 16px !important;
-        color: #333 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
+    /* Reset básico para campos de input - REMOVIDO (duplicado) */
     
     .stTextInput > div > div > input:focus {
         border-color: #667eea !important;
@@ -1254,30 +1413,11 @@ if st.session_state.get("authentication_status"):
         margin-bottom: 8px !important;
     }
     
-    /* Sidebar */
-    .stSidebar {
-        background-color: #ffffff !important;
-        border-right: 1px solid #e0e0e0 !important;
-        padding: 20px !important;
-    }
+    /* Sidebar - removido CSS que forçava branco */
     
-    /* Botões */
-    .stButton > button {
-        background-color: #667eea !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        padding: 12px 24px !important;
-        width: 100% !important;
-        font-size: 16px !important;
-    }
+    /* Botões - REMOVIDO (duplicado com nova paleta) */
     
-    .stButton > button:hover {
-        background-color: #5a6fd8 !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
-    }
+    /* Hover duplicado removido */
     
     /* Remover estilos problemáticos */
     .stTextInput > div {
@@ -1290,13 +1430,7 @@ if st.session_state.get("authentication_status"):
     }
     
     /* Cards principais */
-    .card {
-        background: white !important;
-        border-radius: 12px !important;
-        padding: 24px !important;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-        margin-bottom: 20px !important;
-    }
+    /* Card duplicado removido */
     
     /* Títulos */
     h1, h2, h3 {
@@ -2433,10 +2567,12 @@ else:
     
     with col1:
         st.markdown("""
-        <div class="feature-card" style="background: var(--bg-card); padding: 30px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <div style="font-size: 3rem; margin-bottom: 20px;">⭐</div>
-            <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Melhor Risco/Retorno</h3>
-            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+        <div class="feature-card" style="background: #303841; padding: 25px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 350px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="font-size: 3rem; margin-bottom: 20px;">⭐</div>
+                <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Melhor Risco/Retorno</h3>
+            </div>
+            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0; flex-grow: 1; display: flex; align-items: center;">
                 Otimização de carteiras com análise de risco e retorno, 
                 encontrando a melhor combinação de ativos para seus objetivos
             </p>
@@ -2445,10 +2581,12 @@ else:
     
     with col2:
         st.markdown("""
-        <div class="feature-card" style="background: var(--bg-card); padding: 30px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <div style="font-size: 3rem; margin-bottom: 20px;">📈</div>
-            <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Simulador de Cenários</h3>
-            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+        <div class="feature-card" style="background: #303841; padding: 25px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 350px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="font-size: 3rem; margin-bottom: 20px;">📈</div>
+                <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Simulador de Cenários</h3>
+            </div>
+            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0; flex-grow: 1; display: flex; align-items: center;">
                 Projeções de cenários futuros, BONS E RUINS, com MILHARES de simulações, 
                 ajudando você a tomar decisões mais informadas.
             </p>
@@ -2457,10 +2595,12 @@ else:
     
     with col3:
         st.markdown("""
-        <div class="feature-card" style="background: var(--bg-card); padding: 30px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 250px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
-            <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Acompanhamento do Mercado</h3>
-            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0;">
+        <div class="feature-card" style="background: #303841; padding: 25px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 350px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
+                <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Acompanhamento do Mercado</h3>
+            </div>
+            <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0; flex-grow: 1; display: flex; align-items: center;">
                 Dados atualizados constantemente com análises de volatilidade, 
                 Sharpe ratio e comparações com benchmarks.
             </p>
@@ -2549,7 +2689,7 @@ else:
     
     st.sidebar.markdown("**📧 Email:**")
     email = st.sidebar.text_input(
-        "Email", 
+        "", 
         value=email_default,
         placeholder="seu@email.com",
         help="Digite o email cadastrado na Hotmart",
@@ -2557,7 +2697,7 @@ else:
     )
     st.sidebar.markdown("**🔒 Senha:**")
     password = st.sidebar.text_input(
-        "Senha", 
+        "", 
         value=password_default,
         type="password",
         placeholder="Sua senha",
