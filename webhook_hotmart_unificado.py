@@ -49,7 +49,7 @@ password_hasher = argon2.PasswordHasher()
 DATABASE_URL = os.environ.get('DATABASE_URL')
 GMAIL_EMAIL = os.environ.get('GMAIL_EMAIL', 'pontootimoinvest@gmail.com')
 GMAIL_APP_PASSWORD = os.environ.get('GMAIL_APP_PASSWORD')
-RENDER_APP_URL = os.environ.get('RENDER_APP_URL', 'https://ponto-otimo-invest.onrender.com')
+RENDER_APP_URL = os.environ.get('RENDER_APP_URL', 'https://streamlit-analise-acoes.onrender.com')
 RAILWAY_APP_URL = os.environ.get('RAILWAY_APP_URL', 'https://web-production-040d1.up.railway.app')
 
 # Rate limiting para evitar bloqueios do Gmail

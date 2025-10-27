@@ -19,7 +19,7 @@ def testar_fluxo_completo():
     
     # URLs dos serviços
     RAILWAY_URL = "https://web-production-040d1.up.railway.app"
-    RENDER_URL = "https://ponto-otimo-invest.onrender.com"
+    RENDER_URL = "https://streamlit-analise-acoes.onrender.com"
     
     # Dados de teste
     email_teste = "suellencna@yahoo.com.br"

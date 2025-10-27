@@ -48,7 +48,7 @@ if not DATABASE_URL:
 # Configurações de Email (Gmail SMTP)
 GMAIL_EMAIL = os.environ.get('GMAIL_EMAIL', 'pontootimoinvest@gmail.com')
 GMAIL_APP_PASSWORD = os.environ.get('GMAIL_APP_PASSWORD')
-RENDER_APP_URL = os.environ.get('RENDER_APP_URL', 'https://ponto-otimo-invest.onrender.com')
+RENDER_APP_URL = os.environ.get('RENDER_APP_URL', 'https://streamlit-analise-acoes.onrender.com')
 
 def init_database():
     """Inicializar banco de dados"""
