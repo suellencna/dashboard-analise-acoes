@@ -125,6 +125,125 @@ st.markdown("""
         border: 2px solid var(--border-color) !important;
     }
     
+    /* ===== MULTISELECT - APLICAR PALETA DE CORES ===== */
+    /* Container principal do multiselect */
+    .stMultiSelect > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Tags/chips selecionados */
+    .stMultiSelect > div > div > div > div[data-baseweb="tag"] {
+        background-color: var(--amarelo) !important;
+        color: var(--azul-acinzentado) !important;
+        border: 1px solid var(--amarelo-apagado) !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Texto dentro das tags */
+    .stMultiSelect > div > div > div > div[data-baseweb="tag"] span {
+        color: var(--azul-acinzentado) !important;
+    }
+    
+    /* Ícone X das tags */
+    .stMultiSelect > div > div > div > div[data-baseweb="tag"] svg {
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
+    }
+    
+    /* Hover das tags */
+    .stMultiSelect > div > div > div > div[data-baseweb="tag"]:hover {
+        background-color: var(--amarelo-apagado) !important;
+    }
+    
+    /* Botões de ação (clear all, dropdown) */
+    .stMultiSelect > div > div > div > button {
+        background-color: transparent !important;
+        color: var(--text-primary) !important;
+        border: none !important;
+    }
+    
+    .stMultiSelect > div > div > div > button:hover {
+        background-color: rgba(236, 207, 117, 0.1) !important;
+        color: var(--amarelo) !important;
+    }
+    
+    /* SVG dos botões */
+    .stMultiSelect > div > div > div > button svg {
+        fill: var(--text-primary) !important;
+        stroke: var(--text-primary) !important;
+    }
+    
+    .stMultiSelect > div > div > div > button:hover svg {
+        fill: var(--amarelo) !important;
+        stroke: var(--amarelo) !important;
+    }
+    
+    /* ===== MULTISELECT GLOBAL - FORÇAR PALETA ===== */
+    /* Aplicar em todos os multiselects da aplicação */
+    .stMultiSelect,
+    .stMultiSelect > div,
+    .stMultiSelect > div > div,
+    .stMultiSelect > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    /* Tags em qualquer multiselect */
+    .stMultiSelect div[data-baseweb="tag"],
+    .stMultiSelect [data-baseweb="tag"] {
+        background-color: var(--amarelo) !important;
+        color: var(--azul-acinzentado) !important;
+        border: 1px solid var(--amarelo-apagado) !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Texto das tags */
+    .stMultiSelect div[data-baseweb="tag"] span,
+    .stMultiSelect [data-baseweb="tag"] span {
+        color: var(--azul-acinzentado) !important;
+    }
+    
+    /* Ícones das tags */
+    .stMultiSelect div[data-baseweb="tag"] svg,
+    .stMultiSelect [data-baseweb="tag"] svg {
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
+    }
+    
+    /* Hover das tags */
+    .stMultiSelect div[data-baseweb="tag"]:hover,
+    .stMultiSelect [data-baseweb="tag"]:hover {
+        background-color: var(--amarelo-apagado) !important;
+    }
+    
+    /* Botões do multiselect */
+    .stMultiSelect button {
+        background-color: transparent !important;
+        color: var(--text-primary) !important;
+        border: none !important;
+    }
+    
+    .stMultiSelect button:hover {
+        background-color: rgba(236, 207, 117, 0.1) !important;
+        color: var(--amarelo) !important;
+    }
+    
+    .stMultiSelect button svg {
+        fill: var(--text-primary) !important;
+        stroke: var(--text-primary) !important;
+    }
+    
+    .stMultiSelect button:hover svg {
+        fill: var(--amarelo) !important;
+        stroke: var(--amarelo) !important;
+    }
+    
     .stSidebar .stDateInput > div > div > input {
         background-color: var(--bg-card) !important;
         color: var(--text-primary) !important;
@@ -188,6 +307,49 @@ st.markdown("""
         background-color: var(--bg-card) !important;
         color: var(--text-primary) !important;
         border: 2px solid var(--primary-color) !important;
+    }
+    
+    /* ===== DISCLAIMER - COR DA LETRA ===== */
+    /* Disclaimer específico com cor destacada */
+    .stWarning,
+    .stAlert[data-testid="stAlert"]:has(.alert-warning),
+    .stAlert:contains("Disclaimer"),
+    .stAlert:contains("disclaimer") {
+        background-color: var(--bg-card) !important;
+        color: var(--amarelo) !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Texto dentro do disclaimer */
+    .stWarning .stMarkdown,
+    .stWarning .stMarkdown p,
+    .stWarning .stMarkdown h1,
+    .stWarning .stMarkdown h2,
+    .stWarning .stMarkdown h3,
+    .stWarning .stMarkdown h4,
+    .stWarning .stMarkdown h5,
+    .stWarning .stMarkdown h6,
+    .stAlert:contains("Disclaimer") .stMarkdown,
+    .stAlert:contains("disclaimer") .stMarkdown {
+        color: var(--amarelo) !important;
+        background-color: transparent !important;
+    }
+    
+    /* Links dentro do disclaimer */
+    .stWarning .stMarkdown a,
+    .stAlert:contains("Disclaimer") .stMarkdown a {
+        color: var(--ciano-branco) !important;
+        text-decoration: underline !important;
+    }
+    
+    /* Texto em negrito dentro do disclaimer */
+    .stWarning .stMarkdown strong,
+    .stAlert:contains("Disclaimer") .stMarkdown strong {
+        color: var(--amarelo) !important;
+        font-weight: 700 !important;
     }
     
     /* Container "Precisa de ajuda" */
@@ -284,7 +446,85 @@ st.markdown("""
     
     /* Garantir que texto digitado seja sempre visível */
     .stTextInput > div > div > input:not(:placeholder-shown) {
-        color: var(--text-primary) !important;
+        color: var(--azul-acinzentado) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* ===== TEXTO DENTRO DAS CAIXAS - COR ESCURA ===== */
+    /* Forçar texto escuro em todos os inputs */
+    .stTextInput input,
+    .stNumberInput input,
+    .stDateInput input,
+    .stTextInput > div > div > input,
+    .stNumberInput > div > div > input,
+    .stDateInput > div > div > input {
+        color: var(--azul-acinzentado) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Placeholder com cor mais escura */
+    .stTextInput input::placeholder,
+    .stNumberInput input::placeholder,
+    .stDateInput input::placeholder {
+        color: var(--cinza-escuro) !important;
+        opacity: 0.8 !important;
+    }
+    
+    /* Valores digitados - forçar cor escura */
+    .stTextInput input[value],
+    .stNumberInput input[value],
+    .stDateInput input[value] {
+        color: var(--azul-acinzentado) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Texto em qualquer estado do input */
+    .stTextInput input:focus,
+    .stNumberInput input:focus,
+    .stDateInput input:focus,
+    .stTextInput input:active,
+    .stNumberInput input:active,
+    .stDateInput input:active {
+        color: var(--azul-acinzentado) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* ===== CAMPOS DE NÚMERO - PESOS DA CARTEIRA ===== */
+    /* Forçar cor escura nos campos de número especificamente */
+    .stNumberInput > div > div > input[type="number"],
+    .stNumberInput input[type="number"] {
+        color: var(--azul-acinzentado) !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+    }
+    
+    /* Valores nos campos de número */
+    .stNumberInput input[value],
+    .stNumberInput input[type="number"][value] {
+        color: var(--azul-acinzentado) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Botões de incremento/decremento */
+    .stNumberInput button {
+        color: var(--azul-acinzentado) !important;
+        background-color: transparent !important;
+        border: 1px solid var(--border-color) !important;
+    }
+    
+    .stNumberInput button:hover {
+        background-color: rgba(236, 207, 117, 0.1) !important;
+        color: var(--amarelo) !important;
+    }
+    
+    .stNumberInput button svg {
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
+    }
+    
+    .stNumberInput button:hover svg {
+        fill: var(--amarelo) !important;
+        stroke: var(--amarelo) !important;
     }
     
     .stTextInput > div > div > input:focus {
@@ -330,6 +570,150 @@ st.markdown("""
         top: 50% !important;
         transform: translateY(-50%) !important;
         z-index: 10 !important;
+    }
+    
+    /* ===== ÍCONE DE AJUDA (HELP) - CORRIGIR CORES ===== */
+    /* Ícone de ajuda dos campos */
+    .stTextInput > div > div > button[title],
+    .stTextInput > div > div > button[aria-label*="help"],
+    .stTextInput > div > div > button[data-testid*="help"] {
+        color: var(--amarelo) !important;
+        background-color: transparent !important;
+        border: none !important;
+        padding: 8px !important;
+        margin: 0 !important;
+        border-radius: 4px !important;
+        cursor: pointer !important;
+        transition: all var(--transition-normal) !important;
+        position: absolute !important;
+        right: 40px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 10 !important;
+    }
+    
+    .stTextInput > div > div > button[title]:hover,
+    .stTextInput > div > div > button[aria-label*="help"]:hover,
+    .stTextInput > div > div > button[data-testid*="help"]:hover {
+        background-color: rgba(236, 207, 117, 0.1) !important;
+        color: var(--amarelo-apagado) !important;
+    }
+    
+    /* SVG do ícone de ajuda */
+    .stTextInput > div > div > button[title] svg,
+    .stTextInput > div > div > button[aria-label*="help"] svg,
+    .stTextInput > div > div > button[data-testid*="help"] svg {
+        fill: var(--amarelo) !important;
+        stroke: var(--amarelo) !important;
+        width: 16px !important;
+        height: 16px !important;
+    }
+    
+    .stTextInput > div > div > button[title]:hover svg,
+    .stTextInput > div > div > button[aria-label*="help"]:hover svg,
+    .stTextInput > div > div > button[data-testid*="help"]:hover svg {
+        fill: var(--amarelo-apagado) !important;
+        stroke: var(--amarelo-apagado) !important;
+    }
+    
+    /* ===== BALÃO DE TEXTO (TOOLTIP) - CORRIGIR CORES ===== */
+    /* Tooltip do Streamlit */
+    .stTooltip,
+    .stTooltip > div,
+    .stTooltip .tooltip-content,
+    .stTooltip .tooltip-inner {
+        background-color: var(--azul-acinzentado) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        max-width: 300px !important;
+        z-index: 9999 !important;
+    }
+    
+    /* Texto do tooltip */
+    .stTooltip p,
+    .stTooltip div,
+    .stTooltip span {
+        color: var(--ciano-branco) !important;
+        background-color: transparent !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Seta do tooltip */
+    .stTooltip::before,
+    .stTooltip::after {
+        border-color: var(--amarelo) transparent transparent transparent !important;
+    }
+    
+    /* Tooltip global do Streamlit */
+    [data-testid="stTooltip"],
+    [data-testid="stTooltip"] > div {
+        background-color: var(--azul-acinzentado) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    /* Texto dentro do tooltip global */
+    [data-testid="stTooltip"] p,
+    [data-testid="stTooltip"] div,
+    [data-testid="stTooltip"] span {
+        color: var(--ciano-branco) !important;
+        background-color: transparent !important;
+    }
+    
+    /* ===== ÍCONE DE AJUDA GLOBAL - FORÇAR VISIBILIDADE ===== */
+    /* Todos os ícones de ajuda/help */
+    button[title],
+    button[aria-label*="help"],
+    button[data-testid*="help"],
+    .stTextInput button[title],
+    .stNumberInput button[title],
+    .stSelectbox button[title] {
+        color: var(--amarelo) !important;
+        background-color: transparent !important;
+        border: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* SVG dos ícones de ajuda */
+    button[title] svg,
+    button[aria-label*="help"] svg,
+    button[data-testid*="help"] svg,
+    .stTextInput button[title] svg,
+    .stNumberInput button[title] svg,
+    .stSelectbox button[title] svg {
+        fill: var(--amarelo) !important;
+        stroke: var(--amarelo) !important;
+        color: var(--amarelo) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* Hover dos ícones de ajuda */
+    button[title]:hover,
+    button[aria-label*="help"]:hover,
+    button[data-testid*="help"]:hover {
+        background-color: rgba(236, 207, 117, 0.1) !important;
+        color: var(--amarelo-apagado) !important;
+    }
+    
+    button[title]:hover svg,
+    button[aria-label*="help"]:hover svg,
+    button[data-testid*="help"]:hover svg {
+        fill: var(--amarelo-apagado) !important;
+        stroke: var(--amarelo-apagado) !important;
+        color: var(--amarelo-apagado) !important;
     }
     
     .stTextInput > div > div > button:hover {
@@ -384,17 +768,82 @@ st.markdown("""
         line-height: 1.2 !important;
     }
     
+    /* ===== BOTÕES COM QUEBRA DE LINHA - CORRIGIR TEXTO CORTADO ===== */
     /* Botões que PRECISAM de quebra de linha */
     .stButton > button:contains("Salvar Configuração"),
     .stButton > button:contains("Salvar configuração"),
+    .stButton > button:contains("Salvar Configuração da Carteira"),
     .stButton > button:contains("Otimização e Projeções"),
     .stButton > button:contains("Clique aqui para") {
         white-space: normal !important;
-        line-height: 1.3 !important;
-        padding: 16px 24px !important;
-        min-height: 60px !important;
+        line-height: 1.4 !important;
+        padding: 18px 24px !important;
+        min-height: 70px !important;
+        height: auto !important;
         overflow: visible !important;
         text-overflow: unset !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    
+    /* CSS mais específico para o botão de salvar carteira */
+    .stButton > button[title*="Salvar"],
+    .stButton > button[aria-label*="Salvar"],
+    .stButton > button:contains("Salvar") {
+        white-space: normal !important;
+        line-height: 1.4 !important;
+        padding: 18px 24px !important;
+        min-height: 70px !important;
+        height: auto !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    
+    /* ===== BOTÃO SALVAR CARTEIRA - CORREÇÃO ESPECÍFICA ===== */
+    /* Forçar quebra de linha em botões longos */
+    .stButton > button {
+        white-space: normal !important;
+        line-height: 1.4 !important;
+        padding: 18px 24px !important;
+        min-height: 70px !important;
+        height: auto !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    
+    /* Botões específicos que precisam de mais espaço */
+    .stButton > button:contains("Configuração"),
+    .stButton > button:contains("carteira"),
+    .stButton > button:contains("Carteira") {
+        min-height: 80px !important;
+        padding: 20px 24px !important;
+        line-height: 1.5 !important;
+    }
+    
+    /* Garantir que o texto não seja cortado */
+    .stButton > button span,
+    .stButton > button div {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+        line-height: 1.4 !important;
+        text-align: center !important;
     }
     
     /* Botões que NÃO precisam de quebra (texto curto) */
@@ -748,7 +1197,6 @@ st.markdown("""
         background-color: var(--bg-card) !important;
         color: var(--text-primary) !important;
         font-weight: 600 !important;
-        animation: pulse 2s infinite !important;
     }
     
     /* Alertas de erro */
@@ -771,12 +1219,6 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
     }
     
-    /* Animação de destaque */
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
-    }
     
     /* ===== SCROLLBAR PERSONALIZADA ===== */
     ::-webkit-scrollbar {
@@ -826,6 +1268,20 @@ st.markdown("""
         background-color: var(--bg-primary) !important;
     }
     
+    /* Forçar fundo escuro em TODOS os gráficos */
+    .stPlotlyChart,
+    .stPlotlyChart > div,
+    .stPlotlyChart .js-plotly-plot,
+    .stPlotlyChart .plotly,
+    .stPlotlyChart .plotly .plotly {
+        background-color: var(--bg-primary) !important;
+    }
+    
+    /* Forçar fundo escuro no container do gráfico */
+    .stPlotlyChart .plotly .plotly .plotly {
+        background-color: var(--bg-primary) !important;
+    }
+    
     /* ===== ÁREA PRINCIPAL APÓS LOGIN - NOVA PALETA ===== */
     /* Forçar cores da nova paleta em toda a área principal */
     .main .block-container {
@@ -835,7 +1291,30 @@ st.markdown("""
     
     /* Títulos da área principal */
     .main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
-        color: var(--text-primary) !important;
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* ===== TÍTULOS PRINCIPAIS DA PÁGINA - CORRIGIR COR ===== */
+    /* Títulos específicos que estavam muito claros */
+    .main .stMarkdown h1,
+    .main .stMarkdown h2,
+    .main .stMarkdown h3,
+    .main .stMarkdown h4,
+    .main .stMarkdown h5,
+    .main .stMarkdown h6,
+    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6,
+    .main .stMarkdown p,
+    .main .stMarkdown div,
+    .main .stMarkdown span {
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Títulos específicos do dashboard */
+    .main .stMarkdown:contains("Análise da Carteira"),
+    .main .stMarkdown:contains("Composição da Carteira"),
+    .main .stMarkdown:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown:contains("Selecione o Benchmark") {
+        color: var(--ciano-branco) !important;
     }
     
     /* Textos da área principal */
@@ -909,6 +1388,67 @@ st.markdown("""
         font-weight: 700 !important;
     }
     
+    /* ===== EXPANDERS - CORRIGIR ESTADOS ATIVOS ===== */
+    /* Expander aberto/ativo - forçar cores corretas */
+    .stExpander > div > div > div[aria-expanded="true"],
+    .stExpander > div > div > div[aria-expanded="true"]:hover,
+    .stExpander > div > div > div:focus,
+    .stExpander > div > div > div:active {
+        background-color: var(--bg-card) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--amarelo) !important;
+    }
+    
+    /* Título do expander - todos os estados */
+    .stExpander > div > div > div > div,
+    .stExpander > div > div > div[aria-expanded="true"] > div,
+    .stExpander > div > div > div:focus > div,
+    .stExpander > div > div > div:active > div {
+        background-color: var(--bg-primary) !important;
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Conteúdo do expander - todos os estados */
+    .stExpander .stMarkdown,
+    .stExpander .stMarkdown p,
+    .stExpander .stMarkdown h1,
+    .stExpander .stMarkdown h2,
+    .stExpander .stMarkdown h3,
+    .stExpander .stMarkdown h4,
+    .stExpander .stMarkdown h5,
+    .stExpander .stMarkdown h6,
+    .stExpander .stMarkdown li,
+    .stExpander .stMarkdown ul,
+    .stExpander .stMarkdown ol {
+        color: var(--ciano-branco) !important;
+        background-color: transparent !important;
+    }
+    
+    /* Links dentro do expander - todos os estados */
+    .stExpander .stMarkdown a {
+        color: var(--amarelo) !important;
+    }
+    
+    /* Texto forte dentro do expander - todos os estados */
+    .stExpander .stMarkdown strong {
+        color: var(--amarelo) !important;
+        font-weight: 700 !important;
+    }
+    
+    /* ===== FORÇAR CORES EM TODOS OS ESTADOS ===== */
+    /* Garantir que expanders nunca fiquem brancos */
+    .stExpander * {
+        background-color: transparent !important;
+    }
+    
+    .stExpander > div > div > div {
+        background-color: var(--bg-card) !important;
+    }
+    
+    .stExpander > div > div > div > div {
+        background-color: var(--bg-primary) !important;
+    }
+    
     /* ===== OUTROS ELEMENTOS RECOLHÍVEIS ===== */
     /* Accordion e outros elementos expansíveis */
     .stAccordion > div > div > div {
@@ -926,6 +1466,53 @@ st.markdown("""
     .stAccordion .stMarkdown h5,
     .stAccordion .stMarkdown h6 {
         color: var(--ciano-branco) !important;
+    }
+    
+    /* ===== ACCORDION - CORRIGIR ESTADOS ATIVOS ===== */
+    /* Accordion aberto/ativo - forçar cores corretas */
+    .stAccordion > div > div > div[aria-expanded="true"],
+    .stAccordion > div > div > div[aria-expanded="true"]:hover,
+    .stAccordion > div > div > div:focus,
+    .stAccordion > div > div > div:active {
+        background-color: var(--bg-card) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--amarelo) !important;
+    }
+    
+    /* Título do accordion - todos os estados */
+    .stAccordion > div > div > div > div,
+    .stAccordion > div > div > div[aria-expanded="true"] > div,
+    .stAccordion > div > div > div:focus > div,
+    .stAccordion > div > div > div:active > div {
+        background-color: var(--bg-primary) !important;
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Conteúdo do accordion - todos os estados */
+    .stAccordion .stMarkdown,
+    .stAccordion .stMarkdown p,
+    .stAccordion .stMarkdown h1,
+    .stAccordion .stMarkdown h2,
+    .stAccordion .stMarkdown h3,
+    .stAccordion .stMarkdown h4,
+    .stAccordion .stMarkdown h5,
+    .stAccordion .stMarkdown h6 {
+        color: var(--ciano-branco) !important;
+        background-color: transparent !important;
+    }
+    
+    /* ===== FORÇAR CORES EM TODOS OS ESTADOS - ACCORDION ===== */
+    /* Garantir que accordions nunca fiquem brancos */
+    .stAccordion * {
+        background-color: transparent !important;
+    }
+    
+    .stAccordion > div > div > div {
+        background-color: var(--bg-card) !important;
+    }
+    
+    .stAccordion > div > div > div > div {
+        background-color: var(--bg-primary) !important;
     }
     
     /* Containers com texto */
@@ -1008,23 +1595,148 @@ st.markdown("""
         border-color: var(--border-color) !important;
     }
     
-    /* Corrigir métricas */
+    /* ===== MÉTRICAS E CARDS - CORRIGIR CORES ===== */
     .stMetric {
         background-color: var(--bg-card) !important;
-        color: var(--text-primary) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        margin: 10px 0 !important;
+        box-shadow: 0 4px 6px var(--shadow-light) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stMetric:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 15px var(--shadow-medium) !important;
+        border-color: var(--amarelo-apagado) !important;
     }
     
     .stMetric > div {
         background-color: var(--bg-card) !important;
-        color: var(--text-primary) !important;
+        color: var(--ciano-branco) !important;
     }
     
     .stMetric label {
-        color: var(--text-secondary) !important;
+        color: var(--cinza-claro) !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
     }
     
     .stMetric [data-testid="metric-value"] {
-        color: var(--text-primary) !important;
+        color: var(--ciano-branco) !important;
+        font-size: 24px !important;
+        font-weight: 700 !important;
+    }
+    
+    /* ===== CARDS DE CENÁRIOS - APLICAR PALETA ===== */
+    /* Títulos dos cenários */
+    .stMetric > div > div:first-child,
+    .stMetric [data-testid="metric-container"] > div:first-child {
+        color: var(--cinza-claro) !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Valores principais */
+    .stMetric > div > div:last-child,
+    .stMetric [data-testid="metric-container"] > div:last-child {
+        color: var(--ciano-branco) !important;
+        font-size: 24px !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Percentuais de mudança */
+    .stMetric [data-testid="metric-container"] > div:last-child > div {
+        color: var(--amarelo) !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Container das métricas */
+    .stMetric [data-testid="metric-container"] {
+        background-color: var(--bg-card) !important;
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Texto dentro das métricas */
+    .stMetric p,
+    .stMetric span,
+    .stMetric div {
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Valores monetários */
+    .stMetric [data-testid="metric-value"],
+    .stMetric .metric-value {
+        color: var(--ciano-branco) !important;
+        font-size: 24px !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Labels das métricas */
+    .stMetric [data-testid="metric-label"],
+    .stMetric .metric-label {
+        color: var(--cinza-claro) !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+    
+    /* ===== CARDS DE CENÁRIOS - CORES ESPECÍFICAS ===== */
+    /* Forçar cores em todos os elementos dos cards */
+    .stMetric * {
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Títulos dos cenários (primeira linha) */
+    .stMetric > div:first-child,
+    .stMetric > div > div:first-child,
+    .stMetric [data-testid="metric-container"] > div:first-child {
+        color: var(--cinza-claro) !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Valores monetários (segunda linha) */
+    .stMetric > div:last-child,
+    .stMetric > div > div:last-child,
+    .stMetric [data-testid="metric-container"] > div:last-child {
+        color: var(--ciano-branco) !important;
+        font-size: 24px !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Percentuais de mudança */
+    .stMetric [data-testid="metric-delta"],
+    .stMetric .metric-delta,
+    .stMetric > div > div:last-child > div {
+        color: var(--amarelo) !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Símbolos de seta */
+    .stMetric [data-testid="metric-delta"] svg,
+    .stMetric .metric-delta svg {
+        fill: var(--amarelo) !important;
+        stroke: var(--amarelo) !important;
+    }
+    
+    /* Hover nos cards */
+    .stMetric:hover > div:first-child,
+    .stMetric:hover > div > div:first-child {
+        color: var(--cinza-claro) !important;
+    }
+    
+    .stMetric:hover > div:last-child,
+    .stMetric:hover > div > div:last-child {
+        color: var(--ciano-branco) !important;
+    }
+    
+    .stMetric:hover [data-testid="metric-delta"],
+    .stMetric:hover .metric-delta {
+        color: var(--amarelo-apagado) !important;
     }
     
     /* ===== PRINT STYLES ===== */
@@ -1052,10 +1764,22 @@ st.markdown("""
             const plots = document.querySelectorAll('.js-plotly-plot');
             plots.forEach(function(plot) {
                 if (plot && plot.layout) {
-                    // Fundo escuro - MESMA COR DO FUNDO DA PÁGINA
+                    // Fundo escuro - MESMA COR DO FUNDO DA PÁGINA - FORÇAR
                     plot.layout.paper_bgcolor = '#303841';
                     plot.layout.plot_bgcolor = '#303841';
-                    plot.layout.font = { color: '#ffffff', size: 14 };
+                    plot.layout.font = { color: '#edf3f3', size: 14 };
+                    
+                    // Forçar fundo em todos os elementos do gráfico
+                    if (plot.layout.xaxis) {
+                        plot.layout.xaxis.showgrid = true;
+                        plot.layout.xaxis.gridcolor = '#969e9f';
+                        plot.layout.xaxis.zeroline = false;
+                    }
+                    if (plot.layout.yaxis) {
+                        plot.layout.yaxis.showgrid = true;
+                        plot.layout.yaxis.gridcolor = '#969e9f';
+                        plot.layout.yaxis.zeroline = false;
+                    }
                     
                     // Corrigir eixos
                     if (plot.layout.xaxis) {
@@ -1105,10 +1829,30 @@ st.markdown("""
             const plots = document.querySelectorAll('.js-plotly-plot');
             plots.forEach(function(plot) {
                 if (typeof Plotly !== 'undefined' && plot) {
+                    // Forçar fundo escuro novamente
+                    plot.layout.paper_bgcolor = '#303841';
+                    plot.layout.plot_bgcolor = '#303841';
                     Plotly.redraw(plot);
                 }
             });
         }, 3000);
+        
+        // Função mais agressiva para forçar fundo escuro
+        function forceDarkBackground() {
+            const plots = document.querySelectorAll('.js-plotly-plot');
+            plots.forEach(function(plot) {
+                if (plot && plot.layout) {
+                    plot.layout.paper_bgcolor = '#303841';
+                    plot.layout.plot_bgcolor = '#303841';
+                    if (typeof Plotly !== 'undefined') {
+                        Plotly.redraw(plot);
+                    }
+                }
+            });
+        }
+        
+        // Executar a cada 2 segundos para garantir
+        setInterval(forceDarkBackground, 2000);
     });
     </script>
 """, unsafe_allow_html=True)
@@ -2569,7 +3313,7 @@ else:
         st.markdown("""
         <div class="feature-card" style="background: #303841; padding: 25px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 350px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div style="font-size: 3rem; margin-bottom: 20px;">⭐</div>
+            <div style="font-size: 3rem; margin-bottom: 20px;">⭐</div>
                 <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Melhor Risco/Retorno</h3>
             </div>
             <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0; flex-grow: 1; display: flex; align-items: center;">
@@ -2583,7 +3327,7 @@ else:
         st.markdown("""
         <div class="feature-card" style="background: #303841; padding: 25px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 350px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div style="font-size: 3rem; margin-bottom: 20px;">📈</div>
+            <div style="font-size: 3rem; margin-bottom: 20px;">📈</div>
                 <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Simulador de Cenários</h3>
             </div>
             <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0; flex-grow: 1; display: flex; align-items: center;">
@@ -2597,7 +3341,7 @@ else:
         st.markdown("""
         <div class="feature-card" style="background: #303841; padding: 25px; border-radius: 15px; text-align: center; border: 2px solid var(--amarelo); height: 350px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-                <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
+            <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
                 <h3 style="color: #d4ba69; margin: 0 0 15px 0; font-size: 1.3rem;">Acompanhamento do Mercado</h3>
             </div>
             <p style="color: #edf3f3; font-size: 0.9rem; line-height: 1.4; margin: 0; flex-grow: 1; display: flex; align-items: center;">
