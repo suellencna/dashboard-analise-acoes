@@ -22,14 +22,6 @@ st.markdown("""
     <style>
     /* ===== SISTEMA DE CORES UNIFORME - NOVA PALETA ===== */
     :root {
-        /* Nova paleta de cores */
-        --primary-color: #eccf75;      /* Amarelo */
-        --primary-hover: #d4ba69;      /* Amarelo Apagado */
-        --secondary-color: #edf3f3;    /* Ciano/Branco */
-        --accent-color: #e74c3c;       /* Vermelho para compra */
-        --logo-blue: #303841;          /* Azul Acinzentado */
-        --logo-gold: #eccf75;          /* Amarelo */
-        
         /* Cores da paleta */
         --azul-acinzentado: #303841;
         --cinza-escuro: #73726e;
@@ -48,7 +40,6 @@ st.markdown("""
         --text-primary: var(--ciano-branco);
         --text-secondary: var(--cinza-claro);
         --text-muted: var(--cinza-claro);
-        --text-white: var(--ciano-branco);
         
         /* Cores de borda uniformes */
         --border-color: var(--cinza-claro);
@@ -135,78 +126,22 @@ st.markdown("""
     }
     
     /* Tags/chips selecionados */
-    .stMultiSelect > div > div > div > div[data-baseweb="tag"] {
-        background-color: var(--amarelo) !important;
-        color: var(--azul-acinzentado) !important;
-        border: 1px solid var(--amarelo-apagado) !important;
-        border-radius: 6px !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Texto dentro das tags */
-    .stMultiSelect > div > div > div > div[data-baseweb="tag"] span {
-        color: var(--azul-acinzentado) !important;
-    }
-    
-    /* Ícone X das tags */
-    .stMultiSelect > div > div > div > div[data-baseweb="tag"] svg {
-        fill: var(--azul-acinzentado) !important;
-        stroke: var(--azul-acinzentado) !important;
-    }
-    
-    /* Hover das tags */
-    .stMultiSelect > div > div > div > div[data-baseweb="tag"]:hover {
-        background-color: var(--amarelo-apagado) !important;
-    }
-    
-    /* Botões de ação (clear all, dropdown) */
-    .stMultiSelect > div > div > div > button {
-        background-color: transparent !important;
-        color: var(--text-primary) !important;
-        border: none !important;
-    }
-    
-    .stMultiSelect > div > div > div > button:hover {
-        background-color: rgba(236, 207, 117, 0.1) !important;
-        color: var(--amarelo) !important;
-    }
-    
-    /* SVG dos botões */
-    .stMultiSelect > div > div > div > button svg {
-        fill: var(--text-primary) !important;
-        stroke: var(--text-primary) !important;
-    }
-    
-    .stMultiSelect > div > div > div > button:hover svg {
-        fill: var(--amarelo) !important;
-        stroke: var(--amarelo) !important;
-    }
-    
-    /* ===== MULTISELECT GLOBAL - FORÇAR PALETA ===== */
-    /* Aplicar em todos os multiselects da aplicação */
-    .stMultiSelect,
-    .stMultiSelect > div,
-    .stMultiSelect > div > div,
-    .stMultiSelect > div > div > div {
-        background-color: var(--bg-card) !important;
-        color: var(--text-primary) !important;
-        border: 2px solid var(--border-color) !important;
-    }
-    
-    /* Tags em qualquer multiselect */
     .stMultiSelect div[data-baseweb="tag"],
     .stMultiSelect [data-baseweb="tag"] {
         background-color: var(--amarelo) !important;
         color: var(--azul-acinzentado) !important;
         border: 1px solid var(--amarelo-apagado) !important;
         border-radius: 6px !important;
-        font-weight: 600 !important;
+        font-weight: 400 !important;
+        font-size: 14px !important;
+        padding: 4px 8px !important;
     }
     
     /* Texto das tags */
     .stMultiSelect div[data-baseweb="tag"] span,
     .stMultiSelect [data-baseweb="tag"] span {
         color: var(--azul-acinzentado) !important;
+        font-weight: 400 !important;
     }
     
     /* Ícones das tags */
@@ -450,7 +385,7 @@ st.markdown("""
         font-weight: 600 !important;
     }
     
-    /* ===== TEXTO DENTRO DAS CAIXAS - COR ESCURA ===== */
+    /* ===== CAMPOS DE INPUT - TEXTO ESCURO ===== */
     /* Forçar texto escuro em todos os inputs */
     .stTextInput input,
     .stNumberInput input,
@@ -489,42 +424,53 @@ st.markdown("""
         font-weight: 600 !important;
     }
     
-    /* ===== CAMPOS DE NÚMERO - PESOS DA CARTEIRA ===== */
-    /* Forçar cor escura nos campos de número especificamente */
-    .stNumberInput > div > div > input[type="number"],
-    .stNumberInput input[type="number"] {
+    /* ===== BOTÕES DE INCREMENTO/DECREMENTO - SEMPRE VISÍVEIS ===== */
+    /* Garantir que os botões sejam sempre visíveis */
+    .stNumberInput button,
+    .stNumberInput > div > div > div button,
+    .stNumberInput button[data-testid*="button"],
+    .stNumberInput button[aria-label*="increment"],
+    .stNumberInput button[aria-label*="decrement"] {
+        background-color: var(--cinza-claro) !important;
         color: var(--azul-acinzentado) !important;
-        font-weight: 600 !important;
-        font-size: 16px !important;
-    }
-    
-    /* Valores nos campos de número */
-    .stNumberInput input[value],
-    .stNumberInput input[type="number"][value] {
-        color: var(--azul-acinzentado) !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Botões de incremento/decremento */
-    .stNumberInput button {
-        color: var(--azul-acinzentado) !important;
-        background-color: transparent !important;
         border: 1px solid var(--border-color) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important;
+        position: relative !important;
+        z-index: 1 !important;
     }
     
-    .stNumberInput button:hover {
-        background-color: rgba(236, 207, 117, 0.1) !important;
-        color: var(--amarelo) !important;
-    }
-    
-    .stNumberInput button svg {
+    /* SVG dos botões sempre visível */
+    .stNumberInput button svg,
+    .stNumberInput > div > div > div button svg,
+    .stNumberInput button[data-testid*="button"] svg,
+    .stNumberInput button[aria-label*="increment"] svg,
+    .stNumberInput button[aria-label*="decrement"] svg {
         fill: var(--azul-acinzentado) !important;
         stroke: var(--azul-acinzentado) !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
     
-    .stNumberInput button:hover svg {
-        fill: var(--amarelo) !important;
-        stroke: var(--amarelo) !important;
+    /* Hover dos botões */
+    .stNumberInput button:hover,
+    .stNumberInput > div > div > div button:hover,
+    .stNumberInput button[data-testid*="button"]:hover,
+    .stNumberInput button[aria-label*="increment"]:hover,
+    .stNumberInput button[aria-label*="decrement"]:hover {
+        background-color: var(--amarelo) !important;
+        color: var(--azul-acinzentado) !important;
+        border-color: var(--amarelo-apagado) !important;
+    }
+    
+    .stNumberInput button:hover svg,
+    .stNumberInput > div > div > div button:hover svg,
+    .stNumberInput button[data-testid*="button"]:hover svg,
+    .stNumberInput button[aria-label*="increment"]:hover svg,
+    .stNumberInput button[aria-label*="decrement"]:hover svg {
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
     }
     
     .stTextInput > div > div > input:focus {
@@ -768,49 +714,8 @@ st.markdown("""
         line-height: 1.2 !important;
     }
     
-    /* ===== BOTÕES COM QUEBRA DE LINHA - CORRIGIR TEXTO CORTADO ===== */
-    /* Botões que PRECISAM de quebra de linha */
-    .stButton > button:contains("Salvar Configuração"),
-    .stButton > button:contains("Salvar configuração"),
-    .stButton > button:contains("Salvar Configuração da Carteira"),
-    .stButton > button:contains("Otimização e Projeções"),
-    .stButton > button:contains("Clique aqui para") {
-        white-space: normal !important;
-        line-height: 1.4 !important;
-        padding: 18px 24px !important;
-        min-height: 70px !important;
-        height: auto !important;
-        overflow: visible !important;
-        text-overflow: unset !important;
-        word-wrap: break-word !important;
-        word-break: break-word !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        text-align: center !important;
-    }
-    
-    /* CSS mais específico para o botão de salvar carteira */
-    .stButton > button[title*="Salvar"],
-    .stButton > button[aria-label*="Salvar"],
-    .stButton > button:contains("Salvar") {
-        white-space: normal !important;
-        line-height: 1.4 !important;
-        padding: 18px 24px !important;
-        min-height: 70px !important;
-        height: auto !important;
-        overflow: visible !important;
-        text-overflow: unset !important;
-        word-wrap: break-word !important;
-        word-break: break-word !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        text-align: center !important;
-    }
-    
-    /* ===== BOTÃO SALVAR CARTEIRA - CORREÇÃO ESPECÍFICA ===== */
-    /* Forçar quebra de linha em botões longos */
+    /* ===== BOTÕES - QUEBRA DE LINHA E CENTRALIZAÇÃO ===== */
+    /* Todos os botões com quebra de linha e centralização */
     .stButton > button {
         white-space: normal !important;
         line-height: 1.4 !important;
@@ -834,16 +739,6 @@ st.markdown("""
         min-height: 80px !important;
         padding: 20px 24px !important;
         line-height: 1.5 !important;
-    }
-    
-    /* Garantir que o texto não seja cortado */
-    .stButton > button span,
-    .stButton > button div {
-        white-space: normal !important;
-        word-wrap: break-word !important;
-        word-break: break-word !important;
-        line-height: 1.4 !important;
-        text-align: center !important;
     }
     
     /* Botões que NÃO precisam de quebra (texto curto) */
@@ -1388,27 +1283,24 @@ st.markdown("""
         font-weight: 700 !important;
     }
     
-    /* ===== EXPANDERS - CORRIGIR ESTADOS ATIVOS ===== */
-    /* Expander aberto/ativo - forçar cores corretas */
-    .stExpander > div > div > div[aria-expanded="true"],
-    .stExpander > div > div > div[aria-expanded="true"]:hover,
-    .stExpander > div > div > div:focus,
-    .stExpander > div > div > div:active {
+    /* ===== EXPANDERS E ACCORDIONS - CORRIGIR ESTADOS ATIVOS ===== */
+    /* Expander e Accordion - todos os estados */
+    .stExpander > div > div > div,
+    .stAccordion > div > div > div {
         background-color: var(--bg-card) !important;
         color: var(--ciano-branco) !important;
         border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
     }
     
-    /* Título do expander - todos os estados */
+    /* Título do expander/accordion - todos os estados */
     .stExpander > div > div > div > div,
-    .stExpander > div > div > div[aria-expanded="true"] > div,
-    .stExpander > div > div > div:focus > div,
-    .stExpander > div > div > div:active > div {
+    .stAccordion > div > div > div > div {
         background-color: var(--bg-primary) !important;
         color: var(--ciano-branco) !important;
     }
     
-    /* Conteúdo do expander - todos os estados */
+    /* Conteúdo do expander/accordion - todos os estados */
     .stExpander .stMarkdown,
     .stExpander .stMarkdown p,
     .stExpander .stMarkdown h1,
@@ -1419,100 +1311,159 @@ st.markdown("""
     .stExpander .stMarkdown h6,
     .stExpander .stMarkdown li,
     .stExpander .stMarkdown ul,
-    .stExpander .stMarkdown ol {
+    .stExpander .stMarkdown ol,
+    .stAccordion .stMarkdown,
+    .stAccordion .stMarkdown p,
+    .stAccordion .stMarkdown h1,
+    .stAccordion .stMarkdown h2,
+    .stAccordion .stMarkdown h3,
+    .stAccordion .stMarkdown h4,
+    .stAccordion .stMarkdown h5,
+    .stAccordion .stMarkdown h6 {
         color: var(--ciano-branco) !important;
         background-color: transparent !important;
     }
     
-    /* Links dentro do expander - todos os estados */
-    .stExpander .stMarkdown a {
+    /* Links dentro do expander/accordion */
+    .stExpander .stMarkdown a,
+    .stAccordion .stMarkdown a {
         color: var(--amarelo) !important;
     }
     
-    /* Texto forte dentro do expander - todos os estados */
-    .stExpander .stMarkdown strong {
+    /* Texto forte dentro do expander/accordion */
+    .stExpander .stMarkdown strong,
+    .stAccordion .stMarkdown strong {
         color: var(--amarelo) !important;
         font-weight: 700 !important;
     }
     
-    /* ===== FORÇAR CORES EM TODOS OS ESTADOS ===== */
-    /* Garantir que expanders nunca fiquem brancos */
-    .stExpander * {
-        background-color: transparent !important;
-    }
-    
-    .stExpander > div > div > div {
-        background-color: var(--bg-card) !important;
-    }
-    
-    .stExpander > div > div > div > div {
-        background-color: var(--bg-primary) !important;
-    }
-    
-    /* ===== OUTROS ELEMENTOS RECOLHÍVEIS ===== */
-    /* Accordion e outros elementos expansíveis */
-    .stAccordion > div > div > div {
-        background-color: var(--bg-card) !important;
-        color: var(--ciano-branco) !important;
-        border: 2px solid var(--amarelo) !important;
-    }
-    
-    .stAccordion .stMarkdown,
-    .stAccordion .stMarkdown p,
-    .stAccordion .stMarkdown h1,
-    .stAccordion .stMarkdown h2,
-    .stAccordion .stMarkdown h3,
-    .stAccordion .stMarkdown h4,
-    .stAccordion .stMarkdown h5,
-    .stAccordion .stMarkdown h6 {
-        color: var(--ciano-branco) !important;
-    }
-    
-    /* ===== ACCORDION - CORRIGIR ESTADOS ATIVOS ===== */
-    /* Accordion aberto/ativo - forçar cores corretas */
-    .stAccordion > div > div > div[aria-expanded="true"],
-    .stAccordion > div > div > div[aria-expanded="true"]:hover,
-    .stAccordion > div > div > div:focus,
-    .stAccordion > div > div > div:active {
-        background-color: var(--bg-card) !important;
-        color: var(--ciano-branco) !important;
-        border: 2px solid var(--amarelo) !important;
-    }
-    
-    /* Título do accordion - todos os estados */
-    .stAccordion > div > div > div > div,
-    .stAccordion > div > div > div[aria-expanded="true"] > div,
-    .stAccordion > div > div > div:focus > div,
-    .stAccordion > div > div > div:active > div {
-        background-color: var(--bg-primary) !important;
-        color: var(--ciano-branco) !important;
-    }
-    
-    /* Conteúdo do accordion - todos os estados */
-    .stAccordion .stMarkdown,
-    .stAccordion .stMarkdown p,
-    .stAccordion .stMarkdown h1,
-    .stAccordion .stMarkdown h2,
-    .stAccordion .stMarkdown h3,
-    .stAccordion .stMarkdown h4,
-    .stAccordion .stMarkdown h5,
-    .stAccordion .stMarkdown h6 {
-        color: var(--ciano-branco) !important;
-        background-color: transparent !important;
-    }
-    
-    /* ===== FORÇAR CORES EM TODOS OS ESTADOS - ACCORDION ===== */
-    /* Garantir que accordions nunca fiquem brancos */
+    /* Garantir que expanders/accordions nunca fiquem brancos */
+    .stExpander *,
     .stAccordion * {
         background-color: transparent !important;
     }
     
+    .stExpander > div > div > div,
     .stAccordion > div > div > div {
         background-color: var(--bg-card) !important;
     }
     
+    .stExpander > div > div > div > div,
     .stAccordion > div > div > div > div {
         background-color: var(--bg-primary) !important;
+    }
+    
+    /* ===== CORREÇÕES ESPECÍFICAS DO USUÁRIO ===== */
+    /* Help text - corrigir cor branca com fundo branco */
+    .stMultiSelect > div > div > div[title],
+    .stMultiSelect > div > div > div[aria-describedby],
+    .stMultiSelect > div > div > div[data-testid*="help"] {
+        background-color: var(--azul-acinzentado) !important;
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* Caixa de seleção com cor específica e texto não negrito */
+    .stMultiSelect > div > div > div {
+        background-color: #303841 !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    /* Tags dentro da caixa - texto não negrito para mais espaço */
+    .stMultiSelect > div > div > div > div[data-baseweb="tag"],
+    .stMultiSelect [data-baseweb="tag"] {
+        background-color: var(--amarelo) !important;
+        color: var(--azul-acinzentado) !important;
+        border: 1px solid var(--amarelo-apagado) !important;
+        border-radius: 6px !important;
+        font-weight: 400 !important; /* Não negrito */
+        font-size: 14px !important;
+        padding: 4px 8px !important;
+    }
+    
+    /* Texto das tags - não negrito */
+    .stMultiSelect > div > div > div > div[data-baseweb="tag"] span,
+    .stMultiSelect [data-baseweb="tag"] span {
+        color: var(--azul-acinzentado) !important;
+        font-weight: 400 !important; /* Não negrito */
+    }
+    
+    /* ===== TÍTULOS - CORRIGIR COR PARA LEGIBILIDADE ===== */
+    /* Todos os títulos com cor amarelo apagado para melhor legibilidade */
+    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6,
+    .main .stMarkdown h1, .main .stMarkdown h2, .main .stMarkdown h3, 
+    .main .stMarkdown h4, .main .stMarkdown h5, .main .stMarkdown h6,
+    .main .stSubheader,
+    .main [data-testid="stSubheader"] {
+        color: #d4ba69 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Títulos específicos do dashboard */
+    .main .stMarkdown:contains("Análise da Carteira"),
+    .main .stMarkdown:contains("Composição da Carteira"),
+    .main .stMarkdown:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown:contains("Fronteira Eficiente Markowitz"),
+    .main .stMarkdown:contains("Versão Híbrida de risco"),
+    .main .stMarkdown:contains("Simulação Monte Carlo"),
+    .main .stMarkdown:contains("Projeção de Patrimônio"),
+    .main .stMarkdown:contains("Desempenho Comparativo") {
+        color: #d4ba69 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Garantir que todos os títulos tenham cor legível */
+    .main .stMarkdown p,
+    .main .stMarkdown div,
+    .main .stMarkdown span {
+        color: var(--ciano-branco) !important;
+    }
+    
+    /* ===== TOOLTIP/HELP - CORRIGIR CORES ===== */
+    /* Tooltip global do Streamlit */
+    .stTooltip,
+    .stTooltip > div,
+    .stTooltip .tooltip-content,
+    .stTooltip .tooltip-inner,
+    [data-testid="stTooltip"],
+    [data-testid="stTooltip"] > div {
+        background-color: var(--azul-acinzentado) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        max-width: 300px !important;
+        z-index: 9999 !important;
+    }
+    
+    /* Texto do tooltip */
+    .stTooltip p,
+    .stTooltip div,
+    .stTooltip span,
+    [data-testid="stTooltip"] p,
+    [data-testid="stTooltip"] div,
+    [data-testid="stTooltip"] span {
+        color: var(--ciano-branco) !important;
+        background-color: transparent !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Seta do tooltip */
+    .stTooltip::before,
+    .stTooltip::after {
+        border-color: var(--amarelo) transparent transparent transparent !important;
+    }
+    
+    /* Help text - forçar cor escura */
+    .stMultiSelect [title],
+    .stMultiSelect [aria-describedby],
+    .stMultiSelect [data-testid*="help"] {
+        background-color: var(--azul-acinzentado) !important;
+        color: var(--ciano-branco) !important;
     }
     
     /* Containers com texto */
@@ -1630,65 +1581,6 @@ st.markdown("""
         font-weight: 700 !important;
     }
     
-    /* ===== CARDS DE CENÁRIOS - APLICAR PALETA ===== */
-    /* Títulos dos cenários */
-    .stMetric > div > div:first-child,
-    .stMetric [data-testid="metric-container"] > div:first-child {
-        color: var(--cinza-claro) !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Valores principais */
-    .stMetric > div > div:last-child,
-    .stMetric [data-testid="metric-container"] > div:last-child {
-        color: var(--ciano-branco) !important;
-        font-size: 24px !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Percentuais de mudança */
-    .stMetric [data-testid="metric-container"] > div:last-child > div {
-        color: var(--amarelo) !important;
-        font-size: 16px !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Container das métricas */
-    .stMetric [data-testid="metric-container"] {
-        background-color: var(--bg-card) !important;
-        color: var(--ciano-branco) !important;
-    }
-    
-    /* Texto dentro das métricas */
-    .stMetric p,
-    .stMetric span,
-    .stMetric div {
-        color: var(--ciano-branco) !important;
-    }
-    
-    /* Valores monetários */
-    .stMetric [data-testid="metric-value"],
-    .stMetric .metric-value {
-        color: var(--ciano-branco) !important;
-        font-size: 24px !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Labels das métricas */
-    .stMetric [data-testid="metric-label"],
-    .stMetric .metric-label {
-        color: var(--cinza-claro) !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-    }
-    
-    /* ===== CARDS DE CENÁRIOS - CORES ESPECÍFICAS ===== */
-    /* Forçar cores em todos os elementos dos cards */
-    .stMetric * {
-        color: var(--ciano-branco) !important;
-    }
-    
     /* Títulos dos cenários (primeira linha) */
     .stMetric > div:first-child,
     .stMetric > div > div:first-child,
@@ -1723,20 +1615,9 @@ st.markdown("""
         stroke: var(--amarelo) !important;
     }
     
-    /* Hover nos cards */
-    .stMetric:hover > div:first-child,
-    .stMetric:hover > div > div:first-child {
-        color: var(--cinza-claro) !important;
-    }
-    
-    .stMetric:hover > div:last-child,
-    .stMetric:hover > div > div:last-child {
+    /* Forçar cores em todos os elementos dos cards */
+    .stMetric * {
         color: var(--ciano-branco) !important;
-    }
-    
-    .stMetric:hover [data-testid="metric-delta"],
-    .stMetric:hover .metric-delta {
-        color: var(--amarelo-apagado) !important;
     }
     
     /* ===== PRINT STYLES ===== */
@@ -2192,7 +2073,7 @@ if st.session_state.get("authentication_status"):
 
     # --- INÍCIO DO CÓDIGO DO DASHBOARD ---
 
-    plt.style.use('seaborn-v0_8-darkgrid')
+    plt.style.use('dark_background')
 
     # DADOS INICIAIS E MAPEAMENTOS
     DATA_PATH = "dados"
@@ -2231,7 +2112,7 @@ if st.session_state.get("authentication_status"):
         label="Selecione os ativos",
         options=disponiveis, 
         default=default_selection,
-        help="💡 **Dica:** Você pode digitar o nome do ticker para filtrar rapidamente (ex: 'PETR' para encontrar PETR4.SA)",
+        help="💡 Dica: Você pode digitar o nome do ticker para filtrar rapidamente (ex: 'PETR' para encontrar PETR4.SA)",
         placeholder="Digite para buscar ou clique para selecionar..."
     )
 
@@ -3065,30 +2946,53 @@ if st.session_state.get("authentication_status"):
                 # Calcula a data final da projeção
                 data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
 
-                # 2. Exibe o resumo em 4 linhas com st.metric
-                st.metric(
-                    label=f"Cenário Atual ({datetime.now().strftime('%d %b %Y')})",
-                    value=f"R$ {investimento_inicial:,.2f}",
-                    delta="0.00%"
-                )
-                
-                st.metric(
-                    label=f"Esperado ({data_final_projecao.strftime('%d %b %Y')})",
-                    value=f"R$ {res_mc_text['mediano']:,.2f}",
-                    delta=f"{retorno_mediano_pct:.2f}%"
-                )
-                
-                st.metric(
-                    label=f"Otimista ({data_final_projecao.strftime('%d %b %Y')})",
-                    value=f"R$ {res_mc_text['melhor']:,.2f}",
-                    delta=f"{retorno_otimista_pct:.2f}%"
-                )
-                
-                st.metric(
-                    label=f"Pessimista ({data_final_projecao.strftime('%d %b %Y')})",
-                    value=f"R$ {res_mc_text['pior']:,.2f}",
-                    delta=f"{retorno_pessimista_pct:.2f}%"
-                )
+                # 2. Exibe o resumo em uma única caixa
+                st.markdown("""
+                <div style="
+                    background-color: #303841;
+                    border: 2px solid #eccf75;
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin: 10px 0;
+                    color: #edf3f3;
+                ">
+                    <h3 style="color: #eccf75; margin-bottom: 15px; text-align: center;">📊 Resumo dos Cenários</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
+                            <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Cenário Atual</div>
+                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {:,}</div>
+                            <div style="color: #eccf75; font-size: 14px;">↑ 0.00%</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
+                            <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Esperado</div>
+                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {:,}</div>
+                            <div style="color: #eccf75; font-size: 14px;">↑ {:.2f}%</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
+                            <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Otimista</div>
+                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {:,}</div>
+                            <div style="color: #eccf75; font-size: 14px;">↑ {:.2f}%</div>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
+                            <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Pessimista</div>
+                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {:,}</div>
+                            <div style="color: #eccf75; font-size: 14px;">↑ {:.2f}%</div>
+                        </div>
+                    </div>
+                </div>
+                """.format(
+                    investimento_inicial,
+                    res_mc_text['mediano'],
+                    retorno_mediano_pct,
+                    res_mc_text['melhor'],
+                    retorno_otimista_pct,
+                    res_mc_text['pior'],
+                    retorno_pessimista_pct
+                ), unsafe_allow_html=True)
             
             # Explicação do Monte Carlo com botão de recolher/expandir
             with st.expander("Como Ler o Gráfico da Simulação?", expanded=False):
