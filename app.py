@@ -129,32 +129,90 @@ st.markdown("""
     .stMultiSelect div[data-baseweb="tag"],
     .stMultiSelect [data-baseweb="tag"] {
         background-color: var(--amarelo) !important;
-        color: var(--azul-acinzentado) !important;
-        border: 1px solid var(--amarelo-apagado) !important;
+        color: #2c3e50 !important;
+        border: 2px solid var(--amarelo-apagado) !important;
         border-radius: 6px !important;
-        font-weight: 400 !important;
+        font-weight: 600 !important;
         font-size: 14px !important;
-        padding: 4px 8px !important;
+        padding: 6px 12px !important;
+        margin: 2px !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
     }
     
     /* Texto das tags */
     .stMultiSelect div[data-baseweb="tag"] span,
     .stMultiSelect [data-baseweb="tag"] span {
-        color: var(--azul-acinzentado) !important;
-        font-weight: 400 !important;
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        text-shadow: none !important;
+    }
+    
+    /* Forçar visibilidade do texto das tags */
+    .stMultiSelect div[data-baseweb="tag"] *,
+    .stMultiSelect [data-baseweb="tag"] * {
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* ===== CORREÇÃO ESPECÍFICA PARA LEGIBILIDADE DOS ATIVOS ===== */
+    /* Garantir que o texto dos ativos seja sempre visível */
+    .stMultiSelect div[data-baseweb="tag"],
+    .stMultiSelect [data-baseweb="tag"],
+    .stMultiSelect div[data-baseweb="tag"] span,
+    .stMultiSelect [data-baseweb="tag"] span,
+    .stMultiSelect div[data-baseweb="tag"] div,
+    .stMultiSelect [data-baseweb="tag"] div {
+        color: #2c3e50 !important;
+        background-color: var(--amarelo) !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    /* Forçar contraste máximo */
+    .stMultiSelect div[data-baseweb="tag"]:not(:hover),
+    .stMultiSelect [data-baseweb="tag"]:not(:hover) {
+        background-color: var(--amarelo) !important;
+        color: #1a1a1a !important;
+        border: 2px solid #b8860b !important;
+    }
+    
+    .stMultiSelect div[data-baseweb="tag"]:not(:hover) span,
+    .stMultiSelect [data-baseweb="tag"]:not(:hover) span {
+        color: #1a1a1a !important;
+        font-weight: 700 !important;
     }
     
     /* Ícones das tags */
     .stMultiSelect div[data-baseweb="tag"] svg,
     .stMultiSelect [data-baseweb="tag"] svg {
-        fill: var(--azul-acinzentado) !important;
-        stroke: var(--azul-acinzentado) !important;
+        fill: #2c3e50 !important;
+        stroke: #2c3e50 !important;
+        width: 16px !important;
+        height: 16px !important;
     }
     
     /* Hover das tags */
     .stMultiSelect div[data-baseweb="tag"]:hover,
     .stMultiSelect [data-baseweb="tag"]:hover {
         background-color: var(--amarelo-apagado) !important;
+        color: #2c3e50 !important;
+        border-color: var(--amarelo) !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    .stMultiSelect div[data-baseweb="tag"]:hover span,
+    .stMultiSelect [data-baseweb="tag"]:hover span {
+        color: #2c3e50 !important;
+    }
+    
+    .stMultiSelect div[data-baseweb="tag"]:hover svg,
+    .stMultiSelect [data-baseweb="tag"]:hover svg {
+        fill: #2c3e50 !important;
+        stroke: #2c3e50 !important;
     }
     
     /* Botões do multiselect */
@@ -223,7 +281,7 @@ st.markdown("""
         border-radius: 12px !important;
         padding: 14px 16px !important;
         font-size: 16px !important;
-        color: var(--text-primary) !important;
+        color: var(--azul-acinzentado) !important;
         width: 100% !important;
         box-sizing: border-box !important;
         transition: all var(--transition-normal) !important;
@@ -375,7 +433,7 @@ st.markdown("""
     
     /* Garantir que placeholder seja visível */
     .stTextInput > div > div > input::placeholder {
-        color: var(--text-muted) !important;
+        color: var(--cinza-escuro) !important;
         opacity: 0.8 !important;
     }
     
@@ -383,6 +441,55 @@ st.markdown("""
     .stTextInput > div > div > input:not(:placeholder-shown) {
         color: var(--azul-acinzentado) !important;
         font-weight: 600 !important;
+    }
+    
+    /* ===== CORREÇÃO ESPECÍFICA PARA INPUTS DE LOGIN ===== */
+    /* Forçar contraste correto nos inputs de login */
+    .stSidebar .stTextInput > div > div > input {
+        background-color: #ffffff !important;
+        color: var(--azul-acinzentado) !important;
+        border: 2px solid var(--border-color) !important;
+    }
+    
+    .stSidebar .stTextInput > div > div > input::placeholder {
+        color: var(--cinza-escuro) !important;
+        opacity: 0.7 !important;
+    }
+    
+    /* Forçar visibilidade do ícone de ajuda nos inputs de login */
+    .stSidebar .stTextInput > div > div > button[title] {
+        background-color: var(--amarelo) !important;
+        color: var(--azul-acinzentado) !important;
+        border: 2px solid var(--amarelo-apagado) !important;
+        border-radius: 50% !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: 28px !important;
+        height: 28px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 10 !important;
+    }
+    
+    .stSidebar .stTextInput > div > div > button[title]:hover {
+        background-color: var(--amarelo-apagado) !important;
+        color: var(--azul-acinzentado) !important;
+        border-color: var(--amarelo) !important;
+    }
+    
+    .stSidebar .stTextInput > div > div > button[title] svg {
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
+        color: var(--azul-acinzentado) !important;
+        width: 18px !important;
+        height: 18px !important;
     }
     
     /* ===== CAMPOS DE INPUT - TEXTO ESCURO ===== */
@@ -624,12 +731,23 @@ st.markdown("""
     button[data-testid*="help"],
     .stTextInput button[title],
     .stNumberInput button[title],
-    .stSelectbox button[title] {
+    .stSelectbox button[title],
+    .stTextInput > div > div > button[title],
+    .stNumberInput > div > div > button[title],
+    .stSelectbox > div > div > button[title] {
         color: var(--amarelo) !important;
-        background-color: transparent !important;
-        border: none !important;
+        background-color: rgba(236, 207, 117, 0.2) !important;
+        border: 1px solid var(--amarelo) !important;
+        border-radius: 50% !important;
         opacity: 1 !important;
         visibility: visible !important;
+        width: 24px !important;
+        height: 24px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 14px !important;
+        font-weight: bold !important;
     }
     
     /* SVG dos ícones de ajuda */
@@ -638,28 +756,40 @@ st.markdown("""
     button[data-testid*="help"] svg,
     .stTextInput button[title] svg,
     .stNumberInput button[title] svg,
-    .stSelectbox button[title] svg {
+    .stSelectbox button[title] svg,
+    .stTextInput > div > div > button[title] svg,
+    .stNumberInput > div > div > button[title] svg,
+    .stSelectbox > div > div > button[title] svg {
         fill: var(--amarelo) !important;
         stroke: var(--amarelo) !important;
         color: var(--amarelo) !important;
         opacity: 1 !important;
         visibility: visible !important;
+        width: 16px !important;
+        height: 16px !important;
     }
     
     /* Hover dos ícones de ajuda */
     button[title]:hover,
     button[aria-label*="help"]:hover,
-    button[data-testid*="help"]:hover {
-        background-color: rgba(236, 207, 117, 0.1) !important;
-        color: var(--amarelo-apagado) !important;
+    button[data-testid*="help"]:hover,
+    .stTextInput button[title]:hover,
+    .stNumberInput button[title]:hover,
+    .stSelectbox button[title]:hover {
+        background-color: var(--amarelo) !important;
+        color: var(--azul-acinzentado) !important;
+        border-color: var(--amarelo-apagado) !important;
     }
     
     button[title]:hover svg,
     button[aria-label*="help"]:hover svg,
-    button[data-testid*="help"]:hover svg {
-        fill: var(--amarelo-apagado) !important;
-        stroke: var(--amarelo-apagado) !important;
-        color: var(--amarelo-apagado) !important;
+    button[data-testid*="help"]:hover svg,
+    .stTextInput button[title]:hover svg,
+    .stNumberInput button[title]:hover svg,
+    .stSelectbox button[title]:hover svg {
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
+        color: var(--azul-acinzentado) !important;
     }
     
     .stTextInput > div > div > button:hover {
@@ -715,8 +845,35 @@ st.markdown("""
     }
     
     /* ===== BOTÕES - QUEBRA DE LINHA E CENTRALIZAÇÃO ===== */
-    /* Todos os botões com quebra de linha e centralização */
-    .stButton > button {
+    /* Botões que NÃO precisam de quebra (texto curto) - PRIORIDADE ALTA */
+    .stButton > button:contains("Entrar"),
+    .stButton > button:contains("Login"),
+    .stButton > button:contains("Logout"),
+    .stButton > button:contains("Fechar"),
+    .stButton > button:contains("Verificar"),
+    .stButton > button:contains("Salvar"),
+    .stButton > button:contains("Cancelar"),
+    .stButton > button:contains("Confirmar") {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        line-height: 1.2 !important;
+        padding: 14px 24px !important;
+        min-height: 48px !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+    
+    /* Botões específicos que precisam de quebra de linha */
+    .stButton > button:contains("Configuração"),
+    .stButton > button:contains("carteira"),
+    .stButton > button:contains("Carteira"),
+    .stButton > button:contains("Otimização"),
+    .stButton > button:contains("Projeções"),
+    .stButton > button:contains("Clique aqui para") {
         white-space: normal !important;
         line-height: 1.4 !important;
         padding: 18px 24px !important;
@@ -733,23 +890,12 @@ st.markdown("""
     }
     
     /* Botões específicos que precisam de mais espaço */
-    .stButton > button:contains("Configuração"),
-    .stButton > button:contains("carteira"),
-    .stButton > button:contains("Carteira") {
+    .stButton > button:contains("Salvar Configuração"),
+    .stButton > button:contains("Salvar configuração"),
+    .stButton > button:contains("Salvar Configuração da Carteira") {
         min-height: 80px !important;
         padding: 20px 24px !important;
         line-height: 1.5 !important;
-    }
-    
-    /* Botões que NÃO precisam de quebra (texto curto) */
-    .stButton > button:contains("Entrar"),
-    .stButton > button:contains("Login"),
-    .stButton > button:contains("Logout"),
-    .stButton > button:contains("Fechar"),
-    .stButton > button:contains("Verificar") {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
     }
     
     /* Garantir que texto dos botões seja sempre visível e centralizado */
