@@ -1747,6 +1747,199 @@ st.markdown("""
         color: #edf3f3 !important;
     }
     
+    /* ===== CORREÇÕES ESPECÍFICAS E AGRESSIVAS PARA MULTISELECT ===== */
+    /* Forçar visibilidade do ícone de ajuda com seletores mais específicos */
+    .stSidebar .stMultiSelect button[title],
+    .stSidebar .stMultiSelect button[aria-label*="help"],
+    .stSidebar .stMultiSelect button[data-testid*="help"],
+    .stSidebar .stMultiSelect > div > div > button[title],
+    .stSidebar .stMultiSelect > div > div > div > button[title] {
+        color: #edf3f3 !important;
+        background-color: transparent !important;
+        border: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: inline-block !important;
+    }
+    
+    .stSidebar .stMultiSelect button[title] svg,
+    .stSidebar .stMultiSelect button[aria-label*="help"] svg,
+    .stSidebar .stMultiSelect button[data-testid*="help"] svg,
+    .stSidebar .stMultiSelect > div > div > button[title] svg,
+    .stSidebar .stMultiSelect > div > div > div > button[title] svg {
+        fill: #edf3f3 !important;
+        stroke: #edf3f3 !important;
+        color: #edf3f3 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: 16px !important;
+        height: 16px !important;
+    }
+    
+    /* Forçar largura das tags com seletores mais específicos */
+    .stSidebar .stMultiSelect div[data-baseweb="tag"] span,
+    .stSidebar .stMultiSelect [data-baseweb="tag"] span,
+    .stSidebar .stMultiSelect > div > div > div > div[data-baseweb="tag"] span {
+        max-width: 250px !important;
+        min-width: 80px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    /* Forçar visibilidade do texto de ajuda/tooltip */
+    .stSidebar .stMultiSelect [data-testid="stTooltip"],
+    .stSidebar .stMultiSelect .stTooltip,
+    .stSidebar .stMultiSelect [title],
+    .stSidebar .stMultiSelect [aria-describedby] {
+        background-color: #edf3f3 !important;
+        color: #303841 !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        max-width: 300px !important;
+        z-index: 9999 !important;
+    }
+    
+    /* Texto dentro do tooltip do multiselect */
+    .stSidebar .stMultiSelect [data-testid="stTooltip"] p,
+    .stSidebar .stMultiSelect [data-testid="stTooltip"] div,
+    .stSidebar .stMultiSelect [data-testid="stTooltip"] span,
+    .stSidebar .stMultiSelect .stTooltip p,
+    .stSidebar .stMultiSelect .stTooltip div,
+    .stSidebar .stMultiSelect .stTooltip span {
+        color: #303841 !important;
+        background-color: transparent !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* ===== CORREÇÃO ESPECÍFICA PARA O CAMPO DE INPUT DO MULTISELECT ===== */
+    /* Campo de input do multiselect - forçar visibilidade do texto de ajuda */
+    .stSidebar .stMultiSelect input,
+    .stSidebar .stMultiSelect input[type="text"],
+    .stSidebar .stMultiSelect > div > div > input,
+    .stSidebar .stMultiSelect > div > div > div > input {
+        color: #303841 !important;
+        background-color: #ffffff !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Placeholder do input do multiselect */
+    .stSidebar .stMultiSelect input::placeholder,
+    .stSidebar .stMultiSelect input[type="text"]::placeholder,
+    .stSidebar .stMultiSelect > div > div > input::placeholder,
+    .stSidebar .stMultiSelect > div > div > div > input::placeholder {
+        color: #303841 !important;
+        opacity: 0.8 !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Texto digitado no input do multiselect */
+    .stSidebar .stMultiSelect input:not(:placeholder-shown),
+    .stSidebar .stMultiSelect input[type="text"]:not(:placeholder-shown),
+    .stSidebar .stMultiSelect > div > div > input:not(:placeholder-shown),
+    .stSidebar .stMultiSelect > div > div > div > input:not(:placeholder-shown) {
+        color: #303841 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Container do input do multiselect */
+    .stSidebar .stMultiSelect > div > div,
+    .stSidebar .stMultiSelect > div > div > div {
+        background-color: #ffffff !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 8px !important;
+    }
+    
+    /* Forçar visibilidade de todos os elementos de texto dentro do multiselect */
+    .stSidebar .stMultiSelect * {
+        color: inherit !important;
+    }
+    
+    /* Específico para o texto "Dica" que aparece no input */
+    .stSidebar .stMultiSelect div[data-baseweb="input"] span,
+    .stSidebar .stMultiSelect div[data-baseweb="input"] div,
+    .stSidebar .stMultiSelect div[data-baseweb="input"] p {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    /* ===== ESTILOS ULTRA-ESPECÍFICOS PARA FORÇAR MUDANÇAS ===== */
+    /* Forçar visibilidade do ícone de ajuda com máxima especificidade */
+    .stSidebar .stMultiSelect > div > div > div > div > button[title],
+    .stSidebar .stMultiSelect > div > div > div > div > button[aria-label*="help"],
+    .stSidebar .stMultiSelect > div > div > div > div > button[data-testid*="help"] {
+        color: #edf3f3 !important;
+        background-color: rgba(237, 243, 243, 0.2) !important;
+        border: 1px solid #edf3f3 !important;
+        border-radius: 50% !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: inline-block !important;
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 20px !important;
+        min-height: 20px !important;
+    }
+    
+    .stSidebar .stMultiSelect > div > div > div > div > button[title] svg,
+    .stSidebar .stMultiSelect > div > div > div > div > button[aria-label*="help"] svg,
+    .stSidebar .stMultiSelect > div > div > div > div > button[data-testid*="help"] svg {
+        fill: #edf3f3 !important;
+        stroke: #edf3f3 !important;
+        color: #edf3f3 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: 14px !important;
+        height: 14px !important;
+    }
+    
+    /* Forçar largura das tags com máxima especificidade */
+    .stSidebar .stMultiSelect > div > div > div > div[data-baseweb="tag"] {
+        max-width: 300px !important;
+        min-width: 100px !important;
+        width: auto !important;
+        flex: 0 0 auto !important;
+    }
+    
+    .stSidebar .stMultiSelect > div > div > div > div[data-baseweb="tag"] span {
+        max-width: 280px !important;
+        min-width: 80px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        display: inline-block !important;
+    }
+    
+    /* Forçar visibilidade do texto de ajuda com máxima especificidade */
+    .stSidebar .stMultiSelect [data-testid="stTooltip"] *,
+    .stSidebar .stMultiSelect .stTooltip *,
+    .stSidebar .stMultiSelect [title] *,
+    .stSidebar .stMultiSelect [aria-describedby] * {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Forçar cor do texto no input do multiselect */
+    .stSidebar .stMultiSelect input[type="text"] {
+        color: #303841 !important;
+        background-color: #ffffff !important;
+    }
+    
+    .stSidebar .stMultiSelect input[type="text"]::placeholder {
+        color: #303841 !important;
+        opacity: 0.7 !important;
+    }
+    
     /* Containers com texto */
     .stContainer .stMarkdown,
     .stContainer .stMarkdown p {
@@ -2449,8 +2642,24 @@ if st.session_state.get("authentication_status"):
         data_inicio_salva = st.session_state.get("data_inicio_salva")
         data_fim_salva = st.session_state.get("data_fim_salva")
 
+        # Valida e ajusta as datas salvas para estarem dentro do intervalo válido
+        if data_inicio_salva:
+            if data_inicio_salva < data_minima:
+                data_inicio_salva = data_minima
+            elif data_inicio_salva > data_maxima:
+                data_inicio_salva = data_maxima
+        
+        if data_fim_salva:
+            if data_fim_salva < data_minima:
+                data_fim_salva = data_minima
+            elif data_fim_salva > data_maxima:
+                data_fim_salva = data_maxima
+
+        # Calcula data padrão de início (1 ano antes da data máxima, mas respeitando o mínimo)
+        data_inicio_padrao = max(data_minima, data_maxima - timedelta(days=365))
+
         data_inicio = st.sidebar.date_input("Data de Início",
-                                            value=data_inicio_salva or (data_maxima - timedelta(days=365)),
+                                            value=data_inicio_salva or data_inicio_padrao,
                                             min_value=data_minima, max_value=data_maxima, format="DD/MM/YYYY")
         data_fim = st.sidebar.date_input("Data de Fim",
                                          value=data_fim_salva or data_maxima,
