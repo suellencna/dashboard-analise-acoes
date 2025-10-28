@@ -110,47 +110,14 @@ st.markdown("""
         border: 2px solid var(--border-color) !important;
     }
     
-    .stSidebar .stMultiSelect > div > div > div {
-        background-color: var(--bg-card) !important;
-        color: var(--text-primary) !important;
-        border: 2px solid var(--border-color) !important;
-    }
-    
-    /* ===== MULTISELECT - APLICAR PALETA DE CORES ===== */
+    /* ===== MULTISELECT - ESTILOS LIMPOS E SIMPLES ===== */
     /* Container principal do multiselect */
     .stMultiSelect > div > div > div {
         background-color: var(--bg-card) !important;
         color: var(--text-primary) !important;
         border: 2px solid var(--border-color) !important;
         border-radius: 8px !important;
-    }
-    
-    /* Tags/chips selecionados */
-    .stMultiSelect div[data-baseweb="tag"],
-    .stMultiSelect [data-baseweb="tag"] {
-        background-color: var(--amarelo) !important;
-        color: #2c3e50 !important;
-        border: 2px solid var(--amarelo-apagado) !important;
-        border-radius: 6px !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-        padding: 8px 16px !important;
-        margin: 3px !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-        min-width: 120px !important;
-        max-width: 200px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-    }
-    
-    /* Container das tags - mais espaço horizontal */
-    .stMultiSelect > div > div > div {
-        background-color: var(--bg-card) !important;
-        color: var(--ciano-branco) !important;
-        border: 2px solid var(--border-color) !important;
-        border-radius: 8px !important;
-        min-height: 60px !important;
+        min-height: 48px !important;
         padding: 8px !important;
         display: flex !important;
         flex-wrap: wrap !important;
@@ -158,72 +125,39 @@ st.markdown("""
         align-items: flex-start !important;
     }
     
-    /* Texto das tags */
+    /* Tags/chips selecionados - LARGURA AUMENTADA */
+    .stMultiSelect div[data-baseweb="tag"],
+    .stMultiSelect [data-baseweb="tag"] {
+        background-color: var(--amarelo) !important;
+        color: #2c3e50 !important;
+        border: 1px solid var(--amarelo-apagado) !important;
+        border-radius: 6px !important;
+        font-weight: 500 !important;
+        font-size: 14px !important;
+        padding: 4px 8px !important;
+        margin: 2px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        max-width: 250px !important;
+    }
+    
+    /* Texto das tags - LARGURA AUMENTADA */
     .stMultiSelect div[data-baseweb="tag"] span,
     .stMultiSelect [data-baseweb="tag"] span {
         color: #2c3e50 !important;
-        font-weight: 600 !important;
+        font-weight: 500 !important;
         font-size: 14px !important;
-        text-shadow: none !important;
-        flex: 1 !important;
-        margin-right: 8px !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        max-width: 200px !important;
+        max-width: 220px !important;
     }
     
-    /* Forçar visibilidade do texto das tags */
-    .stMultiSelect div[data-baseweb="tag"] *,
-    .stMultiSelect [data-baseweb="tag"] * {
-        color: #2c3e50 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* ===== CORREÇÃO ESPECÍFICA PARA LEGIBILIDADE DOS ATIVOS ===== */
-    /* Garantir que o texto dos ativos seja sempre visível */
-    .stMultiSelect div[data-baseweb="tag"],
-    .stMultiSelect [data-baseweb="tag"],
-    .stMultiSelect div[data-baseweb="tag"] span,
-    .stMultiSelect [data-baseweb="tag"] span,
-    .stMultiSelect div[data-baseweb="tag"] div,
-    .stMultiSelect [data-baseweb="tag"] div {
-        color: #2c3e50 !important;
-        background-color: var(--amarelo) !important;
-        font-weight: 700 !important;
-        font-size: 14px !important;
-        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3) !important;
-        letter-spacing: 0.5px !important;
-    }
-    
-    /* Forçar contraste máximo */
-    .stMultiSelect div[data-baseweb="tag"]:not(:hover),
-    .stMultiSelect [data-baseweb="tag"]:not(:hover) {
-        background-color: var(--amarelo) !important;
-        color: #1a1a1a !important;
-        border: 2px solid #b8860b !important;
-    }
-    
-    .stMultiSelect div[data-baseweb="tag"]:not(:hover) span,
-    .stMultiSelect [data-baseweb="tag"]:not(:hover) span {
-        color: #1a1a1a !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Ícones das tags - X branco ou amarelo */
-    .stMultiSelect div[data-baseweb="tag"] svg,
-    .stMultiSelect [data-baseweb="tag"] svg {
-        fill: #ffffff !important;
-        stroke: #ffffff !important;
-        width: 16px !important;
-        height: 16px !important;
-    }
-    
-    /* Botão X das tags - fundo amarelo com X branco */
+    /* Botão X das tags - SIMPLES */
     .stMultiSelect div[data-baseweb="tag"] button,
     .stMultiSelect [data-baseweb="tag"] button {
         background-color: #ffffff !important;
-        color: var(--amarelo) !important;
+        color: #2c3e50 !important;
         border: 1px solid #2c3e50 !important;
         border-radius: 3px !important;
         width: 18px !important;
@@ -231,58 +165,65 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        flex-shrink: 0 !important;
         margin-left: 4px !important;
     }
     
-    .stMultiSelect div[data-baseweb="tag"] button:hover,
-    .stMultiSelect [data-baseweb="tag"] button:hover {
-        background-color: #2c3e50 !important;
-        color: #ffffff !important;
-        border-color: #2c3e50 !important;
-    }
-    
-    /* Hover das tags */
+    /* Hover das tags - SIMPLES */
     .stMultiSelect div[data-baseweb="tag"]:hover,
     .stMultiSelect [data-baseweb="tag"]:hover {
         background-color: var(--amarelo-apagado) !important;
         color: #2c3e50 !important;
-        border-color: var(--amarelo) !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
     }
     
-    .stMultiSelect div[data-baseweb="tag"]:hover span,
-    .stMultiSelect [data-baseweb="tag"]:hover span {
-        color: #2c3e50 !important;
+    /* Ícone de ajuda - VISÍVEL */
+    .stMultiSelect button[title] {
+        color: #edf3f3 !important;
+        background-color: rgba(237, 243, 243, 0.2) !important;
+        border: 1px solid #edf3f3 !important;
+        border-radius: 50% !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: 20px !important;
+        height: 20px !important;
     }
     
-    .stMultiSelect div[data-baseweb="tag"]:hover svg,
-    .stMultiSelect [data-baseweb="tag"]:hover svg {
-        fill: #2c3e50 !important;
-        stroke: #2c3e50 !important;
+    .stMultiSelect button[title] svg {
+        fill: #edf3f3 !important;
+        stroke: #edf3f3 !important;
+        width: 14px !important;
+        height: 14px !important;
     }
     
-    /* Botões do multiselect */
-    .stMultiSelect button {
+    /* Input do multiselect - TEXTO VISÍVEL */
+    .stMultiSelect input {
+        color: #303841 !important;
+        background-color: #ffffff !important;
+    }
+    
+    .stMultiSelect input::placeholder {
+        color: #303841 !important;
+        opacity: 0.7 !important;
+    }
+    
+    /* Tooltip - VISÍVEL */
+    .stMultiSelect [data-testid="stTooltip"],
+    .stMultiSelect .stTooltip {
+        background-color: #edf3f3 !important;
+        color: #303841 !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        max-width: 300px !important;
+        z-index: 9999 !important;
+    }
+    
+    .stMultiSelect [data-testid="stTooltip"] *,
+    .stMultiSelect .stTooltip * {
+        color: #303841 !important;
         background-color: transparent !important;
-        color: var(--text-primary) !important;
-        border: none !important;
-    }
-    
-    .stMultiSelect button:hover {
-        background-color: rgba(236, 207, 117, 0.1) !important;
-        color: var(--amarelo) !important;
-    }
-    
-    .stMultiSelect button svg {
-        fill: var(--text-primary) !important;
-        stroke: var(--text-primary) !important;
-    }
-    
-    .stMultiSelect button:hover svg {
-        fill: var(--amarelo) !important;
-        stroke: var(--amarelo) !important;
     }
     
     .stSidebar .stDateInput > div > div > input {
@@ -2848,37 +2789,52 @@ if st.session_state.get("authentication_status"):
             benchmark_selecionado = st.selectbox("Selecione o Benchmark:", list(MAPA_BENCHMARK.keys()))
             caminho_bench = os.path.join(DATA_PATH, MAPA_BENCHMARK[benchmark_selecionado])
             try:
-                # Linha CORRIGIDA do Benchmark (removido skiprows)
+                # Carregar dados do benchmark
                 df_bench = pd.read_csv(caminho_bench, index_col='Date', parse_dates=True)
-                df_bench = df_bench.reindex(df_portfolio.index).ffill().dropna()
-
+                
                 # Garantir que os dados são numéricos
                 df_bench['Close'] = pd.to_numeric(df_bench['Close'], errors='coerce')
                 df_portfolio['Carteira'] = pd.to_numeric(df_portfolio['Carteira'], errors='coerce')
                 
-                retornos_diarios_comp = pd.DataFrame(
-                    {'Carteira': df_portfolio['Carteira'], 'Benchmark': df_bench['Close']}).pct_change().dropna()
-
-                if retornos_diarios_comp.empty or len(retornos_diarios_comp) < 2:
-                    st.warning(
-                        f"Dados insuficientes para o benchmark '{benchmark_selecionado}' no período para gerar o gráfico.")
+                # Filtrar benchmark para o mesmo período da carteira
+                data_inicio_bench = df_portfolio.index.min()
+                data_fim_bench = df_portfolio.index.max()
+                df_bench_filtrado = df_bench.loc[data_inicio_bench:data_fim_bench].copy()
+                
+                # Verificar se há dados suficientes no benchmark para o período
+                if df_bench_filtrado.empty or len(df_bench_filtrado) < 2:
+                    st.warning(f"Dados insuficientes para o benchmark '{benchmark_selecionado}' no período selecionado.")
+                    st.info(f"Período da carteira: {data_inicio_bench.strftime('%d/%m/%Y')} a {data_fim_bench.strftime('%d/%m/%Y')}")
+                    st.info(f"Período disponível no benchmark: {df_bench.index.min().strftime('%d/%m/%Y')} a {df_bench.index.max().strftime('%d/%m/%Y')}")
                 else:
-                    df_acumulado = (1 + retornos_diarios_comp).cumprod() * 100
-                    df_acumulado.iloc[0] = 100
-                    fig_desempenho = go.Figure()
-                    fig_desempenho.add_trace(
-                        go.Scatter(x=df_acumulado.index, y=df_acumulado['Carteira'], mode='lines',
-                                   name='Minha Carteira'))
-                    fig_desempenho.add_trace(go.Scatter(x=df_acumulado.index, y=df_acumulado['Benchmark'], mode='lines',
-                                                        name=benchmark_selecionado))
-                    fig_desempenho.update_layout(
-                        title_text='Desempenho Comparativo (Base 100)', 
-                        template='plotly_dark',
-                        paper_bgcolor='rgba(0,0,0,0)',
-                        plot_bgcolor='rgba(0,0,0,0)',
-                        font=dict(color='white')
-                    )
-                    st.plotly_chart(fig_desempenho, use_container_width=True)
+                    # Alinhar os índices para garantir compatibilidade
+                    df_bench_alinhado = df_bench_filtrado.reindex(df_portfolio.index).ffill().dropna()
+                    
+                    if df_bench_alinhado.empty or len(df_bench_alinhado) < 2:
+                        st.warning(f"Não foi possível alinhar os dados do benchmark '{benchmark_selecionado}' com o período da carteira.")
+                    else:
+                        retornos_diarios_comp = pd.DataFrame(
+                            {'Carteira': df_portfolio['Carteira'], 'Benchmark': df_bench_alinhado['Close']}).pct_change().dropna()
+
+                        if retornos_diarios_comp.empty or len(retornos_diarios_comp) < 2:
+                            st.warning(f"Dados insuficientes para calcular retornos do benchmark '{benchmark_selecionado}' no período.")
+                        else:
+                            df_acumulado = (1 + retornos_diarios_comp).cumprod() * 100
+                            df_acumulado.iloc[0] = 100
+                            fig_desempenho = go.Figure()
+                            fig_desempenho.add_trace(
+                                go.Scatter(x=df_acumulado.index, y=df_acumulado['Carteira'], mode='lines',
+                                           name='Minha Carteira'))
+                            fig_desempenho.add_trace(go.Scatter(x=df_acumulado.index, y=df_acumulado['Benchmark'], mode='lines',
+                                                                name=benchmark_selecionado))
+                            fig_desempenho.update_layout(
+                                title_text='Desempenho Comparativo (Base 100)', 
+                                template='plotly_dark',
+                                paper_bgcolor='rgba(0,0,0,0)',
+                                plot_bgcolor='rgba(0,0,0,0)',
+                                font=dict(color='white')
+                            )
+                            st.plotly_chart(fig_desempenho, use_container_width=True)
             except Exception as e:
                 st.error(
                     f"Não foi possível carregar ou processar os dados do benchmark '{benchmark_selecionado}'. Verifique o arquivo .csv. Erro: {e}")
