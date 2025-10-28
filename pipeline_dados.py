@@ -11,6 +11,8 @@ import numpy as np
 from datetime import datetime, timedelta
 import json
 import yfinance as yf
+import time
+import random
 
 # Tentar importar bcb, mas continuar se não estiver disponível
 try:
@@ -31,6 +33,8 @@ except ImportError:
 # --- CONFIGURAÇÃO ---
 PASTA_OUTPUT = "dados"
 ANOS_HISTORICO = 10
+MAX_RETRIES = 3
+RETRY_DELAY = 2  # segundos
 
 print("=" * 80)
 print("🚀 PIPELINE DE COLETA DE DADOS - DASHBOARD ANÁLISE DE AÇÕES")
@@ -174,46 +178,84 @@ def coletar_cdi_ipca_simulado():
         return False
 
 def coletar_dados_yfinance(tickers, pasta_destino):
-    """Coleta dados do yfinance para lista de tickers"""
+    """Coleta dados do yfinance para lista de tickers com retry logic"""
     print(f"🔄 Coletando dados do yfinance para {len(tickers)} tickers...")
     
     sucessos = 0
     falhas = 0
+    tickers_problematicos = []
     
     for i, ticker in enumerate(tickers, 1):
         print(f"  📈 [{i}/{len(tickers)}] Coletando {ticker}...")
-        try:
-            dados = yf.download(ticker, start=start_date, end=end_date, progress=False)
-            
-            if dados.empty:
-                print(f"    ⚠️ {ticker}: Dados vazios")
-                falhas += 1
-                continue
+        
+        # Tentar múltiplas vezes para cada ticker
+        tentativa = 0
+        sucesso_ticker = False
+        
+        while tentativa < MAX_RETRIES and not sucesso_ticker:
+            try:
+                # Adicionar delay aleatório para evitar rate limiting
+                if tentativa > 0:
+                    delay = RETRY_DELAY + random.uniform(0, 1)
+                    print(f"    🔄 Tentativa {tentativa + 1}/{MAX_RETRIES} em {delay:.1f}s...")
+                    time.sleep(delay)
+                
+                dados = yf.download(ticker, start=start_date, end=end_date, progress=False)
+                
+                if dados.empty:
+                    print(f"    ⚠️ {ticker}: Dados vazios")
+                    break
 
-            # Padronizar formato
-            dados.reset_index(inplace=True)
-            dados_padronizados = dados[['Date', 'Close']].copy()
-            dados_padronizados['Date'] = dados_padronizados['Date'].dt.strftime('%Y-%m-%d')
+                # Padronizar formato
+                dados.reset_index(inplace=True)
+                dados_padronizados = dados[['Date', 'Close']].copy()
+                dados_padronizados['Date'] = dados_padronizados['Date'].dt.strftime('%Y-%m-%d')
 
-            # Nome do arquivo
-            nome_base = ticker.replace('^', 'IBOV_').replace('.SA', '')
-            nome_arquivo = f"{nome_base}.csv"
-            caminho_completo = os.path.join(pasta_destino, nome_arquivo)
+                # Nome do arquivo
+                nome_base = ticker.replace('^', 'IBOV_').replace('.SA', '')
+                nome_arquivo = f"{nome_base}.csv"
+                caminho_completo = os.path.join(pasta_destino, nome_arquivo)
 
-            # Salvar
-            dados_padronizados.to_csv(caminho_completo, index=False)
-            print(f"    ✅ {ticker}: {len(dados_padronizados)} registros")
-            sucessos += 1
-            
-        except Exception as e:
-            print(f"    ❌ {ticker}: Erro - {e}")
+                # Salvar
+                dados_padronizados.to_csv(caminho_completo, index=False)
+                print(f"    ✅ {ticker}: {len(dados_padronizados)} registros")
+                sucessos += 1
+                sucesso_ticker = True
+                
+            except Exception as e:
+                tentativa += 1
+                error_msg = str(e)
+                
+                # Tratar erros específicos
+                if "YFTzMissingError" in error_msg or "possibly delisted" in error_msg:
+                    print(f"    ⚠️ {ticker}: Ticker possivelmente deslistado ou sem timezone")
+                    tickers_problematicos.append(ticker)
+                    break
+                elif "403" in error_msg or "Forbidden" in error_msg:
+                    print(f"    ⚠️ {ticker}: Erro 403 - Rate limit ou acesso negado")
+                    if tentativa < MAX_RETRIES:
+                        time.sleep(RETRY_DELAY * 2)  # Delay maior para 403
+                        continue
+                    else:
+                        break
+                elif tentativa < MAX_RETRIES:
+                    print(f"    ⚠️ {ticker}: Erro na tentativa {tentativa} - {error_msg}")
+                    continue
+                else:
+                    print(f"    ❌ {ticker}: Falha após {MAX_RETRIES} tentativas - {error_msg}")
+                    break
+        
+        if not sucesso_ticker and ticker not in tickers_problematicos:
             falhas += 1
     
     print(f"✅ yfinance: {sucessos} sucessos, {falhas} falhas")
+    if tickers_problematicos:
+        print(f"⚠️ Tickers problemáticos (possivelmente deslistados): {', '.join(tickers_problematicos)}")
+    
     return sucessos > 0
 
 def coletar_ifix_idiv():
-    """Coleta dados do IFIX e IDIV usando investpy"""
+    """Coleta dados do IFIX e IDIV usando investpy com retry logic"""
     if not INVESTPY_AVAILABLE:
         print("⚠️ investpy não disponível, pulando coleta de IFIX/IDIV...")
         return False
@@ -235,36 +277,65 @@ def coletar_ifix_idiv():
     
     for index_name, output_filename in indices_config.items():
         print(f"  📊 Coletando {index_name}...")
-        try:
-            # Baixar dados históricos
-            df = investpy.get_index_historical_data(
-                index=index_name,
-                country='brazil',
-                from_date=start_str,
-                to_date=end_str
-            )
-            
-            # Resetar o índice para transformar Date em coluna
-            df = df.reset_index()
-            
-            # Selecionar apenas as colunas necessárias (Date e Close)
-            df_limpo = df[['Date', 'Close']].copy()
-            
-            # Garantir que a data está no formato correto
-            df_limpo['Date'] = pd.to_datetime(df_limpo['Date'])
-            df_limpo['Date'] = df_limpo['Date'].dt.strftime('%Y-%m-%d')
-            
-            # Caminho completo do arquivo de saída
-            caminho_output = os.path.join(PASTA_OUTPUT, output_filename)
-            
-            # Salvar arquivo CSV
-            df_limpo.to_csv(caminho_output, index=False)
-            
-            print(f"    ✅ {output_filename}: {len(df_limpo)} registros")
-            sucessos += 1
-            
-        except Exception as e:
-            print(f"    ❌ {index_name}: Erro - {e}")
+        
+        tentativa = 0
+        sucesso_index = False
+        
+        while tentativa < MAX_RETRIES and not sucesso_index:
+            try:
+                if tentativa > 0:
+                    delay = RETRY_DELAY * 2 + random.uniform(0, 2)  # Delay maior para investpy
+                    print(f"    🔄 Tentativa {tentativa + 1}/{MAX_RETRIES} em {delay:.1f}s...")
+                    time.sleep(delay)
+                
+                # Baixar dados históricos
+                df = investpy.get_index_historical_data(
+                    index=index_name,
+                    country='brazil',
+                    from_date=start_str,
+                    to_date=end_str
+                )
+                
+                # Resetar o índice para transformar Date em coluna
+                df = df.reset_index()
+                
+                # Selecionar apenas as colunas necessárias (Date e Close)
+                df_limpo = df[['Date', 'Close']].copy()
+                
+                # Garantir que a data está no formato correto
+                df_limpo['Date'] = pd.to_datetime(df_limpo['Date'])
+                df_limpo['Date'] = df_limpo['Date'].dt.strftime('%Y-%m-%d')
+                
+                # Caminho completo do arquivo de saída
+                caminho_output = os.path.join(PASTA_OUTPUT, output_filename)
+                
+                # Salvar arquivo CSV
+                df_limpo.to_csv(caminho_output, index=False)
+                
+                print(f"    ✅ {output_filename}: {len(df_limpo)} registros")
+                sucessos += 1
+                sucesso_index = True
+                
+            except Exception as e:
+                tentativa += 1
+                error_msg = str(e)
+                
+                if "ERR#0015" in error_msg or "error 403" in error_msg:
+                    print(f"    ⚠️ {index_name}: Erro 403 - Rate limit do investpy")
+                    if tentativa < MAX_RETRIES:
+                        time.sleep(RETRY_DELAY * 3)  # Delay ainda maior para 403
+                        continue
+                    else:
+                        print(f"    ❌ {index_name}: Falha após {MAX_RETRIES} tentativas - Rate limit")
+                        break
+                elif tentativa < MAX_RETRIES:
+                    print(f"    ⚠️ {index_name}: Erro na tentativa {tentativa} - {error_msg}")
+                    continue
+                else:
+                    print(f"    ❌ {index_name}: Falha após {MAX_RETRIES} tentativas - {error_msg}")
+                    break
+        
+        if not sucesso_index:
             falhas += 1
     
     print(f"✅ IFIX/IDIV: {sucessos} sucessos, {falhas} falhas")

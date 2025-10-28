@@ -352,12 +352,17 @@ st.markdown("""
         background-color: transparent !important;
     }
     
-    /* ===== ESTILOS ESPECÍFICOS PARA O CALENDÁRIO DO STREAMLIT ===== */
-    /* Popup do calendário - usar seletores mais específicos */
+    /* ===== ESTILOS ULTRA-ESPECÍFICOS PARA O CALENDÁRIO ===== */
+    /* Forçar estilos em TODOS os elementos flutuantes do calendário */
+    .stDateInput div[role="dialog"],
+    .stDateInput div[role="presentation"],
     .stDateInput [data-baseweb="popover"],
     .stDateInput [data-baseweb="popover"] > div,
     .stDateInput [data-baseweb="popover"] [role="dialog"],
-    .stDateInput [data-baseweb="popover"] [role="presentation"] {
+    .stDateInput [data-baseweb="popover"] [role="presentation"],
+    .stDateInput .stDateInput > div > div,
+    .stDateInput .stDateInput [role="dialog"],
+    .stDateInput .stDateInput [role="presentation"] {
         background-color: #ffffff !important;
         color: #303841 !important;
         border: 2px solid var(--amarelo) !important;
@@ -366,71 +371,106 @@ st.markdown("""
         z-index: 9999 !important;
     }
     
-    /* Todos os elementos dentro do popup do calendário */
+    /* FORÇAR COR ESCURA EM TODOS OS ELEMENTOS DO CALENDÁRIO */
+    .stDateInput div[role="dialog"] *,
+    .stDateInput div[role="presentation"] *,
     .stDateInput [data-baseweb="popover"] *,
     .stDateInput [data-baseweb="popover"] > div *,
     .stDateInput [data-baseweb="popover"] [role="dialog"] *,
-    .stDateInput [data-baseweb="popover"] [role="presentation"] * {
+    .stDateInput [data-baseweb="popover"] [role="presentation"] *,
+    .stDateInput .stDateInput > div > div *,
+    .stDateInput .stDateInput [role="dialog"] *,
+    .stDateInput .stDateInput [role="presentation"] * {
         color: #303841 !important;
         background-color: transparent !important;
     }
     
-    /* Cabeçalho do calendário (mês/ano) */
-    .stDateInput [data-baseweb="popover"] [data-baseweb="header"],
-    .stDateInput [data-baseweb="popover"] .header,
-    .stDateInput [data-baseweb="popover"] [role="dialog"] .header {
-        background-color: #ffffff !important;
+    /* ESPECÍFICO PARA DIAS DA SEMANA - FORÇAR VISIBILIDADE */
+    .stDateInput div[role="dialog"] div[role="gridcell"],
+    .stDateInput div[role="presentation"] div[role="gridcell"],
+    .stDateInput [data-baseweb="popover"] div[role="gridcell"],
+    .stDateInput [data-baseweb="popover"] [role="dialog"] div[role="gridcell"],
+    .stDateInput [data-baseweb="popover"] [role="presentation"] div[role="gridcell"],
+    .stDateInput .stDateInput > div > div div[role="gridcell"],
+    .stDateInput .stDateInput [role="dialog"] div[role="gridcell"],
+    .stDateInput .stDateInput [role="presentation"] div[role="gridcell"] {
         color: #303841 !important;
-        border-bottom: 1px solid var(--amarelo) !important;
+        background-color: transparent !important;
         font-weight: 600 !important;
     }
     
-    /* Botões de navegação do calendário */
+    /* ESPECÍFICO PARA DATAS DO CALENDÁRIO - FORÇAR VISIBILIDADE */
+    .stDateInput div[role="dialog"] button,
+    .stDateInput div[role="presentation"] button,
     .stDateInput [data-baseweb="popover"] button,
-    .stDateInput [data-baseweb="popover"] [role="button"] {
+    .stDateInput [data-baseweb="popover"] [role="dialog"] button,
+    .stDateInput [data-baseweb="popover"] [role="presentation"] button,
+    .stDateInput .stDateInput > div > div button,
+    .stDateInput .stDateInput [role="dialog"] button,
+    .stDateInput .stDateInput [role="presentation"] button {
+        color: #303841 !important;
+        background-color: transparent !important;
+        border: none !important;
+        font-weight: 500 !important;
+    }
+    
+    /* DIA SELECIONADO - COR AMARELA */
+    .stDateInput div[role="dialog"] button[aria-selected="true"],
+    .stDateInput div[role="presentation"] button[aria-selected="true"],
+    .stDateInput [data-baseweb="popover"] button[aria-selected="true"],
+    .stDateInput [data-baseweb="popover"] [role="dialog"] button[aria-selected="true"],
+    .stDateInput [data-baseweb="popover"] [role="presentation"] button[aria-selected="true"],
+    .stDateInput .stDateInput > div > div button[aria-selected="true"],
+    .stDateInput .stDateInput [role="dialog"] button[aria-selected="true"],
+    .stDateInput .stDateInput [role="presentation"] button[aria-selected="true"] {
+        background-color: var(--amarelo) !important;
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* HOVER NAS DATAS */
+    .stDateInput div[role="dialog"] button:hover,
+    .stDateInput div[role="presentation"] button:hover,
+    .stDateInput [data-baseweb="popover"] button:hover,
+    .stDateInput [data-baseweb="popover"] [role="dialog"] button:hover,
+    .stDateInput [data-baseweb="popover"] [role="presentation"] button:hover,
+    .stDateInput .stDateInput > div > div button:hover,
+    .stDateInput .stDateInput [role="dialog"] button:hover,
+    .stDateInput .stDateInput [role="presentation"] button:hover {
+        background-color: rgba(236, 207, 117, 0.3) !important;
+        color: #2c3e50 !important;
+    }
+    
+    /* CABEÇALHO DO CALENDÁRIO (MÊS/ANO) */
+    .stDateInput div[role="dialog"] div[role="button"],
+    .stDateInput div[role="presentation"] div[role="button"],
+    .stDateInput [data-baseweb="popover"] div[role="button"],
+    .stDateInput [data-baseweb="popover"] [role="dialog"] div[role="button"],
+    .stDateInput [data-baseweb="popover"] [role="presentation"] div[role="button"],
+    .stDateInput .stDateInput > div > div div[role="button"],
+    .stDateInput .stDateInput [role="dialog"] div[role="button"],
+    .stDateInput .stDateInput [role="presentation"] div[role="button"] {
+        color: #303841 !important;
+        background-color: transparent !important;
+        font-weight: 600 !important;
+    }
+    
+    /* BOTÕES DE NAVEGAÇÃO (SETAS) */
+    .stDateInput div[role="dialog"] button[aria-label*="Previous"],
+    .stDateInput div[role="presentation"] button[aria-label*="Previous"],
+    .stDateInput div[role="dialog"] button[aria-label*="Next"],
+    .stDateInput div[role="presentation"] button[aria-label*="Next"],
+    .stDateInput [data-baseweb="popover"] button[aria-label*="Previous"],
+    .stDateInput [data-baseweb="popover"] button[aria-label*="Next"],
+    .stDateInput .stDateInput > div > div button[aria-label*="Previous"],
+    .stDateInput .stDateInput > div > div button[aria-label*="Next"] {
         color: #303841 !important;
         background-color: transparent !important;
         border: 1px solid var(--amarelo) !important;
         border-radius: 4px !important;
     }
     
-    .stDateInput [data-baseweb="popover"] button:hover,
-    .stDateInput [data-baseweb="popover"] [role="button"]:hover {
-        background-color: rgba(236, 207, 117, 0.2) !important;
-        color: #2c3e50 !important;
-    }
-    
-    /* Dias da semana */
-    .stDateInput [data-baseweb="popover"] [data-baseweb="weekday"],
-    .stDateInput [data-baseweb="popover"] .weekday {
-        color: #303841 !important;
-        background-color: transparent !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Dias do calendário */
-    .stDateInput [data-baseweb="popover"] [data-baseweb="day"],
-    .stDateInput [data-baseweb="popover"] .day {
-        color: #303841 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Dia selecionado */
-    .stDateInput [data-baseweb="popover"] [data-baseweb="day"][aria-selected="true"],
-    .stDateInput [data-baseweb="popover"] .day.selected {
-        background-color: var(--amarelo) !important;
-        color: #2c3e50 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Hover nos dias */
-    .stDateInput [data-baseweb="popover"] [data-baseweb="day"]:hover,
-    .stDateInput [data-baseweb="popover"] .day:hover {
-        background-color: rgba(236, 207, 117, 0.3) !important;
-        color: #2c3e50 !important;
-    }
-    
-    /* Input do date_input */
+    /* INPUT DO DATE_INPUT */
     .stDateInput input {
         color: #303841 !important;
         background-color: #ffffff !important;
@@ -443,11 +483,106 @@ st.markdown("""
         opacity: 0.7 !important;
     }
     
-    /* Forçar visibilidade de todos os elementos flutuantes */
+    /* FORÇAR VISIBILIDADE MÁXIMA */
+    .stDateInput div[role="dialog"],
+    .stDateInput div[role="presentation"],
     .stDateInput [data-baseweb="popover"],
-    .stDateInput [data-baseweb="popover"] * {
+    .stDateInput [data-baseweb="popover"] *,
+    .stDateInput .stDateInput > div > div,
+    .stDateInput .stDateInput > div > div * {
         visibility: visible !important;
         opacity: 1 !important;
+    }
+    
+    /* ===== ESTILOS ULTRA-AGRESSIVOS PARA CALENDÁRIO ===== */
+    /* Usar seletores universais para forçar mudanças */
+    div[role="dialog"] {
+        background-color: #ffffff !important;
+        color: #303841 !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        z-index: 9999 !important;
+    }
+    
+    div[role="dialog"] * {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    div[role="dialog"] button {
+        color: #303841 !important;
+        background-color: transparent !important;
+        border: none !important;
+        font-weight: 500 !important;
+    }
+    
+    div[role="dialog"] button[aria-selected="true"] {
+        background-color: var(--amarelo) !important;
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+    }
+    
+    div[role="dialog"] button:hover {
+        background-color: rgba(236, 207, 117, 0.3) !important;
+        color: #2c3e50 !important;
+    }
+    
+    div[role="dialog"] div[role="gridcell"] {
+        color: #303841 !important;
+        background-color: transparent !important;
+        font-weight: 600 !important;
+    }
+    
+    div[role="dialog"] div[role="button"] {
+        color: #303841 !important;
+        background-color: transparent !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Forçar estilos em qualquer popup flutuante */
+    [data-baseweb="popover"] {
+        background-color: #ffffff !important;
+        color: #303841 !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        z-index: 9999 !important;
+    }
+    
+    [data-baseweb="popover"] * {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    [data-baseweb="popover"] button {
+        color: #303841 !important;
+        background-color: transparent !important;
+        border: none !important;
+        font-weight: 500 !important;
+    }
+    
+    [data-baseweb="popover"] button[aria-selected="true"] {
+        background-color: var(--amarelo) !important;
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+    }
+    
+    [data-baseweb="popover"] button:hover {
+        background-color: rgba(236, 207, 117, 0.3) !important;
+        color: #2c3e50 !important;
+    }
+    
+    [data-baseweb="popover"] div[role="gridcell"] {
+        color: #303841 !important;
+        background-color: transparent !important;
+        font-weight: 600 !important;
+    }
+    
+    [data-baseweb="popover"] div[role="button"] {
+        color: #303841 !important;
+        background-color: transparent !important;
+        font-weight: 600 !important;
     }
     
     .stSidebar .stDateInput > div > div > input {
