@@ -1419,6 +1419,43 @@ st.markdown("""
         font-weight: 600 !important;
     }
     
+    /* Forçar visibilidade dos labels específicos */
+    .main .stRadio > div > label,
+    .main .stSelectbox > div > label,
+    .main .stRadio label,
+    .main .stSelectbox label {
+        color: #edf3f3 !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+    }
+    
+    /* Texto dos radio buttons */
+    .main .stRadio > div > div > label {
+        color: #edf3f3 !important;
+        font-weight: 500 !important;
+    }
+    
+    /* SOBRESCREVER CORES DOS TÍTULOS E LABELS - PRIORIDADE MÁXIMA */
+    .main .stRadio label,
+    .main .stSelectbox label,
+    .main .stRadio > div > label,
+    .main .stSelectbox > div > label,
+    .main .stRadio > div > div > label,
+    .main .stSelectbox > div > div > label {
+        color: #edf3f3 !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+    }
+    
+    /* Forçar cor dos títulos específicos */
+    .main .stMarkdown:contains("Visualizar por"),
+    .main .stMarkdown:contains("Selecione o Benchmark"),
+    .main .stMarkdown:contains("Composição da Carteira"),
+    .main .stMarkdown:contains("Carteira vs. Benchmark") {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+    }
+    
     /* ===== TEXTOS RECOLHÍVEIS (EXPANDERS) - CORES LEGÍVEIS ===== */
     /* Cabeçalho do expander */
     .stExpander > div > div > div {
@@ -1699,18 +1736,7 @@ st.markdown("""
         background-color: var(--bg-primary) !important;
     }
     
-    /* Forçar fundo escuro em todos os elementos dos gráficos */
-    .js-plotly-plot .plotly .main-svg {
-        background-color: var(--bg-primary) !important;
-    }
-    
-    .js-plotly-plot .plotly .bg-layer {
-        fill: var(--bg-primary) !important;
-    }
-    
-    .js-plotly-plot .plotly .plot-container {
-        background-color: var(--bg-primary) !important;
-    }
+    /* Forçar fundo escuro em todos os elementos dos gráficos - removido para evitar conflitos */
     
     /* Corrigir textos dos eixos */
     .js-plotly-plot .plotly .xtick, .js-plotly-plot .plotly .ytick {
@@ -2503,8 +2529,7 @@ if st.session_state.get("authentication_status"):
                         y=0.5,
                         xanchor="left",
                         x=1.05
-                    ),
-                    template='plotly_dark'
+                    )
                 )
             else:  # Lógica para visão por Setor
                 pesos_setor = {}
@@ -2562,8 +2587,7 @@ if st.session_state.get("authentication_status"):
                         y=0.5,
                         xanchor="left",
                         x=1.05
-                    ),
-                    template='plotly_dark'
+                    )
                 )
 
             st.plotly_chart(fig_pizza, use_container_width=True)
@@ -2596,7 +2620,13 @@ if st.session_state.get("authentication_status"):
                                    name='Minha Carteira'))
                     fig_desempenho.add_trace(go.Scatter(x=df_acumulado.index, y=df_acumulado['Benchmark'], mode='lines',
                                                         name=benchmark_selecionado))
-                    fig_desempenho.update_layout(title_text='Desempenho Comparativo (Base 100)', template='plotly_dark')
+                    fig_desempenho.update_layout(
+                        title_text='Desempenho Comparativo (Base 100)', 
+                        template='plotly_dark',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white')
+                    )
                     st.plotly_chart(fig_desempenho, use_container_width=True)
             except Exception as e:
                 st.error(
