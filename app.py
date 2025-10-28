@@ -134,9 +134,28 @@ st.markdown("""
         border-radius: 6px !important;
         font-weight: 600 !important;
         font-size: 14px !important;
-        padding: 6px 12px !important;
-        margin: 2px !important;
+        padding: 8px 16px !important;
+        margin: 3px !important;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+        min-width: 120px !important;
+        max-width: 200px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+    
+    /* Container das tags - mais espaço horizontal */
+    .stMultiSelect > div > div > div {
+        background-color: var(--bg-card) !important;
+        color: var(--ciano-branco) !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        min-height: 60px !important;
+        padding: 8px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+        align-items: flex-start !important;
     }
     
     /* Texto das tags */
@@ -146,6 +165,12 @@ st.markdown("""
         font-weight: 600 !important;
         font-size: 14px !important;
         text-shadow: none !important;
+        flex: 1 !important;
+        margin-right: 8px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 150px !important;
     }
     
     /* Forçar visibilidade do texto das tags */
@@ -185,13 +210,36 @@ st.markdown("""
         font-weight: 700 !important;
     }
     
-    /* Ícones das tags */
+    /* Ícones das tags - X branco ou amarelo */
     .stMultiSelect div[data-baseweb="tag"] svg,
     .stMultiSelect [data-baseweb="tag"] svg {
-        fill: #2c3e50 !important;
-        stroke: #2c3e50 !important;
+        fill: #ffffff !important;
+        stroke: #ffffff !important;
         width: 16px !important;
         height: 16px !important;
+    }
+    
+    /* Botão X das tags - fundo amarelo com X branco */
+    .stMultiSelect div[data-baseweb="tag"] button,
+    .stMultiSelect [data-baseweb="tag"] button {
+        background-color: #ffffff !important;
+        color: var(--amarelo) !important;
+        border: 1px solid #2c3e50 !important;
+        border-radius: 3px !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        margin-left: 4px !important;
+    }
+    
+    .stMultiSelect div[data-baseweb="tag"] button:hover,
+    .stMultiSelect [data-baseweb="tag"] button:hover {
+        background-color: #2c3e50 !important;
+        color: #ffffff !important;
+        border-color: #2c3e50 !important;
     }
     
     /* Hover das tags */
@@ -735,19 +783,20 @@ st.markdown("""
     .stTextInput > div > div > button[title],
     .stNumberInput > div > div > button[title],
     .stSelectbox > div > div > button[title] {
-        color: var(--amarelo) !important;
-        background-color: rgba(236, 207, 117, 0.2) !important;
-        border: 1px solid var(--amarelo) !important;
+        color: #ffffff !important;
+        background-color: var(--amarelo) !important;
+        border: 2px solid #ffffff !important;
         border-radius: 50% !important;
         opacity: 1 !important;
         visibility: visible !important;
-        width: 24px !important;
-        height: 24px !important;
+        width: 28px !important;
+        height: 28px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 14px !important;
+        font-size: 16px !important;
         font-weight: bold !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     }
     
     /* SVG dos ícones de ajuda */
@@ -1203,7 +1252,7 @@ st.markdown("""
     }
     
     .stSelectbox label {
-        color: var(--text-primary) !important;
+        color: #edf3f3 !important;
         font-weight: 600 !important;
     }
     
@@ -1213,7 +1262,7 @@ st.markdown("""
     }
     
     .stRadio > div > label {
-        color: var(--text-primary) !important;
+        color: #edf3f3 !important;
         font-weight: 500 !important;
         padding: 8px 12px !important;
         border-radius: 8px !important;
@@ -1330,33 +1379,12 @@ st.markdown("""
         color: var(--text-primary) !important;
     }
     
-    /* Títulos da área principal */
-    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
-        color: var(--ciano-branco) !important;
-    }
+    /* Títulos da área principal - removido duplicado */
     
     /* ===== TÍTULOS PRINCIPAIS DA PÁGINA - CORRIGIR COR ===== */
-    /* Títulos específicos que estavam muito claros */
-    .main .stMarkdown h1,
-    .main .stMarkdown h2,
-    .main .stMarkdown h3,
-    .main .stMarkdown h4,
-    .main .stMarkdown h5,
-    .main .stMarkdown h6,
-    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6,
-    .main .stMarkdown p,
-    .main .stMarkdown div,
-    .main .stMarkdown span {
-        color: var(--ciano-branco) !important;
-    }
+    /* Títulos específicos que estavam muito claros - removido duplicado */
     
-    /* Títulos específicos do dashboard */
-    .main .stMarkdown:contains("Análise da Carteira"),
-    .main .stMarkdown:contains("Composição da Carteira"),
-    .main .stMarkdown:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown:contains("Selecione o Benchmark") {
-        color: var(--ciano-branco) !important;
-    }
+    /* Títulos específicos do dashboard - removido duplicado */
     
     /* Textos da área principal */
     .main .stMarkdown {
@@ -1377,8 +1405,18 @@ st.markdown("""
     .main .stRadio > div > div > label,
     .main .stSelectbox > div > div > div {
         background-color: var(--bg-card) !important;
-        color: var(--text-primary) !important;
+        color: #edf3f3 !important;
         border: 2px solid var(--border-color) !important;
+    }
+    
+    /* Labels de todos os widgets na área principal */
+    .main .stRadio label,
+    .main .stSelectbox label,
+    .main .stTextInput label,
+    .main .stNumberInput label,
+    .main .stMultiSelect label {
+        color: #edf3f3 !important;
+        font-weight: 600 !important;
     }
     
     /* ===== TEXTOS RECOLHÍVEIS (EXPANDERS) - CORES LEGÍVEIS ===== */
@@ -1535,13 +1573,15 @@ st.markdown("""
     }
     
     /* ===== TÍTULOS - CORRIGIR COR PARA LEGIBILIDADE ===== */
-    /* Todos os títulos com cor amarelo apagado para melhor legibilidade */
+    /* Todos os títulos com cor ciano/branco para melhor legibilidade */
     .main h1, .main h2, .main h3, .main h4, .main h5, .main h6,
     .main .stMarkdown h1, .main .stMarkdown h2, .main .stMarkdown h3, 
     .main .stMarkdown h4, .main .stMarkdown h5, .main .stMarkdown h6,
     .main .stSubheader,
-    .main [data-testid="stSubheader"] {
-        color: #d4ba69 !important;
+    .main [data-testid="stSubheader"],
+    .main .stMarkdown h1, .main .stMarkdown h2, .main .stMarkdown h3,
+    .main .stMarkdown h4, .main .stMarkdown h5, .main .stMarkdown h6 {
+        color: #edf3f3 !important;
         font-weight: 700 !important;
     }
     
@@ -1553,8 +1593,13 @@ st.markdown("""
     .main .stMarkdown:contains("Versão Híbrida de risco"),
     .main .stMarkdown:contains("Simulação Monte Carlo"),
     .main .stMarkdown:contains("Projeção de Patrimônio"),
-    .main .stMarkdown:contains("Desempenho Comparativo") {
-        color: #d4ba69 !important;
+    .main .stMarkdown:contains("Desempenho Comparativo"),
+    .main .stMarkdown:contains("Composição da Carteira Ótima"),
+    .main .stMarkdown:contains("Métricas dos Ativos"),
+    .main .stMarkdown:contains("Resumo dos Cenários"),
+    .main .stMarkdown:contains("Guia de Investimento"),
+    .main .stMarkdown:contains("Carteira Atual vs Carteira Otimizada") {
+        color: #edf3f3 !important;
         font-weight: 700 !important;
     }
     
@@ -1565,6 +1610,17 @@ st.markdown("""
         color: var(--ciano-branco) !important;
     }
     
+    /* Texto do disclaimer e avisos importantes */
+    .main .stMarkdown:contains("As simulações de Monte Carlo"),
+    .main .stMarkdown:contains("Por favor, esteja ciente de que"),
+    .main .stMarkdown:contains("Não é uma garantia"),
+    .main .stMarkdown:contains("Baseado em dados passados"),
+    .main .stMarkdown:contains("Múltiplos cenários"),
+    .main .stMarkdown:contains("Propósito") {
+        color: #edf3f3 !important;
+        font-weight: 500 !important;
+    }
+    
     /* ===== TOOLTIP/HELP - CORRIGIR CORES ===== */
     /* Tooltip global do Streamlit */
     .stTooltip,
@@ -1573,14 +1629,14 @@ st.markdown("""
     .stTooltip .tooltip-inner,
     [data-testid="stTooltip"],
     [data-testid="stTooltip"] > div {
-        background-color: var(--azul-acinzentado) !important;
-        color: var(--ciano-branco) !important;
+        background-color: #2c3e50 !important;
+        color: #ffffff !important;
         border: 2px solid var(--amarelo) !important;
         border-radius: 8px !important;
         padding: 12px 16px !important;
         font-size: 14px !important;
         font-weight: 500 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
         max-width: 300px !important;
         z-index: 9999 !important;
     }
@@ -1592,7 +1648,7 @@ st.markdown("""
     [data-testid="stTooltip"] p,
     [data-testid="stTooltip"] div,
     [data-testid="stTooltip"] span {
-        color: var(--ciano-branco) !important;
+        color: #ffffff !important;
         background-color: transparent !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -1640,6 +1696,19 @@ st.markdown("""
     
     /* Forçar tema escuro nos gráficos - MESMA COR DO FUNDO DA PÁGINA */
     .js-plotly-plot .plotly {
+        background-color: var(--bg-primary) !important;
+    }
+    
+    /* Forçar fundo escuro em todos os elementos dos gráficos */
+    .js-plotly-plot .plotly .main-svg {
+        background-color: var(--bg-primary) !important;
+    }
+    
+    .js-plotly-plot .plotly .bg-layer {
+        fill: var(--bg-primary) !important;
+    }
+    
+    .js-plotly-plot .plotly .plot-container {
         background-color: var(--bg-primary) !important;
     }
     
@@ -2395,7 +2464,7 @@ if st.session_state.get("authentication_status"):
 
         # Data à esquerda com fonte menor
         st.markdown(
-            f"<p style='text-align: left; font-size: 14px; color: #666; margin-bottom: 1rem;'>Análise da Carteira de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}</p>",
+            f"<p style='text-align: left; font-size: 14px; color: #edf3f3; margin-bottom: 1rem;'>Análise da Carteira de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}</p>",
             unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         # Bloco NOVO e CORRIGIDO (com lógica de busca inteligente)
@@ -2434,7 +2503,8 @@ if st.session_state.get("authentication_status"):
                         y=0.5,
                         xanchor="left",
                         x=1.05
-                    )
+                    ),
+                    template='plotly_dark'
                 )
             else:  # Lógica para visão por Setor
                 pesos_setor = {}
@@ -2492,7 +2562,8 @@ if st.session_state.get("authentication_status"):
                         y=0.5,
                         xanchor="left",
                         x=1.05
-                    )
+                    ),
+                    template='plotly_dark'
                 )
 
             st.plotly_chart(fig_pizza, use_container_width=True)
@@ -2871,7 +2942,8 @@ if st.session_state.get("authentication_status"):
                         y=1.3,
                         xanchor="left",
                         x=0.02
-                    )
+                    ),
+                    template='plotly_dark'
                 )
                 st.plotly_chart(fig_pie_otima, use_container_width=True)
             
@@ -3093,7 +3165,7 @@ if st.session_state.get("authentication_status"):
                 data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
 
                 # 2. Exibe o resumo em uma única caixa
-                st.markdown("""
+                st.markdown(f"""
                 <div style="
                     background-color: #303841;
                     border: 2px solid #eccf75;
@@ -3102,43 +3174,35 @@ if st.session_state.get("authentication_status"):
                     margin: 10px 0;
                     color: #edf3f3;
                 ">
-                    <h3 style="color: #eccf75; margin-bottom: 15px; text-align: center;">📊 Resumo dos Cenários</h3>
+                    <h3 style="color: #edf3f3; margin-bottom: 15px; text-align: center;">📊 Resumo dos Cenários</h3>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
                             <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Cenário Atual</div>
-                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {:,}</div>
+                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {investimento_inicial:,.2f}</div>
                             <div style="color: #eccf75; font-size: 14px;">↑ 0.00%</div>
                         </div>
                         
                         <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
                             <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Esperado</div>
-                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {:,}</div>
-                            <div style="color: #eccf75; font-size: 14px;">↑ {:.2f}%</div>
+                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {res_mc_text['mediano']:,.2f}</div>
+                            <div style="color: #eccf75; font-size: 14px;">↑ {retorno_mediano_pct:.2f}%</div>
                         </div>
                         
                         <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
                             <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Otimista</div>
-                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {:,}</div>
-                            <div style="color: #eccf75; font-size: 14px;">↑ {:.2f}%</div>
+                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {res_mc_text['melhor']:,.2f}</div>
+                            <div style="color: #eccf75; font-size: 14px;">↑ {retorno_otimista_pct:.2f}%</div>
                         </div>
                         
                         <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
                             <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Pessimista</div>
-                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {:,}</div>
-                            <div style="color: #eccf75; font-size: 14px;">↑ {:.2f}%</div>
+                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {res_mc_text['pior']:,.2f}</div>
+                            <div style="color: #eccf75; font-size: 14px;">↑ {retorno_pessimista_pct:.2f}%</div>
                         </div>
                     </div>
                 </div>
-                """.format(
-                    investimento_inicial,
-                    res_mc_text['mediano'],
-                    retorno_mediano_pct,
-                    res_mc_text['melhor'],
-                    retorno_otimista_pct,
-                    res_mc_text['pior'],
-                    retorno_pessimista_pct
-                ), unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
             
             # Explicação do Monte Carlo com botão de recolher/expandir
             with st.expander("Como Ler o Gráfico da Simulação?", expanded=False):
@@ -3181,10 +3245,20 @@ if st.session_state.get("authentication_status"):
             ax.scatter(res['risco'][indice_max_sharpe], res['retorno'][indice_max_sharpe], marker='*',
                        color='gold', s=300, label='Carteira Sharpe Máximo', zorder=5)
 
-            ax.set_title('Otimização de Portfólio', fontsize=12)
-            ax.set_xlabel('Risco (Volatilidade)', fontsize=10)
-            ax.set_ylabel('Retorno Esperado', fontsize=10)
-            ax.legend(loc='upper right', fontsize=8)
+            ax.set_title('Otimização de Portfólio', fontsize=12, color='#edf3f3')
+            ax.set_xlabel('Risco (Volatilidade)', fontsize=10, color='#edf3f3')
+            ax.set_ylabel('Retorno Esperado', fontsize=10, color='#edf3f3')
+            ax.legend(loc='upper right', fontsize=8, facecolor='#303841', edgecolor='#eccf75', labelcolor='#edf3f3')
+            
+            # Aplicar tema escuro
+            ax.set_facecolor('#303841')
+            fig.patch.set_facecolor('#303841')
+            ax.tick_params(colors='#edf3f3')
+            ax.spines['bottom'].set_color('#edf3f3')
+            ax.spines['top'].set_color('#edf3f3')
+            ax.spines['right'].set_color('#edf3f3')
+            ax.spines['left'].set_color('#edf3f3')
+            
             st.pyplot(fig)
             
             # Texto recolhível abaixo do gráfico
