@@ -226,6 +226,230 @@ st.markdown("""
         background-color: transparent !important;
     }
     
+    /* ===== CORREÇÃO DOS TOOLTIPS E POPUPS FLUTUANTES ===== */
+    /* Calendário (date_input) - popup flutuante */
+    .stDateInput [data-testid="stDateInput"] > div > div,
+    .stDateInput .stDateInput > div > div,
+    .stDateInput [role="dialog"],
+    .stDateInput [role="presentation"],
+    .stDateInput .date-picker,
+    .stDateInput .calendar {
+        background-color: #ffffff !important;
+        color: #303841 !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        z-index: 9999 !important;
+    }
+    
+    /* Texto do calendário - VISÍVEL */
+    .stDateInput [data-testid="stDateInput"] *,
+    .stDateInput .stDateInput *,
+    .stDateInput [role="dialog"] *,
+    .stDateInput [role="presentation"] *,
+    .stDateInput .date-picker *,
+    .stDateInput .calendar * {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Cabeçalho do calendário */
+    .stDateInput [data-testid="stDateInput"] .header,
+    .stDateInput .stDateInput .header,
+    .stDateInput [role="dialog"] .header,
+    .stDateInput .calendar .header {
+        background-color: #ffffff !important;
+        color: #303841 !important;
+        border-bottom: 1px solid var(--amarelo) !important;
+    }
+    
+    /* Dias da semana no calendário */
+    .stDateInput [data-testid="stDateInput"] .weekday,
+    .stDateInput .stDateInput .weekday,
+    .stDateInput [role="dialog"] .weekday,
+    .stDateInput .calendar .weekday {
+        color: #303841 !important;
+        background-color: transparent !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Datas do calendário */
+    .stDateInput [data-testid="stDateInput"] .day,
+    .stDateInput .stDateInput .day,
+    .stDateInput [role="dialog"] .day,
+    .stDateInput .calendar .day {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Data selecionada no calendário */
+    .stDateInput [data-testid="stDateInput"] .day.selected,
+    .stDateInput .stDateInput .day.selected,
+    .stDateInput [role="dialog"] .day.selected,
+    .stDateInput .calendar .day.selected {
+        background-color: var(--amarelo) !important;
+        color: #2c3e50 !important;
+    }
+    
+    /* Hover nas datas do calendário */
+    .stDateInput [data-testid="stDateInput"] .day:hover,
+    .stDateInput .stDateInput .day:hover,
+    .stDateInput [role="dialog"] .day:hover,
+    .stDateInput .calendar .day:hover {
+        background-color: rgba(236, 207, 117, 0.3) !important;
+        color: #2c3e50 !important;
+    }
+    
+    /* Tooltips globais - CORRIGIR CONTRASTE */
+    .stTooltip,
+    .stTooltip > div,
+    .stTooltip .tooltip-content,
+    .stTooltip .tooltip-inner,
+    [data-testid="stTooltip"],
+    [data-testid="stTooltip"] > div {
+        background-color: #edf3f3 !important;
+        color: #303841 !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        max-width: 300px !important;
+        z-index: 9999 !important;
+    }
+    
+    /* Texto dentro dos tooltips - VISÍVEL */
+    .stTooltip p,
+    .stTooltip div,
+    .stTooltip span,
+    [data-testid="stTooltip"] p,
+    [data-testid="stTooltip"] div,
+    [data-testid="stTooltip"] span {
+        color: #303841 !important;
+        background-color: transparent !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Popups e modais flutuantes */
+    .stModal,
+    .stModal > div,
+    .stModal .modal-content,
+    [data-testid="stModal"],
+    [data-testid="stModal"] > div {
+        background-color: #ffffff !important;
+        color: #303841 !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        z-index: 9999 !important;
+    }
+    
+    .stModal *,
+    [data-testid="stModal"] * {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    /* ===== ESTILOS ESPECÍFICOS PARA O CALENDÁRIO DO STREAMLIT ===== */
+    /* Popup do calendário - usar seletores mais específicos */
+    .stDateInput [data-baseweb="popover"],
+    .stDateInput [data-baseweb="popover"] > div,
+    .stDateInput [data-baseweb="popover"] [role="dialog"],
+    .stDateInput [data-baseweb="popover"] [role="presentation"] {
+        background-color: #ffffff !important;
+        color: #303841 !important;
+        border: 2px solid var(--amarelo) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+        z-index: 9999 !important;
+    }
+    
+    /* Todos os elementos dentro do popup do calendário */
+    .stDateInput [data-baseweb="popover"] *,
+    .stDateInput [data-baseweb="popover"] > div *,
+    .stDateInput [data-baseweb="popover"] [role="dialog"] *,
+    .stDateInput [data-baseweb="popover"] [role="presentation"] * {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Cabeçalho do calendário (mês/ano) */
+    .stDateInput [data-baseweb="popover"] [data-baseweb="header"],
+    .stDateInput [data-baseweb="popover"] .header,
+    .stDateInput [data-baseweb="popover"] [role="dialog"] .header {
+        background-color: #ffffff !important;
+        color: #303841 !important;
+        border-bottom: 1px solid var(--amarelo) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Botões de navegação do calendário */
+    .stDateInput [data-baseweb="popover"] button,
+    .stDateInput [data-baseweb="popover"] [role="button"] {
+        color: #303841 !important;
+        background-color: transparent !important;
+        border: 1px solid var(--amarelo) !important;
+        border-radius: 4px !important;
+    }
+    
+    .stDateInput [data-baseweb="popover"] button:hover,
+    .stDateInput [data-baseweb="popover"] [role="button"]:hover {
+        background-color: rgba(236, 207, 117, 0.2) !important;
+        color: #2c3e50 !important;
+    }
+    
+    /* Dias da semana */
+    .stDateInput [data-baseweb="popover"] [data-baseweb="weekday"],
+    .stDateInput [data-baseweb="popover"] .weekday {
+        color: #303841 !important;
+        background-color: transparent !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Dias do calendário */
+    .stDateInput [data-baseweb="popover"] [data-baseweb="day"],
+    .stDateInput [data-baseweb="popover"] .day {
+        color: #303841 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Dia selecionado */
+    .stDateInput [data-baseweb="popover"] [data-baseweb="day"][aria-selected="true"],
+    .stDateInput [data-baseweb="popover"] .day.selected {
+        background-color: var(--amarelo) !important;
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Hover nos dias */
+    .stDateInput [data-baseweb="popover"] [data-baseweb="day"]:hover,
+    .stDateInput [data-baseweb="popover"] .day:hover {
+        background-color: rgba(236, 207, 117, 0.3) !important;
+        color: #2c3e50 !important;
+    }
+    
+    /* Input do date_input */
+    .stDateInput input {
+        color: #303841 !important;
+        background-color: #ffffff !important;
+        border: 2px solid var(--border-color) !important;
+        border-radius: 8px !important;
+    }
+    
+    .stDateInput input::placeholder {
+        color: #303841 !important;
+        opacity: 0.7 !important;
+    }
+    
+    /* Forçar visibilidade de todos os elementos flutuantes */
+    .stDateInput [data-baseweb="popover"],
+    .stDateInput [data-baseweb="popover"] * {
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
     .stSidebar .stDateInput > div > div > input {
         background-color: var(--bg-card) !important;
         color: var(--text-primary) !important;
@@ -1538,49 +1762,6 @@ st.markdown("""
         color: #edf3f3 !important;
         font-weight: 500 !important;
     }
-    
-    /* ===== TOOLTIP/HELP - CORRIGIR CORES ===== */
-    /* Tooltip global do Streamlit */
-    .stTooltip,
-    .stTooltip > div,
-    .stTooltip .tooltip-content,
-    .stTooltip .tooltip-inner,
-    [data-testid="stTooltip"],
-    [data-testid="stTooltip"] > div {
-        background-color: #edf3f3 !important;
-        color: #303841 !important;
-        border: 2px solid var(--amarelo) !important;
-        border-radius: 8px !important;
-        padding: 12px 16px !important;
-        font-size: 14px !important;
-        font-weight: 500 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
-        max-width: 300px !important;
-        z-index: 9999 !important;
-    }
-    
-    /* Texto do tooltip */
-    .stTooltip p,
-    .stTooltip div,
-    .stTooltip span,
-    [data-testid="stTooltip"] p,
-    [data-testid="stTooltip"] div,
-    [data-testid="stTooltip"] span {
-        color: #303841 !important;
-        background-color: transparent !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    /* Seta do tooltip */
-    .stTooltip::before,
-    .stTooltip::after {
-        border-color: var(--amarelo) transparent transparent transparent !important;
-    }
-    
-    
-    
-    
     
     /* Containers com texto */
     .stContainer .stMarkdown,
