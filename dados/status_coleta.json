@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-10-28T15:57:30.877038",
+  "timestamp": "2025-10-28T18:37:28.571606",
   "pasta_dados": "dados",
-  "periodo_inicio": "2015-10-31T15:48:41.968402",
-  "periodo_fim": "2025-10-28T15:48:41.968402",
+  "periodo_inicio": "2015-10-31T18:30:26.308257",
+  "periodo_fim": "2025-10-28T18:30:26.308257",
   "bcb_disponivel": true,
   "investpy_disponivel": true,
   "status": "concluido"

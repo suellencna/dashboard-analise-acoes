@@ -1862,7 +1862,7 @@ st.markdown("""
         font-weight: 700 !important;
     }
     
-    /* Títulos específicos do dashboard */
+    /* Títulos específicos do dashboard - CORRIGIR CONTRASTE */
     .main .stMarkdown:contains("Análise da Carteira"),
     .main .stMarkdown:contains("Composição da Carteira"),
     .main .stMarkdown:contains("Carteira vs. Benchmark"),
@@ -1875,9 +1875,84 @@ st.markdown("""
     .main .stMarkdown:contains("Métricas dos Ativos"),
     .main .stMarkdown:contains("Resumo dos Cenários"),
     .main .stMarkdown:contains("Guia de Investimento"),
-    .main .stMarkdown:contains("Carteira Atual vs Carteira Otimizada") {
+    .main .stMarkdown:contains("Carteira Atual vs Carteira Otimizada"),
+    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
+    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
+    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
+    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
         color: #edf3f3 !important;
         font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Títulos h1, h2, h3, h4, h5, h6 - FORÇAR COR CLARA */
+    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6,
+    .main .stMarkdown h1, .main .stMarkdown h2, .main .stMarkdown h3, 
+    .main .stMarkdown h4, .main .stMarkdown h5, .main .stMarkdown h6,
+    .main .stSubheader,
+    .main [data-testid="stSubheader"] {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Títulos específicos com seletores mais amplos */
+    .main .stMarkdown p:contains("Análise da Carteira"),
+    .main .stMarkdown p:contains("Composição da Carteira"),
+    .main .stMarkdown p:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown p:contains("Métricas dos Ativos"),
+    .main .stMarkdown p:contains("Projeção de Patrimônio"),
+    .main .stMarkdown p:contains("Resumo dos Cenários"),
+    .main .stMarkdown p:contains("Fronteira Eficiente"),
+    .main .stMarkdown p:contains("Guia de Investimento") {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* ===== CORREÇÃO ULTRA-ESPECÍFICA PARA TÍTULOS ===== */
+    /* Forçar cor clara em TODOS os títulos e cabeçalhos */
+    .main .stMarkdown p,
+    .main .stMarkdown div,
+    .main .stMarkdown span,
+    .main .stMarkdown h1,
+    .main .stMarkdown h2,
+    .main .stMarkdown h3,
+    .main .stMarkdown h4,
+    .main .stMarkdown h5,
+    .main .stMarkdown h6 {
+        color: #edf3f3 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Títulos específicos com seletores de texto */
+    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
+    .main .stMarkdown:contains("Análise da Carteira de"),
+    .main .stMarkdown:contains("Composição da Carteira"),
+    .main .stMarkdown:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown:contains("Métricas dos Ativos"),
+    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
+    .main .stMarkdown:contains("Resumo dos Cenários"),
+    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
+    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Forçar cor em elementos de texto que contêm títulos */
+    .main .stMarkdown p:contains("Composição da Carteira Ótima"),
+    .main .stMarkdown p:contains("Análise da Carteira"),
+    .main .stMarkdown p:contains("Composição da Carteira"),
+    .main .stMarkdown p:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown p:contains("Métricas dos Ativos"),
+    .main .stMarkdown p:contains("Projeção de Patrimônio"),
+    .main .stMarkdown p:contains("Resumo dos Cenários"),
+    .main .stMarkdown p:contains("Fronteira Eficiente"),
+    .main .stMarkdown p:contains("Guia de Investimento") {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
     }
     
     /* Garantir que todos os títulos tenham cor legível */
@@ -1885,6 +1960,40 @@ st.markdown("""
     .main .stMarkdown div,
     .main .stMarkdown span {
         color: var(--ciano-branco) !important;
+    }
+    
+    /* Texto do disclaimer e avisos importantes - CORRIGIR CONTRASTE */
+    .main .stMarkdown:contains("As simulações de Monte Carlo"),
+    .main .stMarkdown:contains("Por favor, esteja ciente de que:"),
+    .main .stMarkdown:contains("Não é uma garantia:"),
+    .main .stMarkdown:contains("Baseado em dados passados:"),
+    .main .stMarkdown:contains("Múltiplos cenários:"),
+    .main .stMarkdown:contains("Propósito:"),
+    .main .stMarkdown:contains("Esta ferramenta serve como um auxílio") {
+        color: #edf3f3 !important;
+        background-color: transparent !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Forçar cor clara em TODOS os parágrafos de texto */
+    .main .stMarkdown p {
+        color: #edf3f3 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Títulos específicos com seletores mais amplos */
+    .main .stMarkdown:contains("Composição da Carteira Ótima"),
+    .main .stMarkdown:contains("Análise da Carteira"),
+    .main .stMarkdown:contains("Composição da Carteira"),
+    .main .stMarkdown:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown:contains("Métricas dos Ativos"),
+    .main .stMarkdown:contains("Projeção de Patrimônio"),
+    .main .stMarkdown:contains("Resumo dos Cenários"),
+    .main .stMarkdown:contains("Fronteira Eficiente"),
+    .main .stMarkdown:contains("Guia de Investimento") {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
     }
     
     /* Texto do disclaimer e avisos importantes */
