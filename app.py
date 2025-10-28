@@ -170,7 +170,7 @@ st.markdown("""
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
-        max-width: 150px !important;
+        max-width: 200px !important;
     }
     
     /* Forçar visibilidade do texto das tags */
@@ -1666,8 +1666,8 @@ st.markdown("""
     .stTooltip .tooltip-inner,
     [data-testid="stTooltip"],
     [data-testid="stTooltip"] > div {
-        background-color: #2c3e50 !important;
-        color: #ffffff !important;
+        background-color: #edf3f3 !important;
+        color: #303841 !important;
         border: 2px solid var(--amarelo) !important;
         border-radius: 8px !important;
         padding: 12px 16px !important;
@@ -1685,7 +1685,7 @@ st.markdown("""
     [data-testid="stTooltip"] p,
     [data-testid="stTooltip"] div,
     [data-testid="stTooltip"] span {
-        color: #ffffff !important;
+        color: #303841 !important;
         background-color: transparent !important;
         margin: 0 !important;
         padding: 0 !important;
@@ -1703,6 +1703,48 @@ st.markdown("""
     .stMultiSelect [data-testid*="help"] {
         background-color: var(--azul-acinzentado) !important;
         color: var(--ciano-branco) !important;
+    }
+    
+    /* Ícone de ajuda do multiselect - corrigir cor para visibilidade */
+    .stMultiSelect button[title],
+    .stMultiSelect button[aria-label*="help"],
+    .stMultiSelect button[data-testid*="help"],
+    .stMultiSelect > div > div > button[title] {
+        color: #edf3f3 !important;
+        background-color: transparent !important;
+        border: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    .stMultiSelect button[title] svg,
+    .stMultiSelect button[aria-label*="help"] svg,
+    .stMultiSelect button[data-testid*="help"] svg,
+    .stMultiSelect > div > div > button[title] svg {
+        fill: #edf3f3 !important;
+        stroke: #edf3f3 !important;
+        color: #edf3f3 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        width: 16px !important;
+        height: 16px !important;
+    }
+    
+    .stMultiSelect button[title]:hover,
+    .stMultiSelect button[aria-label*="help"]:hover,
+    .stMultiSelect button[data-testid*="help"]:hover,
+    .stMultiSelect > div > div > button[title]:hover {
+        background-color: rgba(237, 243, 243, 0.1) !important;
+        color: #edf3f3 !important;
+    }
+    
+    .stMultiSelect button[title]:hover svg,
+    .stMultiSelect button[aria-label*="help"]:hover svg,
+    .stMultiSelect button[data-testid*="help"]:hover svg,
+    .stMultiSelect > div > div > button[title]:hover svg {
+        fill: #edf3f3 !important;
+        stroke: #edf3f3 !important;
+        color: #edf3f3 !important;
     }
     
     /* Containers com texto */
