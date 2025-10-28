@@ -3543,45 +3543,32 @@ if st.session_state.get("authentication_status"):
                 # Calcula a data final da projeção
                 data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
 
-                # 2. Exibe o resumo em uma única caixa
-                st.markdown(f"""
-                <div style="
-                    background-color: #303841;
-                    border: 2px solid #eccf75;
-                    border-radius: 12px;
-                    padding: 20px;
-                    margin: 10px 0;
-                    color: #edf3f3;
-                ">
-                    <h3 style="color: #edf3f3; margin-bottom: 15px; text-align: center;">📊 Resumo dos Cenários</h3>
+                # 2. Exibe o resumo em uma única caixa usando st.container
+                with st.container():
+                    st.markdown("### 📊 Resumo dos Cenários")
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
-                            <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Cenário Atual</div>
-                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {investimento_inicial:,.2f}</div>
-                            <div style="color: #eccf75; font-size: 14px;">↑ 0.00%</div>
-                        </div>
-                        
-                        <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
-                            <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Esperado</div>
-                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {res_mc_text['mediano']:,.2f}</div>
-                            <div style="color: #eccf75; font-size: 14px;">↑ {retorno_mediano_pct:.2f}%</div>
-                        </div>
-                        
-                        <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
-                            <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Otimista</div>
-                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {res_mc_text['melhor']:,.2f}</div>
-                            <div style="color: #eccf75; font-size: 14px;">↑ {retorno_otimista_pct:.2f}%</div>
-                        </div>
-                        
-                        <div style="text-align: center; padding: 10px; background-color: rgba(236, 207, 117, 0.1); border-radius: 8px;">
-                            <div style="color: #969e9f; font-size: 14px; margin-bottom: 5px;">Pessimista</div>
-                            <div style="color: #edf3f3; font-size: 18px; font-weight: 700; margin-bottom: 5px;">R$ {res_mc_text['pior']:,.2f}</div>
-                            <div style="color: #eccf75; font-size: 14px;">↑ {retorno_pessimista_pct:.2f}%</div>
-                        </div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                    # Criar 4 colunas para os cenários
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    with col1:
+                        st.markdown("**Cenário Atual**")
+                        st.markdown(f"**R$ {investimento_inicial:,.2f}**")
+                        st.markdown("↑ 0.00%")
+                    
+                    with col2:
+                        st.markdown("**Esperado**")
+                        st.markdown(f"**R$ {res_mc_text['mediano']:,.2f}**")
+                        st.markdown(f"↑ {retorno_mediano_pct:.2f}%")
+                    
+                    with col3:
+                        st.markdown("**Otimista**")
+                        st.markdown(f"**R$ {res_mc_text['melhor']:,.2f}**")
+                        st.markdown(f"↑ {retorno_otimista_pct:.2f}%")
+                    
+                    with col4:
+                        st.markdown("**Pessimista**")
+                        st.markdown(f"**R$ {res_mc_text['pior']:,.2f}**")
+                        st.markdown(f"↑ {retorno_pessimista_pct:.2f}%")
             
             # Explicação do Monte Carlo com botão de recolher/expandir
             with st.expander("Como Ler o Gráfico da Simulação?", expanded=False):
