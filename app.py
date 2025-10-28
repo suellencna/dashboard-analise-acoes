@@ -2286,12 +2286,18 @@ if st.session_state.get("authentication_status"):
 
         # Valida e ajusta as datas salvas para estarem dentro do intervalo válido
         if data_inicio_salva:
+            # Converter para datetime.date se necessário
+            if hasattr(data_inicio_salva, 'date'):
+                data_inicio_salva = data_inicio_salva.date()
             if data_inicio_salva < data_minima:
                 data_inicio_salva = data_minima
             elif data_inicio_salva > data_maxima:
                 data_inicio_salva = data_maxima
         
         if data_fim_salva:
+            # Converter para datetime.date se necessário
+            if hasattr(data_fim_salva, 'date'):
+                data_fim_salva = data_fim_salva.date()
             if data_fim_salva < data_minima:
                 data_fim_salva = data_minima
             elif data_fim_salva > data_maxima:
@@ -2306,6 +2312,16 @@ if st.session_state.get("authentication_status"):
         data_fim = st.sidebar.date_input("Data de Fim",
                                          value=data_fim_salva or data_maxima,
                                          min_value=data_minima, max_value=data_maxima, format="DD/MM/YYYY")
+
+        # Validação adicional: garantir que o período tenha pelo menos 30 dias
+        if data_inicio and data_fim:
+            dias_periodo = (data_fim - data_inicio).days
+            if dias_periodo < 30:
+                st.sidebar.warning(f"⚠️ Período muito curto ({dias_periodo} dias). Recomendamos pelo menos 30 dias para análise adequada.")
+                # Ajustar automaticamente para 1 ano se o período for muito curto
+                if dias_periodo < 7:  # Se for menos de 1 semana, ajustar para 1 ano
+                    data_inicio = max(data_minima, data_fim - timedelta(days=365))
+                    st.sidebar.info(f"📅 Período ajustado automaticamente para 1 ano: {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}")
 
         if data_inicio > data_fim:
             st.sidebar.error("A data de início não pode ser posterior à data de fim.")
