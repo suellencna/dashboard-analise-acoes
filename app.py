@@ -1910,8 +1910,8 @@ st.markdown("""
         background-color: transparent !important;
     }
     
-    /* ===== CORREÇÃO ULTRA-ESPECÍFICA PARA TÍTULOS ===== */
-    /* Forçar cor clara em TODOS os títulos e cabeçalhos */
+    /* ===== ESTILOS CONSOLIDADOS PARA TÍTULOS E TEXTO ===== */
+    /* Forçar cor clara em TODOS os elementos de texto */
     .main .stMarkdown p,
     .main .stMarkdown div,
     .main .stMarkdown span,
@@ -1925,63 +1925,7 @@ st.markdown("""
         background-color: transparent !important;
     }
     
-    /* Títulos específicos com seletores de texto */
-    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
-    .main .stMarkdown:contains("Análise da Carteira de"),
-    .main .stMarkdown:contains("Composição da Carteira"),
-    .main .stMarkdown:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown:contains("Métricas dos Ativos"),
-    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
-    .main .stMarkdown:contains("Resumo dos Cenários"),
-    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
-    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Forçar cor em elementos de texto que contêm títulos */
-    .main .stMarkdown p:contains("Composição da Carteira Ótima"),
-    .main .stMarkdown p:contains("Análise da Carteira"),
-    .main .stMarkdown p:contains("Composição da Carteira"),
-    .main .stMarkdown p:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown p:contains("Métricas dos Ativos"),
-    .main .stMarkdown p:contains("Projeção de Patrimônio"),
-    .main .stMarkdown p:contains("Resumo dos Cenários"),
-    .main .stMarkdown p:contains("Fronteira Eficiente"),
-    .main .stMarkdown p:contains("Guia de Investimento") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Garantir que todos os títulos tenham cor legível */
-    .main .stMarkdown p,
-    .main .stMarkdown div,
-    .main .stMarkdown span {
-        color: var(--ciano-branco) !important;
-    }
-    
-    /* Texto do disclaimer e avisos importantes - CORRIGIR CONTRASTE */
-    .main .stMarkdown:contains("As simulações de Monte Carlo"),
-    .main .stMarkdown:contains("Por favor, esteja ciente de que:"),
-    .main .stMarkdown:contains("Não é uma garantia:"),
-    .main .stMarkdown:contains("Baseado em dados passados:"),
-    .main .stMarkdown:contains("Múltiplos cenários:"),
-    .main .stMarkdown:contains("Propósito:"),
-    .main .stMarkdown:contains("Esta ferramenta serve como um auxílio") {
-        color: #edf3f3 !important;
-        background-color: transparent !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Forçar cor clara em TODOS os parágrafos de texto */
-    .main .stMarkdown p {
-        color: #edf3f3 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Títulos específicos com seletores mais amplos */
+    /* Títulos específicos do dashboard */
     .main .stMarkdown:contains("Composição da Carteira Ótima"),
     .main .stMarkdown:contains("Análise da Carteira"),
     .main .stMarkdown:contains("Composição da Carteira"),
@@ -1994,17 +1938,6 @@ st.markdown("""
         color: #edf3f3 !important;
         font-weight: 700 !important;
         background-color: transparent !important;
-    }
-    
-    /* Texto do disclaimer e avisos importantes */
-    .main .stMarkdown:contains("As simulações de Monte Carlo"),
-    .main .stMarkdown:contains("Por favor, esteja ciente de que"),
-    .main .stMarkdown:contains("Não é uma garantia"),
-    .main .stMarkdown:contains("Baseado em dados passados"),
-    .main .stMarkdown:contains("Múltiplos cenários"),
-    .main .stMarkdown:contains("Propósito") {
-        color: #edf3f3 !important;
-        font-weight: 500 !important;
     }
     
     /* Containers com texto */
@@ -3543,32 +3476,48 @@ if st.session_state.get("authentication_status"):
                 # Calcula a data final da projeção
                 data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
 
-                # 2. Exibe o resumo em uma única caixa usando st.container
-                with st.container():
-                    st.markdown("### 📊 Resumo dos Cenários")
+                # 2. Exibe o resumo em uma única caixa com layout em linhas
+                st.markdown("### 📊 Resumo dos Cenários")
+                
+                # Container com altura fixa de 400px
+                st.markdown(f"""
+                <div style="
+                    background-color: #303841;
+                    border: 2px solid #eccf75;
+                    border-radius: 12px;
+                    padding: 20px;
+                    margin: 10px 0;
+                    height: 400px;
+                    color: #edf3f3;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-around;
+                ">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eccf75;">
+                        <div style="font-weight: 700; font-size: 18px;">Cenário Atual</div>
+                        <div style="font-weight: 700; font-size: 18px;">R$ {investimento_inicial:,.2f}</div>
+                        <div style="color: #eccf75; font-size: 16px;">↑ 0.00%</div>
+                    </div>
                     
-                    # Criar 4 colunas para os cenários
-                    col1, col2, col3, col4 = st.columns(4)
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eccf75;">
+                        <div style="font-weight: 700; font-size: 18px;">Esperado</div>
+                        <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['mediano']:,.2f}</div>
+                        <div style="color: #eccf75; font-size: 16px;">↑ {retorno_mediano_pct:.2f}%</div>
+                    </div>
                     
-                    with col1:
-                        st.markdown("**Cenário Atual**")
-                        st.markdown(f"**R$ {investimento_inicial:,.2f}**")
-                        st.markdown("↑ 0.00%")
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eccf75;">
+                        <div style="font-weight: 700; font-size: 18px;">Otimista</div>
+                        <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['melhor']:,.2f}</div>
+                        <div style="color: #eccf75; font-size: 16px;">↑ {retorno_otimista_pct:.2f}%</div>
+                    </div>
                     
-                    with col2:
-                        st.markdown("**Esperado**")
-                        st.markdown(f"**R$ {res_mc_text['mediano']:,.2f}**")
-                        st.markdown(f"↑ {retorno_mediano_pct:.2f}%")
-                    
-                    with col3:
-                        st.markdown("**Otimista**")
-                        st.markdown(f"**R$ {res_mc_text['melhor']:,.2f}**")
-                        st.markdown(f"↑ {retorno_otimista_pct:.2f}%")
-                    
-                    with col4:
-                        st.markdown("**Pessimista**")
-                        st.markdown(f"**R$ {res_mc_text['pior']:,.2f}**")
-                        st.markdown(f"↑ {retorno_pessimista_pct:.2f}%")
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                        <div style="font-weight: 700; font-size: 18px;">Pessimista</div>
+                        <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['pior']:,.2f}</div>
+                        <div style="color: #eccf75; font-size: 16px;">↑ {retorno_pessimista_pct:.2f}%</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
             
             # Explicação do Monte Carlo com botão de recolher/expandir
             with st.expander("Como Ler o Gráfico da Simulação?", expanded=False):
