@@ -26,18 +26,34 @@ jobs:
    
       - name: Instalar Dependências
         run: |
-          pip install yfinance pandas requests python-bcb html5lib lxml numpy investpy
+          pip install yfinance pandas requests python-bcb html5lib lxml numpy
 
-      - name: Executar Pipeline de Coleta de Dados
+      - name: Executar Pipeline Principal de Coleta de Dados
         run: |
+          echo "🚀 Iniciando coleta de dados principais..."
           python pipeline_dados.py
+          echo "✅ Pipeline principal concluído"
+
+      - name: Executar Pipeline de Índices (IFIX/IDIV)
+        run: |
+          echo "📊 Iniciando coleta de índices IFIX/IDIV..."
+          python pipeline_indices.py
+          echo "✅ Pipeline de índices concluído"
+
+      - name: Verificar Arquivos Gerados
+        run: |
+          echo "📁 Verificando arquivos gerados..."
+          ls -la dados/ | head -10
+          echo "📊 Total de arquivos CSV: $(find dados/ -name '*.csv' | wc -l)"
+          echo "📄 Arquivos de status:"
+          ls -la dados/*.json 2>/dev/null || echo "Nenhum arquivo de status encontrado"
 
       - name: Commit dos Arquivos de Dados
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add dados/
-          git diff --quiet && git diff --staged --quiet || git commit -m "Atualização automática dos dados históricos"
+          git diff --quiet && git diff --staged --quiet || git commit -m "📊 Atualização automática dos dados históricos - $(date '+%Y-%m-%d %H:%M')"
           
       - name: Push das Alterações
         uses: ad-m/github-push-action@master
