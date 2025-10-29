@@ -1910,8 +1910,8 @@ st.markdown("""
         background-color: transparent !important;
     }
     
-    /* ===== ESTILOS CONSOLIDADOS PARA TÍTULOS E TEXTO ===== */
-    /* Forçar cor clara em TODOS os elementos de texto */
+    /* ===== ESTILOS ULTRA-AGRESSIVOS PARA TÍTULOS E TEXTO ===== */
+    /* Forçar cor clara em TODOS os elementos de texto - MÁXIMA ESPECIFICIDADE */
     .main .stMarkdown p,
     .main .stMarkdown div,
     .main .stMarkdown span,
@@ -1920,12 +1920,16 @@ st.markdown("""
     .main .stMarkdown h3,
     .main .stMarkdown h4,
     .main .stMarkdown h5,
-    .main .stMarkdown h6 {
+    .main .stMarkdown h6,
+    .main .stMarkdown strong,
+    .main .stMarkdown b,
+    .main .stMarkdown em,
+    .main .stMarkdown i {
         color: #edf3f3 !important;
         background-color: transparent !important;
     }
     
-    /* Títulos específicos do dashboard */
+    /* Seletores mais específicos para títulos */
     .main .stMarkdown:contains("Composição da Carteira Ótima"),
     .main .stMarkdown:contains("Análise da Carteira"),
     .main .stMarkdown:contains("Composição da Carteira"),
@@ -1934,7 +1938,43 @@ st.markdown("""
     .main .stMarkdown:contains("Projeção de Patrimônio"),
     .main .stMarkdown:contains("Resumo dos Cenários"),
     .main .stMarkdown:contains("Fronteira Eficiente"),
-    .main .stMarkdown:contains("Guia de Investimento") {
+    .main .stMarkdown:contains("Guia de Investimento"),
+    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
+    .main .stMarkdown:contains("Análise da Carteira de"),
+    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
+    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
+    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Forçar cor em TODOS os elementos de texto do main */
+    .main * {
+        color: #edf3f3 !important;
+    }
+    
+    /* Exceções para elementos específicos que devem manter outras cores */
+    .main .stMultiSelect *,
+    .main .stSelectbox *,
+    .main .stDateInput *,
+    .main .stNumberInput *,
+    .main .stSlider *,
+    .main .stRadio *,
+    .main .stCheckbox * {
+        color: inherit !important;
+    }
+    
+    /* Títulos específicos com seletores de texto */
+    .main .stMarkdown p:contains("Composição da Carteira Ótima"),
+    .main .stMarkdown p:contains("Análise da Carteira"),
+    .main .stMarkdown p:contains("Composição da Carteira"),
+    .main .stMarkdown p:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown p:contains("Métricas dos Ativos"),
+    .main .stMarkdown p:contains("Projeção de Patrimônio"),
+    .main .stMarkdown p:contains("Resumo dos Cenários"),
+    .main .stMarkdown p:contains("Fronteira Eficiente"),
+    .main .stMarkdown p:contains("Guia de Investimento") {
         color: #edf3f3 !important;
         font-weight: 700 !important;
         background-color: transparent !important;
@@ -1944,6 +1984,146 @@ st.markdown("""
     .stContainer .stMarkdown,
     .stContainer .stMarkdown p {
         color: var(--ciano-branco) !important;
+    }
+    
+    /* ===== FORÇAR COR EM TODOS OS TÍTULOS - MÁXIMA ESPECIFICIDADE ===== */
+    /* Seletores ultra-específicos para títulos */
+    .main .stMarkdown h1,
+    .main .stMarkdown h2,
+    .main .stMarkdown h3,
+    .main .stMarkdown h4,
+    .main .stMarkdown h5,
+    .main .stMarkdown h6,
+    .main .stMarkdown strong,
+    .main .stMarkdown b {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Forçar cor em todos os elementos de texto do main */
+    .main .stMarkdown,
+    .main .stMarkdown * {
+        color: #edf3f3 !important;
+    }
+    
+    /* Seletores específicos para títulos com texto */
+    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
+    .main .stMarkdown:contains("Análise da Carteira de"),
+    .main .stMarkdown:contains("Composição da Carteira"),
+    .main .stMarkdown:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown:contains("Métricas dos Ativos"),
+    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
+    .main .stMarkdown:contains("Resumo dos Cenários"),
+    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
+    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Forçar cor em todos os parágrafos */
+    .main .stMarkdown p {
+        color: #edf3f3 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Seletores universais para garantir que funcione */
+    .main * {
+        color: #edf3f3 !important;
+    }
+    
+    /* Exceções para elementos de input que devem manter cores específicas */
+    .main .stMultiSelect,
+    .main .stSelectbox,
+    .main .stDateInput,
+    .main .stNumberInput,
+    .main .stSlider,
+    .main .stRadio,
+    .main .stCheckbox,
+    .main .stButton {
+        color: inherit !important;
+    }
+    
+    .main .stMultiSelect *,
+    .main .stSelectbox *,
+    .main .stDateInput *,
+    .main .stNumberInput *,
+    .main .stSlider *,
+    .main .stRadio *,
+    .main .stCheckbox *,
+    .main .stButton * {
+        color: inherit !important;
+    }
+    
+    /* ===== ESTILOS ULTRA-ESPECÍFICOS PARA TÍTULOS ===== */
+    /* Forçar cor em todos os títulos com seletores mais específicos */
+    .main .stMarkdown h1,
+    .main .stMarkdown h2,
+    .main .stMarkdown h3,
+    .main .stMarkdown h4,
+    .main .stMarkdown h5,
+    .main .stMarkdown h6 {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Forçar cor em todos os elementos de texto */
+    .main .stMarkdown p,
+    .main .stMarkdown div,
+    .main .stMarkdown span {
+        color: #edf3f3 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Seletores específicos para títulos com texto exato */
+    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
+    .main .stMarkdown:contains("Análise da Carteira de"),
+    .main .stMarkdown:contains("Composição da Carteira"),
+    .main .stMarkdown:contains("Carteira vs. Benchmark"),
+    .main .stMarkdown:contains("Métricas dos Ativos"),
+    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
+    .main .stMarkdown:contains("Resumo dos Cenários"),
+    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
+    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+        background-color: transparent !important;
+    }
+    
+    /* Forçar cor em todos os elementos de texto do main */
+    .main .stMarkdown,
+    .main .stMarkdown * {
+        color: #edf3f3 !important;
+    }
+    
+    /* Seletores universais para garantir que funcione */
+    .main * {
+        color: #edf3f3 !important;
+    }
+    
+    /* Exceções para elementos de input */
+    .main .stMultiSelect,
+    .main .stSelectbox,
+    .main .stDateInput,
+    .main .stNumberInput,
+    .main .stSlider,
+    .main .stRadio,
+    .main .stCheckbox,
+    .main .stButton {
+        color: inherit !important;
+    }
+    
+    .main .stMultiSelect *,
+    .main .stSelectbox *,
+    .main .stDateInput *,
+    .main .stNumberInput *,
+    .main .stSlider *,
+    .main .stRadio *,
+    .main .stCheckbox *,
+    .main .stButton * {
+        color: inherit !important;
     }
     
     /* Alertas e mensagens */
@@ -2866,7 +3046,7 @@ if st.session_state.get("authentication_status"):
             try:
                 # Carregar dados do benchmark
                 df_bench = pd.read_csv(caminho_bench, index_col='Date', parse_dates=True)
-                
+
                 # Garantir que os dados são numéricos
                 df_bench['Close'] = pd.to_numeric(df_bench['Close'], errors='coerce')
                 df_portfolio['Carteira'] = pd.to_numeric(df_portfolio['Carteira'], errors='coerce')
@@ -2895,21 +3075,21 @@ if st.session_state.get("authentication_status"):
                             st.warning(f"Dados insuficientes para calcular retornos do benchmark '{benchmark_selecionado}' no período.")
                         else:
                             df_acumulado = (1 + retornos_diarios_comp).cumprod() * 100
-                            df_acumulado.iloc[0] = 100
-                            fig_desempenho = go.Figure()
-                            fig_desempenho.add_trace(
-                                go.Scatter(x=df_acumulado.index, y=df_acumulado['Carteira'], mode='lines',
-                                           name='Minha Carteira'))
-                            fig_desempenho.add_trace(go.Scatter(x=df_acumulado.index, y=df_acumulado['Benchmark'], mode='lines',
-                                                                name=benchmark_selecionado))
-                            fig_desempenho.update_layout(
-                                title_text='Desempenho Comparativo (Base 100)', 
-                                template='plotly_dark',
-                                paper_bgcolor='rgba(0,0,0,0)',
-                                plot_bgcolor='rgba(0,0,0,0)',
-                                font=dict(color='white')
-                            )
-                            st.plotly_chart(fig_desempenho, use_container_width=True)
+                    df_acumulado.iloc[0] = 100
+                    fig_desempenho = go.Figure()
+                    fig_desempenho.add_trace(
+                        go.Scatter(x=df_acumulado.index, y=df_acumulado['Carteira'], mode='lines',
+                                   name='Minha Carteira'))
+                    fig_desempenho.add_trace(go.Scatter(x=df_acumulado.index, y=df_acumulado['Benchmark'], mode='lines',
+                                                        name=benchmark_selecionado))
+                    fig_desempenho.update_layout(
+                        title_text='Desempenho Comparativo (Base 100)', 
+                        template='plotly_dark',
+                        paper_bgcolor='rgba(0,0,0,0)',
+                        plot_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='white')
+                    )
+                    st.plotly_chart(fig_desempenho, use_container_width=True)
             except Exception as e:
                 st.error(
                     f"Não foi possível carregar ou processar os dados do benchmark '{benchmark_selecionado}'. Verifique o arquivo .csv. Erro: {e}")
@@ -3497,20 +3677,20 @@ if st.session_state.get("authentication_status"):
                         <div style="font-weight: 700; font-size: 18px;">Cenário Atual</div>
                         <div style="font-weight: 700; font-size: 18px;">R$ {investimento_inicial:,.2f}</div>
                         <div style="color: #eccf75; font-size: 16px;">↑ 0.00%</div>
-                    </div>
-                    
+                        </div>
+                        
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eccf75;">
                         <div style="font-weight: 700; font-size: 18px;">Esperado</div>
                         <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['mediano']:,.2f}</div>
                         <div style="color: #eccf75; font-size: 16px;">↑ {retorno_mediano_pct:.2f}%</div>
-                    </div>
-                    
+                        </div>
+                        
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eccf75;">
                         <div style="font-weight: 700; font-size: 18px;">Otimista</div>
                         <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['melhor']:,.2f}</div>
                         <div style="color: #eccf75; font-size: 16px;">↑ {retorno_otimista_pct:.2f}%</div>
-                    </div>
-                    
+                        </div>
+                        
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
                         <div style="font-weight: 700; font-size: 18px;">Pessimista</div>
                         <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['pior']:,.2f}</div>

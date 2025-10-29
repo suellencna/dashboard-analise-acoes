@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-10-29T15:00:13.406398",
+  "pasta_dados": "dados",
+  "periodo_inicio": "2015-11-01T15:00:10.097821",
+  "periodo_fim": "2025-10-29T15:00:10.097821",
+  "investpy_disponivel": true,
+  "tipo_coleta": "indices_ifix_idiv",
+  "status": "concluido"
+}

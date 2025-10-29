@@ -22,13 +22,6 @@ except ImportError:
     print("⚠️ Aviso: python-bcb não disponível. Usando dados simulados para CDI/IPCA.")
     BCB_AVAILABLE = False
 
-# Tentar importar investpy, mas continuar se não estiver disponível
-try:
-    import investpy
-    INVESTPY_AVAILABLE = True
-except ImportError:
-    print("⚠️ Aviso: investpy não disponível. Pulando coleta de IFIX/IDIV.")
-    INVESTPY_AVAILABLE = False
 
 # --- CONFIGURAÇÃO ---
 PASTA_OUTPUT = "dados"
@@ -254,92 +247,6 @@ def coletar_dados_yfinance(tickers, pasta_destino):
     
     return sucessos > 0
 
-def coletar_ifix_idiv():
-    """Coleta dados do IFIX e IDIV usando investpy com retry logic"""
-    if not INVESTPY_AVAILABLE:
-        print("⚠️ investpy não disponível, pulando coleta de IFIX/IDIV...")
-        return False
-    
-    print("🔄 Coletando dados do IFIX e IDIV...")
-    
-    # Mapear índices do investpy para nossos nomes de arquivo
-    indices_config = {
-        'BM&FBOVESPA Real Estate IFIX': 'IFIX.SA.csv',
-        'Bovespa Dividend': 'IDIV.SA.csv'
-    }
-    
-    # Formatar datas para o investpy (dd/mm/yyyy)
-    end_str = end_date.strftime('%d/%m/%Y')
-    start_str = start_date.strftime('%d/%m/%Y')
-    
-    sucessos = 0
-    falhas = 0
-    
-    for index_name, output_filename in indices_config.items():
-        print(f"  📊 Coletando {index_name}...")
-        
-        tentativa = 0
-        sucesso_index = False
-        
-        while tentativa < MAX_RETRIES and not sucesso_index:
-            try:
-                if tentativa > 0:
-                    delay = RETRY_DELAY * 2 + random.uniform(0, 2)  # Delay maior para investpy
-                    print(f"    🔄 Tentativa {tentativa + 1}/{MAX_RETRIES} em {delay:.1f}s...")
-                    time.sleep(delay)
-                
-                # Baixar dados históricos
-                df = investpy.get_index_historical_data(
-                    index=index_name,
-                    country='brazil',
-                    from_date=start_str,
-                    to_date=end_str
-                )
-                
-                # Resetar o índice para transformar Date em coluna
-                df = df.reset_index()
-                
-                # Selecionar apenas as colunas necessárias (Date e Close)
-                df_limpo = df[['Date', 'Close']].copy()
-                
-                # Garantir que a data está no formato correto
-                df_limpo['Date'] = pd.to_datetime(df_limpo['Date'])
-                df_limpo['Date'] = df_limpo['Date'].dt.strftime('%Y-%m-%d')
-                
-                # Caminho completo do arquivo de saída
-                caminho_output = os.path.join(PASTA_OUTPUT, output_filename)
-                
-                # Salvar arquivo CSV
-                df_limpo.to_csv(caminho_output, index=False)
-                
-                print(f"    ✅ {output_filename}: {len(df_limpo)} registros")
-                sucessos += 1
-                sucesso_index = True
-                
-            except Exception as e:
-                tentativa += 1
-                error_msg = str(e)
-                
-                if "ERR#0015" in error_msg or "error 403" in error_msg:
-                    print(f"    ⚠️ {index_name}: Erro 403 - Rate limit do investpy")
-                    if tentativa < MAX_RETRIES:
-                        time.sleep(RETRY_DELAY * 3)  # Delay ainda maior para 403
-                        continue
-                    else:
-                        print(f"    ❌ {index_name}: Falha após {MAX_RETRIES} tentativas - Rate limit")
-                        break
-                elif tentativa < MAX_RETRIES:
-                    print(f"    ⚠️ {index_name}: Erro na tentativa {tentativa} - {error_msg}")
-                    continue
-                else:
-                    print(f"    ❌ {index_name}: Falha após {MAX_RETRIES} tentativas - {error_msg}")
-                    break
-        
-        if not sucesso_index:
-            falhas += 1
-    
-    print(f"✅ IFIX/IDIV: {sucessos} sucessos, {falhas} falhas")
-    return sucessos > 0
 
 def gerar_arquivo_status():
     """Gera arquivo de status da coleta"""
@@ -349,7 +256,6 @@ def gerar_arquivo_status():
         'periodo_inicio': start_date.isoformat(),
         'periodo_fim': end_date.isoformat(),
         'bcb_disponivel': BCB_AVAILABLE,
-        'investpy_disponivel': INVESTPY_AVAILABLE,
         'status': 'concluido'
     }
     
@@ -386,8 +292,6 @@ def main():
     # 4. Coletar dados do yfinance
     resultados.append(("yfinance", coletar_dados_yfinance(todos_tickers, PASTA_OUTPUT)))
     
-    # 5. Coletar dados do IFIX/IDIV
-    resultados.append(("IFIX/IDIV", coletar_ifix_idiv()))
     
     # 6. Gerar status
     gerar_arquivo_status()
