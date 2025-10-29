@@ -1721,14 +1721,6 @@ st.markdown("""
         font-size: 16px !important;
     }
     
-    /* Forçar cor dos títulos específicos */
-    .main .stMarkdown:contains("Visualizar por"),
-    .main .stMarkdown:contains("Selecione o Benchmark"),
-    .main .stMarkdown:contains("Composição da Carteira"),
-    .main .stMarkdown:contains("Carteira vs. Benchmark") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-    }
     
     /* ===== TEXTOS RECOLHÍVEIS (EXPANDERS) - CORES LEGÍVEIS ===== */
     /* Cabeçalho do expander */
@@ -1862,175 +1854,20 @@ st.markdown("""
         font-weight: 700 !important;
     }
     
-    /* Títulos específicos do dashboard - CORRIGIR CONTRASTE */
-    .main .stMarkdown:contains("Análise da Carteira"),
-    .main .stMarkdown:contains("Composição da Carteira"),
-    .main .stMarkdown:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown:contains("Fronteira Eficiente Markowitz"),
-    .main .stMarkdown:contains("Versão Híbrida de risco"),
-    .main .stMarkdown:contains("Simulação Monte Carlo"),
-    .main .stMarkdown:contains("Projeção de Patrimônio"),
-    .main .stMarkdown:contains("Desempenho Comparativo"),
-    .main .stMarkdown:contains("Composição da Carteira Ótima"),
-    .main .stMarkdown:contains("Métricas dos Ativos"),
-    .main .stMarkdown:contains("Resumo dos Cenários"),
-    .main .stMarkdown:contains("Guia de Investimento"),
-    .main .stMarkdown:contains("Carteira Atual vs Carteira Otimizada"),
-    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
-    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
-    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
-    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Títulos h1, h2, h3, h4, h5, h6 - FORÇAR COR CLARA */
+    /* ===== ESTILOS ÚNICOS E CONSOLIDADOS PARA TÍTULOS E TEXTO ===== */
+    /* COR CLARA #edf3f3 PARA TODOS OS TÍTULOS E TEXTO */
     .main h1, .main h2, .main h3, .main h4, .main h5, .main h6,
     .main .stMarkdown h1, .main .stMarkdown h2, .main .stMarkdown h3, 
     .main .stMarkdown h4, .main .stMarkdown h5, .main .stMarkdown h6,
-    .main .stSubheader,
-    .main [data-testid="stSubheader"] {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Títulos específicos com seletores mais amplos */
-    .main .stMarkdown p:contains("Análise da Carteira"),
-    .main .stMarkdown p:contains("Composição da Carteira"),
-    .main .stMarkdown p:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown p:contains("Métricas dos Ativos"),
-    .main .stMarkdown p:contains("Projeção de Patrimônio"),
-    .main .stMarkdown p:contains("Resumo dos Cenários"),
-    .main .stMarkdown p:contains("Fronteira Eficiente"),
-    .main .stMarkdown p:contains("Guia de Investimento") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* ===== ESTILOS ULTRA-AGRESSIVOS PARA TÍTULOS E TEXTO ===== */
-    /* Forçar cor clara em TODOS os elementos de texto - MÁXIMA ESPECIFICIDADE */
     .main .stMarkdown p,
     .main .stMarkdown div,
     .main .stMarkdown span,
-    .main .stMarkdown h1,
-    .main .stMarkdown h2,
-    .main .stMarkdown h3,
-    .main .stMarkdown h4,
-    .main .stMarkdown h5,
-    .main .stMarkdown h6,
     .main .stMarkdown strong,
     .main .stMarkdown b,
-    .main .stMarkdown em,
-    .main .stMarkdown i {
+    .main .stSubheader,
+    .main [data-testid="stSubheader"] {
         color: #edf3f3 !important;
         background-color: transparent !important;
-    }
-    
-    /* Seletores mais específicos para títulos */
-    .main .stMarkdown:contains("Composição da Carteira Ótima"),
-    .main .stMarkdown:contains("Análise da Carteira"),
-    .main .stMarkdown:contains("Composição da Carteira"),
-    .main .stMarkdown:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown:contains("Métricas dos Ativos"),
-    .main .stMarkdown:contains("Projeção de Patrimônio"),
-    .main .stMarkdown:contains("Resumo dos Cenários"),
-    .main .stMarkdown:contains("Fronteira Eficiente"),
-    .main .stMarkdown:contains("Guia de Investimento"),
-    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
-    .main .stMarkdown:contains("Análise da Carteira de"),
-    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
-    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
-    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Forçar cor em TODOS os elementos de texto do main */
-    .main * {
-        color: #edf3f3 !important;
-    }
-    
-    /* Exceções para elementos específicos que devem manter outras cores */
-    .main .stMultiSelect *,
-    .main .stSelectbox *,
-    .main .stDateInput *,
-    .main .stNumberInput *,
-    .main .stSlider *,
-    .main .stRadio *,
-    .main .stCheckbox * {
-        color: inherit !important;
-    }
-    
-    /* Títulos específicos com seletores de texto */
-    .main .stMarkdown p:contains("Composição da Carteira Ótima"),
-    .main .stMarkdown p:contains("Análise da Carteira"),
-    .main .stMarkdown p:contains("Composição da Carteira"),
-    .main .stMarkdown p:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown p:contains("Métricas dos Ativos"),
-    .main .stMarkdown p:contains("Projeção de Patrimônio"),
-    .main .stMarkdown p:contains("Resumo dos Cenários"),
-    .main .stMarkdown p:contains("Fronteira Eficiente"),
-    .main .stMarkdown p:contains("Guia de Investimento") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Containers com texto */
-    .stContainer .stMarkdown,
-    .stContainer .stMarkdown p {
-        color: var(--ciano-branco) !important;
-    }
-    
-    /* ===== FORÇAR COR EM TODOS OS TÍTULOS - MÁXIMA ESPECIFICIDADE ===== */
-    /* Seletores ultra-específicos para títulos */
-    .main .stMarkdown h1,
-    .main .stMarkdown h2,
-    .main .stMarkdown h3,
-    .main .stMarkdown h4,
-    .main .stMarkdown h5,
-    .main .stMarkdown h6,
-    .main .stMarkdown strong,
-    .main .stMarkdown b {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Forçar cor em todos os elementos de texto do main */
-    .main .stMarkdown,
-    .main .stMarkdown * {
-        color: #edf3f3 !important;
-    }
-    
-    /* Seletores específicos para títulos com texto */
-    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
-    .main .stMarkdown:contains("Análise da Carteira de"),
-    .main .stMarkdown:contains("Composição da Carteira"),
-    .main .stMarkdown:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown:contains("Métricas dos Ativos"),
-    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
-    .main .stMarkdown:contains("Resumo dos Cenários"),
-    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
-    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Forçar cor em todos os parágrafos */
-    .main .stMarkdown p {
-        color: #edf3f3 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Seletores universais para garantir que funcione */
-    .main * {
-        color: #edf3f3 !important;
     }
     
     /* Exceções para elementos de input que devem manter cores específicas */
@@ -2056,74 +1893,10 @@ st.markdown("""
         color: inherit !important;
     }
     
-    /* ===== ESTILOS ULTRA-ESPECÍFICOS PARA TÍTULOS ===== */
-    /* Forçar cor em todos os títulos com seletores mais específicos */
-    .main .stMarkdown h1,
-    .main .stMarkdown h2,
-    .main .stMarkdown h3,
-    .main .stMarkdown h4,
-    .main .stMarkdown h5,
-    .main .stMarkdown h6 {
+    /* Containers com texto */
+    .stContainer .stMarkdown,
+    .stContainer .stMarkdown p {
         color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Forçar cor em todos os elementos de texto */
-    .main .stMarkdown p,
-    .main .stMarkdown div,
-    .main .stMarkdown span {
-        color: #edf3f3 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Seletores específicos para títulos com texto exato */
-    .main .stMarkdown:contains("Composição da Carteira Ótima (Markowitz + Risk Parity)"),
-    .main .stMarkdown:contains("Análise da Carteira de"),
-    .main .stMarkdown:contains("Composição da Carteira"),
-    .main .stMarkdown:contains("Carteira vs. Benchmark"),
-    .main .stMarkdown:contains("Métricas dos Ativos"),
-    .main .stMarkdown:contains("Projeção de Patrimônio Futuro (Monte Carlo)"),
-    .main .stMarkdown:contains("Resumo dos Cenários"),
-    .main .stMarkdown:contains("Fronteira Eficiente Markowitz (Versão Híbrida de risco)"),
-    .main .stMarkdown:contains("Guia de Investimento para a Carteira Ótima") {
-        color: #edf3f3 !important;
-        font-weight: 700 !important;
-        background-color: transparent !important;
-    }
-    
-    /* Forçar cor em todos os elementos de texto do main */
-    .main .stMarkdown,
-    .main .stMarkdown * {
-        color: #edf3f3 !important;
-    }
-    
-    /* Seletores universais para garantir que funcione */
-    .main * {
-        color: #edf3f3 !important;
-    }
-    
-    /* Exceções para elementos de input */
-    .main .stMultiSelect,
-    .main .stSelectbox,
-    .main .stDateInput,
-    .main .stNumberInput,
-    .main .stSlider,
-    .main .stRadio,
-    .main .stCheckbox,
-    .main .stButton {
-        color: inherit !important;
-    }
-    
-    .main .stMultiSelect *,
-    .main .stSelectbox *,
-    .main .stDateInput *,
-    .main .stNumberInput *,
-    .main .stSlider *,
-    .main .stRadio *,
-    .main .stCheckbox *,
-    .main .stButton * {
-        color: inherit !important;
     }
     
     /* Alertas e mensagens */
@@ -3656,48 +3429,23 @@ if st.session_state.get("authentication_status"):
                 # Calcula a data final da projeção
                 data_final_projecao = datetime.now().date() + timedelta(days=res_mc_text['anos'] * 365)
 
-                # 2. Exibe o resumo em uma única caixa com layout em linhas
-                st.markdown("### 📊 Resumo dos Cenários")
+                # 2. Exibe o resumo em uma única caixa usando componentes nativos
+                st.markdown("### Resumo dos Cenários")
                 
-                # Container com altura fixa de 400px
-                st.markdown(f"""
-                <div style="
-                    background-color: #303841;
-                    border: 2px solid #eccf75;
-                    border-radius: 12px;
-                    padding: 20px;
-                    margin: 10px 0;
-                    height: 400px;
-                    color: #edf3f3;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-around;
-                ">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eccf75;">
-                        <div style="font-weight: 700; font-size: 18px;">Cenário Atual</div>
-                        <div style="font-weight: 700; font-size: 18px;">R$ {investimento_inicial:,.2f}</div>
-                        <div style="color: #eccf75; font-size: 16px;">↑ 0.00%</div>
-                        </div>
-                        
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eccf75;">
-                        <div style="font-weight: 700; font-size: 18px;">Esperado</div>
-                        <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['mediano']:,.2f}</div>
-                        <div style="color: #eccf75; font-size: 16px;">↑ {retorno_mediano_pct:.2f}%</div>
-                        </div>
-                        
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eccf75;">
-                        <div style="font-weight: 700; font-size: 18px;">Otimista</div>
-                        <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['melhor']:,.2f}</div>
-                        <div style="color: #eccf75; font-size: 16px;">↑ {retorno_otimista_pct:.2f}%</div>
-                        </div>
-                        
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-                        <div style="font-weight: 700; font-size: 18px;">Pessimista</div>
-                        <div style="font-weight: 700; font-size: 18px;">R$ {res_mc_text['pior']:,.2f}</div>
-                        <div style="color: #eccf75; font-size: 16px;">↑ {retorno_pessimista_pct:.2f}%</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                # Criar DataFrame para exibição
+                df_resumo = pd.DataFrame({
+                    'Cenário': ['Cenário Atual', 'Esperado', 'Otimista', 'Pessimista'],
+                    'Valor': [
+                        f"R$ {investimento_inicial:,.2f}",
+                        f"R$ {res_mc_text['mediano']:,.2f}",
+                        f"R$ {res_mc_text['melhor']:,.2f}",
+                        f"R$ {res_mc_text['pior']:,.2f}"
+                    ],
+                    'Variação': ['↑ 0.00%', f"↑ {retorno_mediano_pct:.2f}%", f"↑ {retorno_otimista_pct:.2f}%", f"↑ {retorno_pessimista_pct:.2f}%"]
+                })
+                
+                # Exibir como tabela formatada
+                st.table(df_resumo)
             
             # Explicação do Monte Carlo com botão de recolher/expandir
             with st.expander("Como Ler o Gráfico da Simulação?", expanded=False):

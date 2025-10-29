@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-10-29T15:00:13.406398",
+  "timestamp": "2025-10-29T16:23:18.602083",
   "pasta_dados": "dados",
-  "periodo_inicio": "2015-11-01T15:00:10.097821",
-  "periodo_fim": "2025-10-29T15:00:10.097821",
-  "investpy_disponivel": true,
+  "periodo_inicio": "2015-11-01T16:23:17.401490",
+  "periodo_fim": "2025-10-29T16:23:17.401490",
+  "api_usada": "brapi.dev",
   "tipo_coleta": "indices_ifix_idiv",
   "status": "concluido"
 }
