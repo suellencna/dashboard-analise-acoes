@@ -20,32 +20,33 @@ st.set_page_config(page_title="Análise de Carteira", layout="wide")
 # Tema responsivo e adaptável ao sistema do usuário
 st.markdown("""
     <style>
-    /* ===== SISTEMA DE CORES UNIFORME - TEMA ESCURO OTIMIZADO ===== */
+    /* ===== SISTEMA DE CORES UNIFORME - NOVA PALETA ===== */
     :root {
-        /* Cores primárias - Amarelo vibrante para contraste */
-        --primary-color: #f39c12;
-        --primary-hover: #e67e22;
-        --secondary-color: #f1c40f;
-        --accent-color: #e74c3c;
+        /* Cores da paleta */
+        --azul-acinzentado: #303841;
+        --cinza-escuro: #73726e;
+        --cinza-claro: #969e9f;
+        --ciano-branco: #edf3f3;
+        --amarelo: #eccf75;
+        --amarelo-apagado: #d4ba69;
         
-        /* TEMA ESCURO UNIFORME - ALTO CONTRASTE */
-        --bg-primary: #1a1a1a;
-        --bg-secondary: #2d2d2d;
-        --bg-card: #2d2d2d;
-        --bg-sidebar: #2d2d2d;
+        /* TEMA UNIFORME - NOVA PALETA */
+        --bg-primary: var(--azul-acinzentado);
+        --bg-secondary: var(--cinza-escuro);
+        --bg-card: var(--cinza-escuro);
+        --bg-sidebar: var(--azul-acinzentado);
         
-        /* Cores de texto - ALTO CONTRASTE */
-        --text-primary: #ffffff;
-        --text-secondary: #e0e0e0;
-        --text-muted: #b0b0b0;
-        --text-white: #ffffff;
+        /* Cores de texto uniformes */
+        --text-primary: var(--ciano-branco);
+        --text-secondary: var(--cinza-claro);
+        --text-muted: var(--cinza-claro);
         
-        /* Cores de borda - VISÍVEIS */
-        --border-color: #404040;
-        --border-focus: var(--primary-color);
-        --border-strong: #505050;
+        /* Cores de borda uniformes */
+        --border-color: var(--cinza-claro);
+        --border-focus: var(--amarelo);
+        --border-strong: var(--cinza-claro);
         
-        /* Sombras para tema escuro */
+        /* Sombras uniformes para tema preto */
         --shadow-light: rgba(255, 255, 255, 0.1);
         --shadow-medium: rgba(255, 255, 255, 0.15);
         --shadow-heavy: rgba(255, 255, 255, 0.25);
@@ -621,14 +622,14 @@ st.markdown("""
         }
     }
     
-    /* ===== CAMPOS DE INPUT UNIFORMES - ALTO CONTRASTE ===== */
+    /* ===== CAMPOS DE INPUT UNIFORMES ===== */
     .stTextInput > div > div > input {
         background-color: var(--bg-card) !important;
         border: 2px solid var(--border-color) !important;
         border-radius: 12px !important;
         padding: 14px 16px !important;
         font-size: 16px !important;
-        color: var(--text-primary) !important;
+        color: var(--azul-acinzentado) !important;
         width: 100% !important;
         box-sizing: border-box !important;
         transition: all var(--transition-normal) !important;
@@ -754,34 +755,34 @@ st.markdown("""
     
     /* Garantir que placeholder seja visível */
     .stTextInput > div > div > input::placeholder {
-        color: var(--text-muted) !important;
+        color: var(--cinza-escuro) !important;
         opacity: 0.8 !important;
     }
     
     /* Garantir que texto digitado seja sempre visível */
     .stTextInput > div > div > input:not(:placeholder-shown) {
-        color: var(--text-primary) !important;
+        color: var(--azul-acinzentado) !important;
         font-weight: 600 !important;
     }
     
     /* ===== CORREÇÃO ESPECÍFICA PARA INPUTS DE LOGIN ===== */
     /* Forçar contraste correto nos inputs de login */
     .stSidebar .stTextInput > div > div > input {
-        background-color: var(--bg-card) !important;
-        color: var(--text-primary) !important;
+        background-color: #ffffff !important;
+        color: var(--azul-acinzentado) !important;
         border: 2px solid var(--border-color) !important;
     }
     
     .stSidebar .stTextInput > div > div > input::placeholder {
-        color: var(--text-muted) !important;
+        color: var(--cinza-escuro) !important;
         opacity: 0.7 !important;
     }
     
     /* Forçar visibilidade do ícone de ajuda nos inputs de login */
     .stSidebar .stTextInput > div > div > button[title] {
-        background-color: var(--primary-color) !important;
-        color: var(--bg-primary) !important;
-        border: 2px solid var(--primary-hover) !important;
+        background-color: var(--amarelo) !important;
+        color: var(--azul-acinzentado) !important;
+        border: 2px solid var(--amarelo-apagado) !important;
         border-radius: 50% !important;
         opacity: 1 !important;
         visibility: visible !important;
@@ -800,44 +801,44 @@ st.markdown("""
     }
     
     .stSidebar .stTextInput > div > div > button[title]:hover {
-        background-color: var(--primary-hover) !important;
-        color: var(--bg-primary) !important;
-        border-color: var(--primary-color) !important;
+        background-color: var(--amarelo-apagado) !important;
+        color: var(--azul-acinzentado) !important;
+        border-color: var(--amarelo) !important;
     }
     
     .stSidebar .stTextInput > div > div > button[title] svg {
-        fill: var(--bg-primary) !important;
-        stroke: var(--bg-primary) !important;
-        color: var(--bg-primary) !important;
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
+        color: var(--azul-acinzentado) !important;
         width: 18px !important;
         height: 18px !important;
     }
     
-    /* ===== CAMPOS DE INPUT - TEXTO CLARO ===== */
-    /* Forçar texto claro em todos os inputs para contraste */
+    /* ===== CAMPOS DE INPUT - TEXTO ESCURO ===== */
+    /* Forçar texto escuro em todos os inputs */
     .stTextInput input,
     .stNumberInput input,
     .stDateInput input,
     .stTextInput > div > div > input,
     .stNumberInput > div > div > input,
     .stDateInput > div > div > input {
-        color: var(--text-primary) !important;
+        color: var(--azul-acinzentado) !important;
         font-weight: 600 !important;
     }
     
-    /* Placeholder com cor visível */
+    /* Placeholder com cor mais escura */
     .stTextInput input::placeholder,
     .stNumberInput input::placeholder,
     .stDateInput input::placeholder {
-        color: var(--text-muted) !important;
+        color: var(--cinza-escuro) !important;
         opacity: 0.8 !important;
     }
     
-    /* Valores digitados - forçar cor clara */
+    /* Valores digitados - forçar cor escura */
     .stTextInput input[value],
     .stNumberInput input[value],
     .stDateInput input[value] {
-        color: var(--text-primary) !important;
+        color: var(--azul-acinzentado) !important;
         font-weight: 600 !important;
     }
     
@@ -848,7 +849,7 @@ st.markdown("""
     .stTextInput input:active,
     .stNumberInput input:active,
     .stDateInput input:active {
-        color: var(--text-primary) !important;
+        color: var(--azul-acinzentado) !important;
         font-weight: 600 !important;
     }
     
@@ -859,9 +860,9 @@ st.markdown("""
     .stNumberInput button[data-testid*="button"],
     .stNumberInput button[aria-label*="increment"],
     .stNumberInput button[aria-label*="decrement"] {
-        background-color: var(--primary-color) !important;
-        color: var(--bg-primary) !important;
-        border: 1px solid var(--primary-hover) !important;
+        background-color: var(--cinza-claro) !important;
+        color: var(--azul-acinzentado) !important;
+        border: 1px solid var(--border-color) !important;
         opacity: 1 !important;
         visibility: visible !important;
         display: block !important;
@@ -875,8 +876,8 @@ st.markdown("""
     .stNumberInput button[data-testid*="button"] svg,
     .stNumberInput button[aria-label*="increment"] svg,
     .stNumberInput button[aria-label*="decrement"] svg {
-        fill: var(--bg-primary) !important;
-        stroke: var(--bg-primary) !important;
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
         opacity: 1 !important;
         visibility: visible !important;
     }
@@ -887,9 +888,9 @@ st.markdown("""
     .stNumberInput button[data-testid*="button"]:hover,
     .stNumberInput button[aria-label*="increment"]:hover,
     .stNumberInput button[aria-label*="decrement"]:hover {
-        background-color: var(--primary-hover) !important;
-        color: var(--bg-primary) !important;
-        border-color: var(--primary-color) !important;
+        background-color: var(--amarelo) !important;
+        color: var(--azul-acinzentado) !important;
+        border-color: var(--amarelo-apagado) !important;
     }
     
     .stNumberInput button:hover svg,
@@ -897,8 +898,8 @@ st.markdown("""
     .stNumberInput button[data-testid*="button"]:hover svg,
     .stNumberInput button[aria-label*="increment"]:hover svg,
     .stNumberInput button[aria-label*="decrement"]:hover svg {
-        fill: var(--bg-primary) !important;
-        stroke: var(--bg-primary) !important;
+        fill: var(--azul-acinzentado) !important;
+        stroke: var(--azul-acinzentado) !important;
     }
     
     .stTextInput > div > div > input:focus {
@@ -1144,8 +1145,8 @@ st.markdown("""
     
     /* ===== BOTÕES COM NOVA PALETA ===== */
     .stButton > button {
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%) !important;
-        color: var(--bg-primary) !important;
+        background: linear-gradient(135deg, var(--amarelo) 0%, var(--amarelo-apagado) 100%) !important;
+        color: var(--azul-acinzentado) !important;
         border: none !important;
         border-radius: 12px !important;
         font-weight: 700 !important;
@@ -1154,7 +1155,7 @@ st.markdown("""
         font-size: 16px !important;
         min-height: 48px !important;
         transition: all var(--transition-normal) !important;
-        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(135, 206, 235, 0.3) !important;
         cursor: pointer !important;
         display: flex !important;
         align-items: center !important;
@@ -1385,11 +1386,22 @@ st.markdown("""
         }
     }
     
-    /* ===== TÍTULOS RESPONSIVOS ===== */
+    /* ===== TÍTULOS RESPONSIVOS - FORÇAR COR CIANO-BRANCO ===== */
     h1, h2, h3, h4, h5, h6 {
-        color: var(--text-primary) !important;
+        color: #edf3f3 !important;
         margin-bottom: 1rem !important;
         line-height: 1.3 !important;
+    }
+    
+    /* FORÇAR COR NOS TÍTULOS DENTRO DE MARKDOWN */
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
+    .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #edf3f3 !important;
+    }
+    
+    /* FORÇAR COR NOS TÍTULOS NA ÁREA PRINCIPAL */
+    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
+        color: #edf3f3 !important;
     }
     
     h1 {
@@ -1438,9 +1450,14 @@ st.markdown("""
         color: var(--text-primary) !important;
     }
     
-    /* Forçar visibilidade de todos os elementos de texto */
-    div, span, p, h1, h2, h3, h4, h5, h6, label, a, button {
+    /* Forçar visibilidade de elementos de texto - EXCETO TÍTULOS */
+    div, span, p, label, a, button {
         color: inherit !important;
+    }
+    
+    /* TÍTULOS SEMPRE CIANO-BRANCO - NÃO INHERIT */
+    h1, h2, h3, h4, h5, h6 {
+        color: #edf3f3 !important;
     }
     
     /* Garantir que links sejam visíveis */
@@ -1913,8 +1930,13 @@ st.markdown("""
         color: #edf3f3 !important;
     }
     
-    /* FORÇAR COR EM TODOS OS ELEMENTOS DO MAIN - MÁXIMA ESPECIFICIDADE */
-    .main * {
+    /* FORÇAR COR EM ELEMENTOS DE TEXTO DO MAIN - EXCETO WIDGETS */
+    .main p, .main span, .main div:not([class*="st"]):not([data-testid]) {
+        color: #edf3f3 !important;
+    }
+    
+    /* TÍTULOS SEMPRE COM COR CORRETA - NÃO PODEM SER SOBRESCRITOS */
+    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
         color: #edf3f3 !important;
     }
     
@@ -2072,6 +2094,27 @@ st.markdown("""
     /* Forçar cores em todos os elementos dos cards */
     .stMetric * {
         color: var(--ciano-branco) !important;
+    }
+    
+    /* ===== FORÇAR COR DOS TÍTULOS - PRIORIDADE MÁXIMA ===== */
+    /* Títulos em toda a aplicação */
+    h1, h2, h3, h4, h5, h6,
+    .main h1, .main h2, .main h3, .main h4, .main h5, .main h6,
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6,
+    .main .stMarkdown h1, .main .stMarkdown h2, .main .stMarkdown h3, 
+    .main .stMarkdown h4, .main .stMarkdown h5, .main .stMarkdown h6,
+    [data-testid="stHeader"], [data-testid="stSubheader"],
+    .main [data-testid="stHeader"], .main [data-testid="stSubheader"] {
+        color: #edf3f3 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Títulos dentro de containers */
+    .stContainer h1, .stContainer h2, .stContainer h3, 
+    .stContainer h4, .stContainer h5, .stContainer h6,
+    .stAlert h1, .stAlert h2, .stAlert h3, 
+    .stAlert h4, .stAlert h5, .stAlert h6 {
+        color: #edf3f3 !important;
     }
     
     /* ===== PRINT STYLES ===== */
