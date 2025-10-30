@@ -1,8 +1,17 @@
 {
-  "timestamp": "2025-10-29T14:57:45.193193",
+  "timestamp": "2025-10-30T09:26:21.576519",
   "pasta_dados": "dados",
-  "periodo_inicio": "2015-11-01T14:48:08.467981",
-  "periodo_fim": "2025-10-29T14:48:08.467981",
+  "periodo_inicio": "2015-11-02T09:21:19.401504",
+  "periodo_fim": "2025-10-30T09:21:19.401504",
   "bcb_disponivel": true,
-  "status": "concluido"
+  "status": "concluido",
+  "arquivos_gerados": 1897,
+  "tickers_problematicos": 0,
+  "configuracoes": {
+    "max_retries": 3,
+    "retry_delay": 2,
+    "batch_size": 50,
+    "timeout_seconds": 30,
+    "progressive_delay": true
+  }
 }
