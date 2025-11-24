@@ -1,8 +1,8 @@
 {
-  "timestamp": "2025-11-21T09:25:57.578374",
+  "timestamp": "2025-11-24T09:32:34.426713",
   "pasta_dados": "dados",
-  "periodo_inicio": "2015-11-24T09:25:56.470745",
-  "periodo_fim": "2025-11-21T09:25:56.470745",
+  "periodo_inicio": "2015-11-27T09:32:32.984529",
+  "periodo_fim": "2025-11-24T09:32:32.984529",
   "api_usada": "brapi.dev",
   "tipo_coleta": "indices_ifix_idiv",
   "status": "concluido"
